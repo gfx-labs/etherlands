@@ -26,11 +26,35 @@ func NewMemoryCache(ctx *context.Context) (*MemoryCache, error) {
 }
 
 func (M *MemoryCache) CachePlot(plot *types.Plot){
-	key_x := fmt.Sprintf("plot:%d:x",plot.ChainId())
+	key_x := fmt.Sprintf("plot:%d:x",plot.PlotId())
 	value_x := fmt.Sprintf("%d",plot.X())
-	key_z := fmt.Sprintf("plot:%d:z",plot.ChainId())
+	key_z := fmt.Sprintf("plot:%d:z",plot.PlotId())
 	value_z := fmt.Sprintf("%d",plot.Z())
 	key_coord := fmt.Sprintf("plot_coord:%d_%d",plot.X(),plot.Z())
-	value_coord := fmt.Sprintf("%d",plot.ChainId())
-	M.redis.Do(*M.ctx, radix.Cmd(nil,"MSET",key_x, value_x, key_z, value_z,key_coord,value_coord))
+	value_coord := fmt.Sprintf("%d",plot.PlotId())
+	//key_district := fmt.Sprintf("plot:%d:district",plot.PlotId())
+	value_district := fmt.Sprintf("%d",plot.DistrictId())
+
+	M.redis.Do(*M.ctx, radix.Cmd(nil,"MSET",
+	key_x, value_x,
+	key_z, value_z,
+	key_coord,value_coord))
+
+	M.redis.Do(*M.ctx, radix.Cmd(nil,"ZADD","districtZplot",value_district,value_coord))
+}
+
+
+func (M *MemoryCache) CacheDistrict(district *types.District){
+	key_one := fmt.Sprintf("district:%d:address",district.DistrictId())
+	//key_two := fmt.Sprintf(district.OwnerAddress() + ":%d:district",district.DistrictId())
+
+	M.redis.Do(*M.ctx, radix.Cmd(nil,"MSET",key_one,district.OwnerAddress()))
+}
+
+func (M *MemoryCache) CacheBlockNumber(blockNumber uint64) (error) {
+	return M.redis.Do(*M.ctx,radix.FlatCmd(nil,"SET","reader_last_block",blockNumber))
+}
+
+func (M *MemoryCache) GetBlockNumber(bn *uint64) (error){
+	return M.redis.Do(*M.ctx,radix.Cmd(bn,"GET","reader_last_block"))
 }

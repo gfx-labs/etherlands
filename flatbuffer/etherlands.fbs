@@ -16,7 +16,8 @@ table Gamer{
 }
 
 table Plot{
-  chain_id:uint64;
+  plot_id:uint64;
+  district_id:uint64;
   x:int64;
   z:int64;
 }

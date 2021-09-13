@@ -26,8 +26,16 @@ func (rcv *Team) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Team) Owner(obj *UUID) *UUID {
+func (rcv *Team) Name() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Team) Owner(obj *UUID) *UUID {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := o + rcv._tab.Pos
 		if obj == nil {
@@ -40,7 +48,7 @@ func (rcv *Team) Owner(obj *UUID) *UUID {
 }
 
 func (rcv *Team) Members(obj *UUID, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 16
@@ -51,7 +59,7 @@ func (rcv *Team) Members(obj *UUID, j int) bool {
 }
 
 func (rcv *Team) MembersLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -59,7 +67,7 @@ func (rcv *Team) MembersLength() int {
 }
 
 func (rcv *Team) Managers(obj *UUID, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 16
@@ -70,19 +78,11 @@ func (rcv *Team) Managers(obj *UUID, j int) bool {
 }
 
 func (rcv *Team) ManagersLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
 	return 0
-}
-
-func (rcv *Team) Name() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
 }
 
 func (rcv *Team) Districts(j int) uint64 {
@@ -154,23 +154,23 @@ func (rcv *Team) DefaultGroupPermissionsLength() int {
 func TeamStart(builder *flatbuffers.Builder) {
 	builder.StartObject(7)
 }
+func TeamAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
+}
 func TeamAddOwner(builder *flatbuffers.Builder, owner flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(0, flatbuffers.UOffsetT(owner), 0)
+	builder.PrependStructSlot(1, flatbuffers.UOffsetT(owner), 0)
 }
 func TeamAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(members), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(members), 0)
 }
 func TeamStartMembersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(16, numElems, 8)
 }
 func TeamAddManagers(builder *flatbuffers.Builder, managers flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(managers), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(managers), 0)
 }
 func TeamStartManagersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(16, numElems, 8)
-}
-func TeamAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(name), 0)
 }
 func TeamAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(districts), 0)

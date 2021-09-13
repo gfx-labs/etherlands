@@ -1,12 +1,14 @@
 package types
 
 import (
-  "encoding/binary"
-  "strconv"
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"strconv"
 
-  proto "github.com/gfx-labs/etherlands/proto"
-  flatbuffers "github.com/google/flatbuffers/go"
-  "github.com/google/uuid"
+	proto "github.com/gfx-labs/etherlands/proto"
+	flatbuffers "github.com/google/flatbuffers/go"
+	"github.com/google/uuid"
 )
 
 func BreakUUID(id uuid.UUID) (uint64, uint64) {
@@ -33,69 +35,88 @@ func (G *Gamer) Save() error{
   return WriteStruct("gamers",G.MinecraftId().String(),buf)
 }
 
-func (D *District) Save() error {
-  builder:=flatbuffers.NewBuilder(1024);
-  proto.DistrictStart(builder);
-  proto.DistrictAddChainId(builder, D.ChainId())
-  hi, lo := BreakUUID(D.Owner().MinecraftId())
-  owner_id := proto.CreateUUID(builder,hi,lo)
-  proto.DistrictAddOwnerUuid(builder, owner_id)
-  return nil
-}
-
 
 func LoadPlot(chain_id uint64) (*Plot, error){
   bytes, err := ReadStruct("plots", strconv.FormatUint(chain_id,10))
   if err != nil {
     return nil, err
   }
-  read_plot :=proto.GetRootAsPlot(bytes, 0)
+  if len(bytes) < 8 {
+    return nil, errors.New(fmt.Sprintf("Empty file for %d",chain_id))
+  }
+  read_plot := proto.GetRootAsPlot(bytes, 0)
   return NewPlot(
     read_plot.X(),
     read_plot.Z(),
-    read_plot.ChainId(),
+    read_plot.PlotId(),
+    read_plot.DistrictId(),
   ), nil
-
 }
 func (P *Plot) Save() error {
   builder := flatbuffers.NewBuilder(1024)
   proto.PlotStart(builder)
-  proto.PlotAddChainId(builder, P.ChainId())
+  proto.PlotAddPlotId(builder, P.PlotId())
+  proto.PlotAddDistrictId(builder, P.DistrictId())
   proto.PlotAddX(builder, P.X())
   proto.PlotAddZ(builder, P.Z())
   plot := proto.PlotEnd(builder)
   builder.Finish(plot)
 
   buf := builder.FinishedBytes()
-  return WriteStruct("plots",strconv.FormatUint(P.ChainId(), 10),buf)
+  return WriteStruct("plots",strconv.FormatUint(P.PlotId(), 10),buf)
 }
 
-func (D *District) save() error {
+func LoadDistrict(chain_id uint64) (*District, error){
+  bytes, err := ReadStruct("districts", strconv.FormatUint(chain_id,10))
+  if err != nil {
+    return nil, err
+  }
+  if len(bytes) < 8 {
+    return nil, errors.New(fmt.Sprintf("Empty file for %d",chain_id))
+  }
+  read_district := proto.GetRootAsDistrict(bytes, 0)
+  return NewDistrict(
+    read_district.ChainId(),
+    string(read_district.OwnerAddress()),
+  ), nil
+}
+
+
+func (D *District) Save() error {
   builder := flatbuffers.NewBuilder(1024)
 
   nickname_offset :=builder.CreateString(D.Nickname())
   proto.DistrictStartPlotsVector(builder, len(D.Plots()))
   for _, v := range D.Plots() {
-    builder.PrependUint64(v.ChainId())
+    builder.PrependUint64(v.PlotId())
   }
   plots_offset := builder.EndVector(len(D.Plots()))
-  owner_uuid_offset := BuildUUID(builder,D.Owner().MinecraftId())
-  owner_address_offset :=builder.CreateString(D.Nickname())
+  owner_address_offset :=builder.CreateString(D.OwnerAddress())
+
   player_permission_offset := BuildDistrictPlayerPermissionVector(builder,D.PlayerPermissions())
   group_permission_offset := BuildDistrictGroupPermissionVector(builder,D.GroupPermissions())
 
   proto.DistrictStart(builder)
 
-  proto.DistrictAddChainId(builder, D.ChainId())
+  proto.DistrictAddChainId(builder, D.DistrictId())
 
   proto.DistrictAddNickname(builder,nickname_offset)
-  proto.DistrictAddOwnerUuid(builder, owner_uuid_offset)
+
+  if(D.Owner() != nil){
+    owner_uuid_offset := BuildUUID(builder,D.Owner().MinecraftId())
+    proto.DistrictAddOwnerUuid(builder, owner_uuid_offset)
+  }
   proto.DistrictAddOwnerAddress(builder, owner_address_offset)
   proto.DistrictAddPlots(builder, plots_offset)
   proto.DistrictAddGroupPermissions(builder, group_permission_offset)
   proto.DistrictAddPlayerPermissions(builder, player_permission_offset)
 
-  return nil;
+  //finish
+  district_offset := proto.DistrictEnd(builder)
+  builder.Finish(district_offset)
+  buf := builder.FinishedBytes()
+
+  return WriteStruct("districts",strconv.FormatUint(D.DistrictId(),10),buf)
 }
 
 func (T *Team) Save() error {
@@ -108,7 +129,7 @@ func (T *Team) Save() error {
   // create districts vector
   proto.TeamStartDistrictsVector(builder, len(T.Districts()))
   for _, v := range T.Districts() {
-    builder.PrependUint64(v.ChainId())
+    builder.PrependUint64(v.DistrictId())
   }
   districts_offset := builder.EndVector(len(T.Districts()))
 

@@ -1,9 +1,14 @@
 package types
 
+import "sync"
+
 type Plot struct {
-  chainId uint64
   x       int64
   z       int64
+
+  plot_id uint64
+  district_id uint64
+  mutex sync.RWMutex
 }
 
 func (P *Plot) X() int64{
@@ -15,13 +20,20 @@ func (P *Plot) Z() int64{
   return P.z
 }
 
-func (P *Plot) ChainId() uint64 {
-  return P.chainId
+func (P *Plot) PlotId() uint64 {
+  return P.plot_id
 }
 
-func NewPlot(x, z int64, chainId uint64) (*Plot) {
+func (P *Plot) DistrictId() uint64 {
+  P.mutex.RLock()
+  defer P.mutex.RUnlock();
+  return P.district_id
+}
+
+func NewPlot(x, z int64, plotId, districtId uint64) (*Plot) {
   return &Plot{
-    chainId: chainId,
+    plot_id:plotId,
+    district_id:districtId,
     x:x,
     z:z,
   }

@@ -8,12 +8,13 @@ import (
 )
 
 type District struct{
-  chainId uint64
+  district_id uint64
+  owner *Gamer
+  owner_address string
 
   nickname string
   plots []*Plot
 
-  owner *Gamer
 
   playerPermissions PlayerPermissionMap
   groupPermissions GroupPermissionMap
@@ -21,37 +22,50 @@ type District struct{
   mutex sync.RWMutex
 }
 
-func (D *District) ChainId() uint64 {
-  return D.chainId
+func NewDistrict(id uint64, ownerAddress string) *District {
+  return &District{
+    district_id: id,
+    owner_address: ownerAddress,
+  }
+}
+
+func (D *District) DistrictId() uint64 {
+  return D.district_id
 }
 
 func (D *District) Nickname() string {
   D.mutex.RLock()
-  defer D.mutex.Unlock()
+  defer D.mutex.RUnlock()
+
   return D.nickname
+}
+func (D *District) OwnerAddress() (string){
+  D.mutex.RLock()
+  defer D.mutex.RUnlock()
+  return D.owner_address
 }
 
 func (D *District) Owner() (*Gamer){
   D.mutex.RLock()
-  defer D.mutex.Unlock()
+  defer D.mutex.RUnlock()
   return D.owner
 }
 
 func (D *District) Plots() []*Plot  {
   D.mutex.RLock()
-  defer D.mutex.Unlock()
+  defer D.mutex.RUnlock()
   return D.plots
 }
 
 func (D *District) PlayerPermissions() PlayerPermissionMap{
   D.mutex.RLock()
-  defer D.mutex.Unlock()
+  defer D.mutex.RUnlock()
   return D.playerPermissions
 }
 
 func (D *District) GroupPermissions() GroupPermissionMap{
   D.mutex.RLock()
-  defer D.mutex.Unlock()
+  defer D.mutex.RUnlock()
   return D.groupPermissions
 }
 
