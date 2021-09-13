@@ -1,0 +1,65 @@
+namespace Etherlands;
+
+enum AccessFlag:uint8 { None, Build, Destroy, Interact, Access}
+enum FlagValue:uint8 {None, Allow, Deny}
+
+
+struct UUID{
+  hi:uint64;
+  lo:uint64;
+}
+
+table Gamer{
+  minecraft_id:UUID;
+  nickname:string;
+  address:string;
+}
+
+table Plot{
+  chain_id:uint64;
+  x:int64;
+  z:int64;
+}
+
+table PlayerPermission {
+  minecraft_id:UUID;
+  flag:AccessFlag;
+  value:FlagValue;
+}
+
+table GroupPermission {
+  group:string;
+  flag:AccessFlag;
+  value:FlagValue;
+}
+
+table District {
+  chain_id:uint64;
+  nickname:string;
+  plots:[uint64];
+  owner_uuid:UUID;
+  owner_address:string;
+  player_permissions:[PlayerPermission];
+  group_permissions:[GroupPermission];
+}
+
+table Group {
+  name:string;
+  team:string;
+  members:[UUID];
+}
+
+table Team {
+
+  name:string;
+  owner:UUID;
+
+  members:[UUID];
+  managers:[UUID];
+
+
+  districts:[uint64];
+
+  default_player_permissions:[PlayerPermission];
+  default_group_permissions:[GroupPermission];
+}

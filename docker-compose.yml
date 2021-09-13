@@ -1,0 +1,7 @@
+redis:
+  image: redis:6-buster
+  command: redis-server /usr/local/etc/redis/redis.conf
+  volumes:
+    - ./redis:/usr/local/etc/redis
+  ports:
+    - 6379:6379
