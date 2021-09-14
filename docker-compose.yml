@@ -4,6 +4,5 @@ redis:
   volumes:
     - ./redis:/usr/local/etc/redis
     - ./db/redis:/data
-    - ./db/redis:/etc
   ports:
     - 6379:6379
