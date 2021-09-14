@@ -7,4 +7,3 @@ redis:
     - ./db/redis:/etc
   ports:
     - 6379:6379
-  user: "${UID}:${GID}"
