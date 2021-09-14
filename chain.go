@@ -112,6 +112,17 @@ func (D *DistrictConnection) GetDistrictInfo(district_id uint64) (*types.Distric
 	return types.NewDistrict(district_id, x.String()), nil
 }
 
+func (D *DistrictConnection) UpdateDistrictOwner(district *types.District) (error) {
+	big_id := big.NewInt(int64(district.DistrictId()))
+	district_owner, err := D.contract.OwnerOf(&bind.CallOpts{Pending:false},big_id)
+	if err != nil {
+		return err
+	}else{
+		district.SetOwnerAddress(district_owner.String())
+		return nil
+	}
+}
+
 func (D *DistrictConnection) GetTotalPlots() (uint64, error) {
 	b, err:= D.contract.TotalPlots(&bind.CallOpts{})
 	if(err != nil){

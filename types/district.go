@@ -45,6 +45,12 @@ func (D *District) OwnerAddress() (string){
   return D.owner_address
 }
 
+func (D *District) SetOwnerAddress(addr string) {
+  D.mutex.Lock()
+  defer D.mutex.Unlock()
+  D.owner_address = addr
+}
+
 func (D *District) Owner() (*Gamer){
   D.mutex.RLock()
   defer D.mutex.RUnlock()
@@ -77,7 +83,6 @@ func BuildDistrictGroupPermissionVector(builder *flatbuffers.Builder, target Gro
   }
   return builder.EndVector(len(gp_o))
 }
-
 
 func BuildDistrictPlayerPermissionVector(builder *flatbuffers.Builder, target PlayerPermissionMap) flatbuffers.UOffsetT{
   pp_o := BuildPlayerPermissions(builder, target)

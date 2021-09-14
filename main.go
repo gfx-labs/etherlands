@@ -64,6 +64,24 @@ func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 	}
 }
 
+func (E *EtherlandsContext) GetDistrict(id uint64) (*types.District) {
+	E.districts_lock.RLock()
+	defer E.districts_lock.RUnlock()
+	if value, ok := E.districts[id]; ok {
+		return value
+	}
+	return nil
+}
+func (E *EtherlandsContext) SetDistrict(district *types.District){
+	E.districts_lock.Lock()
+	defer E.districts_lock.Unlock()
+	if district != nil {
+		E.districts[district.DistrictId()] = district
+	}
+}
+
+
+
 
 
 
@@ -156,12 +174,20 @@ func (E *EtherlandsContext) process_events() {
 	for{
 		select{
 		case transfer_event :=<-E.chain_data.TransferEventChannel:
-			log.Println(transfer_event)
+			district := E.GetDistrict(transfer_event.district_id)
+			if district == nil{
+				district, err := E.chain_data.GetDistrictInfo(transfer_event.district_id)
+				if(err == nil){
+					E.SetDistrict(district)
+				}
+			}else{
+				E.chain_data.UpdateDistrictOwner(district);
+			}
 		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
 			plot := E.GetPlot(plot_transfer_event.plot_id)
 			if plot == nil {
 				plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
-				if err != nil{
+				if err == nil{
 					E.SetPlot(plot)
 				}
 				}else{
