@@ -181,6 +181,7 @@ func (E *EtherlandsContext) process_events() {
 					E.SetDistrict(district)
 				}
 			}else{
+				log.Println("updating district ", district.DistrictId())
 				E.chain_data.UpdateDistrictOwner(district);
 			}
 		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
