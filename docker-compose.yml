@@ -5,4 +5,4 @@ redis:
     - ./redis:/usr/local/etc/redis
     - ./db/redis:/data
   ports:
-    - 6379:6379
+    - 127.0.0.1:6379:6379
