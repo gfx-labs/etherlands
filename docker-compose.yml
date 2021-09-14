@@ -3,5 +3,6 @@ redis:
   command: redis-server /usr/local/etc/redis/redis.conf
   volumes:
     - ./redis:/usr/local/etc/redis
+    - ./db/redis:/data
   ports:
     - 6379:6379

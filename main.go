@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/gfx-labs/etherlands/types"
 )
@@ -25,11 +26,11 @@ func main() {
 
 	etherlands := EtherlandsContext{chain_data:conn, cache:cache}
 	etherlands.load()
-	etherlands.save()
 	go etherlands.process_events()
 	go etherlands.start_events()
 
 	fmt.Scanln();
+	etherlands.save()
 }
 
 type EtherlandsContext struct {
@@ -37,12 +38,36 @@ type EtherlandsContext struct {
 
 	cache *MemoryCache
 
+	plots_lock sync.RWMutex
 	plots map[uint64]*types.Plot
+
+	districts_lock sync.RWMutex
 	districts map[uint64]*types.District
 
 	best_plot uint64
 	best_district uint64
 }
+
+func (E *EtherlandsContext) GetPlot(id uint64) (*types.Plot) {
+	E.plots_lock.RLock()
+	defer E.plots_lock.RUnlock()
+	if value, ok := E.plots[id]; ok {
+		return value
+	}
+	return nil
+}
+func (E *EtherlandsContext) SetPlot(plot *types.Plot){
+	E.plots_lock.Lock()
+	defer E.plots_lock.Unlock()
+	if plot != nil {
+		E.plots[plot.PlotId()] = plot
+	}
+}
+
+
+
+
+
 
 
 func (E *EtherlandsContext) load() (error) {
@@ -133,9 +158,21 @@ func (E *EtherlandsContext) process_events() {
 		case transfer_event :=<-E.chain_data.TransferEventChannel:
 			log.Println(transfer_event)
 		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
-			log.Println(plot_transfer_event)
+			plot := E.GetPlot(plot_transfer_event.plot_id)
+			if plot == nil {
+				plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
+				if err != nil{
+					E.SetPlot(plot)
+				}
+				}else{
+				log.Println("updating plot ", plot.PlotId())
+				E.chain_data.UpdatePlotDistrict(plot)
+			}
 		case plot_creation_event :=<-E.chain_data.PlotCreationEventChannel:
-			log.Println(plot_creation_event)
+			plot, err := E.chain_data.GetPlotInfo(plot_creation_event.plot_id)
+			if err != nil{
+				E.SetPlot(plot)
+			}
 		}
 	}
 }
@@ -145,8 +182,15 @@ func (E* EtherlandsContext) start_events() {
 	for{
 		select {
 		case _ =<-query_event_timer:
-			log.Println("query for recent events from block",E.chain_data.best_block)
-			go E.chain_data.QueryRecentEvents()
+			go (func(){
+				log.Println("querying block",E.chain_data.best_block)
+				block, err := E.chain_data.QueryRecentEvents()
+				if err != nil{
+					log.Println(err)
+				}else{
+					E.cache.CacheBlockNumber(block)
+				}
+			})()
 		}
 	}
 }

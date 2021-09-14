@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	//"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -13,8 +14,9 @@ import (
 )
 
 const CONTRACT_ADDR = "0xc7B4Cdf2c8ff3FC94D4f9f882D86CE824e0FB985"
+const RPC_ADDR = "https://polygon-mainnet.g.alchemy.com/v2/mkvOLrm_XUrvBB5emIKb7AimZDOWct6c"
 const RPC_MAX = 1999
-const FIRST_BLOCK = 18702838
+const FIRST_BLOCK = 18792838
 
 type TransferEvent struct {
 	to string
@@ -51,7 +53,7 @@ type DistrictConnection struct {
 
 func NewDistrictConnection() (*DistrictConnection,error) {
 	ctx := context.Background();
-	client, err := ethclient.DialContext(ctx, "https://polygon-rpc.com")
+	client, err := ethclient.DialContext(ctx, RPC_ADDR)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +92,17 @@ func (D *DistrictConnection) GetPlotInfo(plot_id uint64) (*types.Plot, error) {
 	return types.NewPlot(x.Int64(),z.Int64(),plot_id, district_id.Uint64()), nil
 }
 
+func (D *DistrictConnection) UpdatePlotDistrict(plot *types.Plot) (error) {
+	big_id := big.NewInt(int64(plot.PlotId()))
+	district_id, err := D.contract.PlotDistrictOf(&bind.CallOpts{Pending:false},big_id)
+	if err != nil {
+		return err
+	}else{
+		plot.SetDistrictId(district_id.Uint64())
+		return nil
+	}
+}
+
 func (D *DistrictConnection) GetDistrictInfo(district_id uint64) (*types.District, error) {
 	big_id := big.NewInt(int64(district_id))
 	x, err := D.contract.OwnerOf(&bind.CallOpts{Pending:false},big_id)
@@ -126,10 +139,12 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 		target = current_block
 	}
 
+
 	transfer_logs, err := D.contract.FilterTransfer(&bind.FilterOpts{
 		Start: D.best_block,
 		End: &target,
 	},nil,nil,nil)
+
 	if err != nil {
 		return D.best_block, err
 	}
@@ -144,6 +159,7 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 		Start: D.best_block,
 		End: &target,
 	})
+
 	if err != nil {
 		return D.best_block, err
 	}
