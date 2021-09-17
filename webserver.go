@@ -31,7 +31,10 @@ type Attribute  struct {
 
 type PlotSearchResult struct {
 	IdArray []uint64 `json:"id_array"`
-	Count uint64 `json:"count"`
+	DistrictArray []uint64 `json:"district_array"`
+	LocationArray [][2]int64 `json:"location_array"`
+
+	Count int `json:"count"`
 }
 
 
@@ -69,18 +72,25 @@ func (E *EtherlandsContext) ServePlotQuery(w http.ResponseWriter, r *http.Reques
 	if (x2-x1+1)*(z2-z1+1) > LIMIT {
 		if sendFail(w, errors.New("query too large")) {return}
 	}
-	results := []uint64{}
+	id_array := []uint64{}
+	district_array := []uint64{}
+	location_array := [][2]int64{}
 	for x := x1; x <= x2; x++ {
 		for z := z1; z <= z2; z++ {
 			plot_id := E.SearchPlot(x,z)
 			if plot_id != nil{
-				results = append(results, plot_id.PlotId())
+				id_array = append(id_array, plot_id.PlotId())
+				district_array = append(district_array, plot_id.DistrictId())
+				location_array = append(location_array, [2]int64{plot_id.X(),plot_id.Z()})
 			}
 		}
 	}
-
-
-	pending, err:= json.Marshal(results)
+	pending, err:= json.Marshal(PlotSearchResult{
+		IdArray: id_array,
+		DistrictArray: district_array,
+		LocationArray: location_array,
+		Count: len(id_array),
+	})
 	if sendFail(w, err) {return}
 	w.Header().Add("Content-Type","application/json");
 	w.Write(pending)

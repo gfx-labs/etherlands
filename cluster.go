@@ -29,6 +29,10 @@ func (E *EtherlandsContext) Cluster(plot_ids []uint64) [][]plot_id{
 	return output
 }
 
+type ClusterMetadata struct {
+	OriginX int64 `json:"origin_x"`
+	OriginZ int64 `json:"origin_z"`
+}
 
 func find_neighbors(
 	clusters *map[plot_id]uint64,
