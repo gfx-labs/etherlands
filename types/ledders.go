@@ -9,7 +9,7 @@ func Create24Name(name string) [24]byte {
     if(i >= len(name)){
       fixed_name[i] = 0x00;
     }else{
-      fixed_name[i] = name[i];
+      fixed_name[i] = LedderString(string(name[i]));
     }
   }
   return fixed_name;
@@ -20,16 +20,22 @@ func Parse24Name(nickname [24]byte) string{
   for _, b := range nickname {
     if b == 0x00 {return base}
     if b >= 0x40 {return base}
-    base = base + ParseByte(b);
+    base = base + ParseLedder(b);
   }
   return base;
 }
 
-func ParseByte(b byte) string {
+func ParseLedder(b byte) string {
   if val, ok := keycode[b]; ok {
     return val;
   }
   return ""
+}
+func LedderString(s string) byte {
+  if val, ok := codekey[s]; ok {
+    return val;
+  }
+  return 0x00;
 }
 
 

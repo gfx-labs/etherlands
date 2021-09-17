@@ -101,7 +101,6 @@ func (E *EtherlandsContext) ServePlotQuery(w http.ResponseWriter, r *http.Reques
 		Count: len(id_array),
 	})
 	if sendFail(w, err) {return}
-	w.WriteHeader(200)
 	w.Header().Add("Content-Type","application/json");
 	w.Write(pending)
 }
@@ -143,7 +142,6 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	}
 	pending, err:= json.Marshal(metadata)
 	if sendFail(w,err) {return;}
-	w.WriteHeader(200)
 	w.Header().Add("Content-Type","application/json");
 	w.Write(pending)
 }

@@ -159,8 +159,6 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 	if current_block < target {
 		target = current_block
 	}
-
-
 	transfer_logs, err := D.contract.FilterTransfer(&bind.FilterOpts{
 		Start: D.best_block,
 		End: &target,

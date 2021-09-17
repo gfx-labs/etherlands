@@ -35,6 +35,12 @@ func (D *District) DistrictId() uint64 {
   return D.district_id
 }
 
+func (D *District) SetNickname(newName [24]byte){
+  D.mutex.Lock()
+  defer D.mutex.Unlock()
+  D.nickname = &newName
+}
+
 func (D *District) Nickname() *[24]byte {
   D.mutex.RLock()
   defer D.mutex.RUnlock()

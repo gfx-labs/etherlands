@@ -94,7 +94,12 @@ func (E *EtherlandsContext) SetDistrict(district *types.District){
 	E.districts_lock.Lock()
 	defer E.districts_lock.Unlock()
 	if district != nil {
-		E.districts[district.DistrictId()] = district
+		if val, ok := E.districts[district.DistrictId()]; ok {
+			E.districts[district.DistrictId()].SetOwnerAddress(val.OwnerAddress());
+			E.districts[district.DistrictId()].SetNickname(*(val.Nickname()));
+		}else{
+			E.districts[district.DistrictId()] = district
+		}
 	}
 }
 
@@ -217,6 +222,11 @@ func (E *EtherlandsContext) process_events() {
 			plot, err := E.chain_data.GetPlotInfo(plot_creation_event.plot_id)
 			if err != nil{
 				E.SetPlot(plot)
+			}
+		case district_name_event :=<-E.chain_data.DistrictNameEventChannel:
+			district, err := E.chain_data.GetDistrictInfo(district_name_event.district_id)
+			if err != nil{
+				E.SetDistrict(district)
 			}
 		}
 	}
