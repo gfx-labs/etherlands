@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math"
+
 	types "github.com/gfx-labs/etherlands/types"
 )
 
@@ -10,7 +12,10 @@ func (E *EtherlandsContext) Cluster(plot_ids []uint64) [][]plot_id{
 	result := make(map[plot_id]uint64);
 	db := make(map[plot_id]*types.Plot);
 	for _, v := range plot_ids {
-		db[v] = E.GetPlot(v)
+		plot, err:= E.GetPlot(v)
+		if(err == nil){
+			db[v] = plot
+		}
 	}
 	current_cluster := uint64(0)
 	for k := range db {
@@ -32,7 +37,62 @@ func (E *EtherlandsContext) Cluster(plot_ids []uint64) [][]plot_id{
 type ClusterMetadata struct {
 	OriginX int64 `json:"origin_x"`
 	OriginZ int64 `json:"origin_z"`
+	LengthX int64  `json:"length_x"`
+	LengthZ int64  `json:"length_z"`
+
+	Offsets [][2]int64 `json:"offsets"`
+	PlotIds []uint64 `json:"plot_ids"`
 }
+
+func (E *EtherlandsContext) GenerateClusterMetadata(plot_ids []uint64) []ClusterMetadata {
+	output := []ClusterMetadata{}
+	clustered := E.Cluster(plot_ids)
+	for _, cluster := range clustered {
+
+		var min_x int64 = math.MaxInt64
+		var max_x int64 = math.MinInt64
+
+		var min_z int64 = math.MaxInt64
+		var max_z int64 = math.MinInt64
+
+		for _, plot_id := range cluster{
+			plot, err := E.GetPlot(plot_id)
+			if(err == nil){
+				if min_x > plot.X() {
+					min_x = plot.X()
+				}
+				if max_x < plot.X() {
+					max_x = plot.X()
+				}
+				if min_z > plot.Z() {
+					min_z = plot.Z()
+				}
+				if max_z < plot.Z() {
+					max_z = plot.Z()
+				}
+			}
+		}
+		offsets := [][2]int64{}
+		ids := []uint64{}
+		for _, plot_id := range cluster {
+			plot, err := E.GetPlot(plot_id);
+			if(err == nil){
+				offsets = append(offsets, [2]int64{plot.X()-min_x,plot.Z()-min_z})
+				ids = append(ids, plot.PlotId());
+			}
+		}
+		output = append(output,ClusterMetadata{
+			OriginX: min_x,
+			OriginZ: min_z,
+			LengthX: 1+max_x-min_x,
+			LengthZ: 1+max_z-min_z,
+			Offsets:offsets,
+			PlotIds:ids,
+		})
+	}
+	return output
+}
+
 
 func find_neighbors(
 	clusters *map[plot_id]uint64,

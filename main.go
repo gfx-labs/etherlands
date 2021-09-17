@@ -53,23 +53,23 @@ type EtherlandsContext struct {
 	best_district uint64
 }
 
-func (E *EtherlandsContext) SearchPlot(x int64, z int64) (*types.Plot) {
+func (E *EtherlandsContext) SearchPlot(x int64, z int64) (*types.Plot, error) {
 	E.plots_lock.RLock()
 	defer E.plots_lock.RUnlock()
 	if value, ok := E.plot_location[[2]int64{x,z}]; ok {
 		return E.GetPlot(value)
 	}
-	return nil
+	return nil, errors.New("Plot not at location")
 }
 
 
-func (E *EtherlandsContext) GetPlot(id uint64) (*types.Plot) {
+func (E *EtherlandsContext) GetPlot(id uint64) (*types.Plot, error) {
 	E.plots_lock.RLock()
 	defer E.plots_lock.RUnlock()
 	if value, ok := E.plots[id]; ok {
-		return value
+		return value, nil
 	}
-	return nil
+	return nil, errors.New("Plot not found")
 }
 
 func (E *EtherlandsContext) SetPlot(plot *types.Plot){
@@ -203,8 +203,8 @@ func (E *EtherlandsContext) process_events() {
 				E.chain_data.UpdateDistrictOwner(district);
 			}
 		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
-			plot := E.GetPlot(plot_transfer_event.plot_id)
-			if plot == nil {
+			plot, err := E.GetPlot(plot_transfer_event.plot_id)
+			if err != nil {
 				plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
 				if err == nil{
 					E.SetPlot(plot)

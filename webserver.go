@@ -16,7 +16,7 @@ type DistrictMetadata struct {
 	Owner       string  `json:"owner"`
 	Name        string  `json:"name"`
 	Contains    []uint64   `json:"contains"`
-	Clusters    [][]uint64 `json:"clusters"`
+	Clusters    []ClusterMetadata `json:"clusters"`
 	Description string  `json:"description"`
 	Image       string  `json:"image"`
 	ExternalURL string  `json:"external_url"`
@@ -77,8 +77,8 @@ func (E *EtherlandsContext) ServePlotQuery(w http.ResponseWriter, r *http.Reques
 	location_array := [][2]int64{}
 	for x := x1; x <= x2; x++ {
 		for z := z1; z <= z2; z++ {
-			plot_id := E.SearchPlot(x,z)
-			if plot_id != nil{
+			plot_id, err := E.SearchPlot(x,z)
+			if err == nil{
 				id_array = append(id_array, plot_id.PlotId())
 				district_array = append(district_array, plot_id.DistrictId())
 				location_array = append(location_array, [2]int64{plot_id.X(),plot_id.Z()})
@@ -105,17 +105,15 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	if sendFail(w, err) {return}
 
 	count := E.plots_zset.GetKeysByScore(district_id)
-	clustered := E.Cluster(count);
+	clustered := E.GenerateClusterMetadata(count);
 
 	output := fmt.Sprintf("A District containing %d plots at locations", len(count))
 	for _, v := range count{
-		plot := E.GetPlot(v)
-		if(plot != nil){
+		plot, err := E.GetPlot(v)
+		if(err == nil){
 			output = fmt.Sprintf(output +", [%d,%d]", plot.X(), plot.Z())
 		}
 	}
-
-
 	district_attr := []Attribute{}
 	district_attr = append(district_attr,
 	Attribute{
