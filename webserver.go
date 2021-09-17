@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	types "github.com/gfx-labs/etherlands/types"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -40,7 +42,7 @@ type PlotSearchResult struct {
 
 func sendFail(w http.ResponseWriter, err error) bool{
 	if(err != nil){
-		w.WriteHeader(200)
+		w.WriteHeader(400)
 		w.Write([]byte(err.Error()))
 		return true
 	}
@@ -49,6 +51,13 @@ func sendFail(w http.ResponseWriter, err error) bool{
 
 const LIMIT = 1000*1000
 
+func (E *EtherlandsContext) Serve24Creator(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	name := ps.ByName("name")
+	encodedname := types.Create24Name(name)
+	hex_name := hexutil.Encode(encodedname[:])
+	w.WriteHeader(200)
+	w.Write([]byte(hex_name))
+}
 
 func (E *EtherlandsContext) ServePlotQuery(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	x1_string := ps.ByName("x1")
@@ -92,6 +101,7 @@ func (E *EtherlandsContext) ServePlotQuery(w http.ResponseWriter, r *http.Reques
 		Count: len(id_array),
 	})
 	if sendFail(w, err) {return}
+	w.WriteHeader(200)
 	w.Header().Add("Content-Type","application/json");
 	w.Write(pending)
 }
@@ -133,6 +143,7 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	}
 	pending, err:= json.Marshal(metadata)
 	if sendFail(w,err) {return;}
+	w.WriteHeader(200)
 	w.Header().Add("Content-Type","application/json");
 	w.Write(pending)
 }
@@ -144,6 +155,7 @@ func (E *EtherlandsContext) StartWebService() {
 	router := httprouter.New()
 	router.GET("/district/:id", E.ServeDistrictMetadata)
 	router.GET("/plot_query/:x1/:x2/:z1/:z2", E.ServePlotQuery)
+	router.GET("/encode_ledders/:name", E.Serve24Creator)
 	log.Println("now hosting web service at 10100")
 	http.ListenAndServe(":10100", router)
 }

@@ -16,7 +16,7 @@ import (
 const CONTRACT_ADDR = "0x8ed31d7ff5d2ffbf17fe3118a61123f50adb523a"
 const RPC_ADDR = "https://polygon-mainnet.g.alchemy.com/v2/mkvOLrm_XUrvBB5emIKb7AimZDOWct6c"
 const RPC_MAX = 1999
-const FIRST_BLOCK = 18792838
+const FIRST_BLOCK = 19194856
 
 type TransferEvent struct {
 	to string
