@@ -80,10 +80,10 @@ func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 			val.SetDistrictId(plot.DistrictId());
 		}else{
 			E.plots[plot.PlotId()] = plot
-			E.plot_location[plot.GetLocation()] = plot.PlotId()
-			E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
-			go E.cache.CachePlot(plot)
 		}
+		E.plot_location[plot.GetLocation()] = plot.PlotId()
+		E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
+		go E.cache.CachePlot(plot)
 	}
 }
 

@@ -155,5 +155,8 @@ func (E *EtherlandsContext) StartWebService() {
 	router.GET("/plot_query/:x1/:x2/:z1/:z2", E.ServePlotQuery)
 	router.GET("/encode_ledders/:name", E.Serve24Creator)
 	log.Println("now hosting web service at 10100")
-	http.ListenAndServe(":10100", router)
+	 err := http.ListenAndServe(":10100", router)
+	 if err != nil {
+		 log.Println("failed to start web service")
+	 }
 }
