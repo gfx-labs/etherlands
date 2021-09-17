@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -52,6 +53,16 @@ type EtherlandsContext struct {
 	best_district uint64
 }
 
+func (E *EtherlandsContext) SearchPlot(x int64, z int64) (*types.Plot) {
+	E.plots_lock.RLock()
+	defer E.plots_lock.RUnlock()
+	if value, ok := E.plot_location[[2]int64{x,z}]; ok {
+		return E.GetPlot(value)
+	}
+	return nil
+}
+
+
 func (E *EtherlandsContext) GetPlot(id uint64) (*types.Plot) {
 	E.plots_lock.RLock()
 	defer E.plots_lock.RUnlock()
@@ -71,13 +82,13 @@ func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 	}
 }
 
-func (E *EtherlandsContext) GetDistrict(id uint64) (*types.District) {
+func (E *EtherlandsContext) GetDistrict(id uint64) (*types.District, error) {
 	E.districts_lock.RLock()
 	defer E.districts_lock.RUnlock()
 	if value, ok := E.districts[id]; ok {
-		return value
+		return value, nil
 	}
-	return nil
+	return nil, errors.New(fmt.Sprintf("district %d not found", id))
 }
 func (E *EtherlandsContext) SetDistrict(district *types.District){
 	E.districts_lock.Lock()
@@ -181,8 +192,8 @@ func (E *EtherlandsContext) process_events() {
 	for{
 		select{
 		case transfer_event :=<-E.chain_data.TransferEventChannel:
-			district := E.GetDistrict(transfer_event.district_id)
-			if district == nil{
+			district, err := E.GetDistrict(transfer_event.district_id)
+			if err != nil{
 				district, err := E.chain_data.GetDistrictInfo(transfer_event.district_id)
 				if(err == nil){
 					E.SetDistrict(district)
