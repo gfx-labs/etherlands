@@ -35,6 +35,10 @@ func (P *Plot) SetDistrictId(id uint64){
   P.district_id = id
 }
 
+func (P *Plot) GetLocation() [2]int64{
+  return [2]int64{P.x,P.z}
+}
+
 func NewPlot(x, z int64, plotId, districtId uint64) (*Plot) {
   return &Plot{
     plot_id:plotId,

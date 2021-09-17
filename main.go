@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gfx-labs/etherlands/types"
+	"github.com/gfx-labs/etherlands/zset"
 )
 
 
@@ -28,7 +29,7 @@ func main() {
 	etherlands.load()
 	go etherlands.process_events()
 	go etherlands.start_events()
-
+	go etherlands.StartWebService()
 	fmt.Scanln();
 	etherlands.save()
 }
@@ -40,6 +41,9 @@ type EtherlandsContext struct {
 
 	plots_lock sync.RWMutex
 	plots map[uint64]*types.Plot
+	plot_location map[[2]int64]uint64
+
+	plots_zset *zset.ZSet
 
 	districts_lock sync.RWMutex
 	districts map[uint64]*types.District
@@ -56,11 +60,14 @@ func (E *EtherlandsContext) GetPlot(id uint64) (*types.Plot) {
 	}
 	return nil
 }
+
 func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 	E.plots_lock.Lock()
 	defer E.plots_lock.Unlock()
 	if plot != nil {
 		E.plots[plot.PlotId()] = plot
+		E.plot_location[plot.GetLocation()] = plot.PlotId()
+		E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
 	}
 }
 
@@ -81,16 +88,11 @@ func (E *EtherlandsContext) SetDistrict(district *types.District){
 }
 
 
-
-
-
-
-
-
-
 func (E *EtherlandsContext) load() (error) {
 	E.plots = make(map[uint64]*types.Plot)
+	E.plot_location = make(map[[2]int64]uint64)
 	E.districts = make(map[uint64]*types.District)
+	E.plots_zset = zset.CreateZSet()
 
 	var block_number uint64
 	E.cache.GetBlockNumber(&block_number);
@@ -102,7 +104,32 @@ func (E *EtherlandsContext) load() (error) {
 	if(err != nil) {
 		return err
 	}
+
+	total_districts, err := E.chain_data.GetTotalDistricts()
+	if(err != nil) {
+		return err
+	}
 	var i uint64;
+	for i = 1; i <= total_districts; i++ {
+		district, err := types.LoadDistrict(uint64(i))
+		if err != nil || district == nil{
+			log.Println(fmt.Sprintf("Did not find district %d in storage, querying chain",i))
+			district, err = E.chain_data.GetDistrictInfo(i)
+			if err != nil {
+				log.Println("Did not find information for district",i,"on chain")
+			}else{
+				district.Save();
+			}
+		}
+		E.districts[i] = district
+		if(district != nil){
+			go E.cache.CacheDistrict(district)
+			E.best_district = i
+			E.SetDistrict(district)
+		}
+	}
+
+
 	for i = 1; i <= total_plots; i++ {
 		plot, err := types.LoadPlot(uint64(i))
 		if err != nil || plot == nil{
@@ -119,30 +146,10 @@ func (E *EtherlandsContext) load() (error) {
 		if(plot != nil){
 			go E.cache.CachePlot(plot)
 			E.best_plot = i
+			E.SetPlot(plot)
 		}
 	}
 
-	total_districts, err := E.chain_data.GetTotalDistricts()
-	if(err != nil) {
-		return err
-	}
-	for i = 1; i <= total_districts; i++ {
-		district, err := types.LoadDistrict(uint64(i))
-		if err != nil || district == nil{
-			log.Println(fmt.Sprintf("Did not find district %d in storage, querying chain",i))
-			district, err = E.chain_data.GetDistrictInfo(i)
-			if err != nil {
-				log.Println("Did not find information for district",i,"on chain")
-			}else{
-				district.Save();
-			}
-		}
-		E.districts[i] = district
-		if(district != nil){
-			go E.cache.CacheDistrict(district)
-			E.best_district = i
-		}
-	}
 
 	return nil
 }

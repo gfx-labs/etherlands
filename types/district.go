@@ -13,7 +13,7 @@ type District struct{
   owner_address string
 
   nickname string
-  plots []*Plot
+  plots map[uint64]*Plot
 
 
   playerPermissions PlayerPermissionMap
@@ -57,7 +57,7 @@ func (D *District) Owner() (*Gamer){
   return D.owner
 }
 
-func (D *District) Plots() []*Plot  {
+func (D *District) Plots() map[uint64]*Plot  {
   D.mutex.RLock()
   defer D.mutex.RUnlock()
   return D.plots
