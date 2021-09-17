@@ -220,6 +220,6 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 		}
 	}
 
-	D.best_block = target
-	return target, nil
+	D.best_block = target + 1
+	return target + 1, nil
 }

@@ -99,9 +99,9 @@ func (E *EtherlandsContext) SetDistrict(district *types.District){
 	E.districts_lock.Lock()
 	defer E.districts_lock.Unlock()
 	if district != nil {
-		if val, ok := E.districts[district.DistrictId()]; ok {
-			val.SetOwnerAddress(district.OwnerAddress());
-			val.SetNickname(*(district.Nickname()));
+		if _, ok := E.districts[district.DistrictId()]; ok {
+			E.districts[district.DistrictId()].SetOwnerAddress(district.OwnerAddress());
+			E.districts[district.DistrictId()].SetNickname(*(district.Nickname()));
 		}else{
 			E.districts[district.DistrictId()] = district
 		}
@@ -213,13 +213,15 @@ func (E *EtherlandsContext) process_events() {
 				E.SetPlot(plot)
 			}
 		case plot_creation_event :=<-E.chain_data.PlotCreationEventChannel:
+			log.Println("updating plot ", plot_creation_event.plot_id)
 			plot, err := E.chain_data.GetPlotInfo(plot_creation_event.plot_id)
-			if err != nil{
+			if err == nil{
 				E.SetPlot(plot)
 			}
 		case district_name_event :=<-E.chain_data.DistrictNameEventChannel:
+			log.Println("updating district", district_name_event.district_id)
 			district, err := E.chain_data.GetDistrictInfo(district_name_event.district_id)
-			if err != nil{
+			if err == nil{
 				E.SetDistrict(district)
 			}
 		}
