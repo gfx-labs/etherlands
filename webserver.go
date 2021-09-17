@@ -123,7 +123,7 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	})
 	metadata := DistrictMetadata{
 		Owner: district.OwnerAddress(),
-		Name: district.Nickname(),
+		Name: district.StringName(),
 		Contains: count,
 		Clusters: clustered,
 		Description: output,

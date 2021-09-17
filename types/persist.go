@@ -75,9 +75,20 @@ func LoadDistrict(chain_id uint64) (*District, error){
     return nil, errors.New(fmt.Sprintf("Empty file for %d",chain_id))
   }
   read_district := proto.GetRootAsDistrict(bytes, 0)
+  slice_name := read_district.Nickname()
+  fixed_name := [24]byte{}
+  for i:=0; (i < len(slice_name)) && (i < 24); i++{
+    if(i >= len(slice_name)){
+      fixed_name[i] = 0;
+    }else{
+      fixed_name[i] = slice_name[i];
+    }
+  }
+
   return NewDistrict(
     read_district.ChainId(),
     string(read_district.OwnerAddress()),
+    fixed_name,
   ), nil
 }
 
@@ -85,7 +96,7 @@ func LoadDistrict(chain_id uint64) (*District, error){
 func (D *District) Save() error {
   builder := flatbuffers.NewBuilder(1024)
 
-  nickname_offset :=builder.CreateString(D.Nickname())
+  nickname_offset :=builder.CreateByteVector((D.Nickname())[:])
   proto.DistrictStartPlotsVector(builder, len(D.Plots()))
   for _, v := range D.Plots() {
     builder.PrependUint64(v.PlotId())

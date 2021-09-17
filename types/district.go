@@ -1,10 +1,11 @@
 package types
 
 import (
+	"fmt"
 	"sync"
 
+	proto "github.com/gfx-labs/etherlands/proto"
 	flatbuffers "github.com/google/flatbuffers/go"
-  proto "github.com/gfx-labs/etherlands/proto"
 )
 
 type District struct{
@@ -12,7 +13,7 @@ type District struct{
   owner *Gamer
   owner_address string
 
-  nickname string
+  nickname *[24]byte
   plots map[uint64]*Plot
 
 
@@ -22,10 +23,11 @@ type District struct{
   mutex sync.RWMutex
 }
 
-func NewDistrict(id uint64, ownerAddress string) *District {
+func NewDistrict(id uint64, ownerAddress string, nickname [24]byte) *District {
   return &District{
     district_id: id,
     owner_address: ownerAddress,
+    nickname: &nickname,
   }
 }
 
@@ -33,12 +35,20 @@ func (D *District) DistrictId() uint64 {
   return D.district_id
 }
 
-func (D *District) Nickname() string {
+func (D *District) Nickname() *[24]byte {
   D.mutex.RLock()
   defer D.mutex.RUnlock()
-
   return D.nickname
 }
+
+func (D *District) StringName() string {
+  pending := Parse24Name(*D.Nickname())
+  if pending == "" {
+    return fmt.Sprintf("#%d",D.district_id)
+  }
+  return pending;
+}
+
 func (D *District) OwnerAddress() (string){
   D.mutex.RLock()
   defer D.mutex.RUnlock()

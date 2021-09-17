@@ -30,7 +30,7 @@ var (
 
 // DistrictContractMetaData contains all meta data concerning the DistrictContract contract.
 var DistrictContractMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int128\",\"name\":\"x\",\"type\":\"int128\"},{\"indexed\":false,\"internalType\":\"int128\",\"name\":\"z\",\"type\":\"int128\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"plotId\",\"type\":\"uint256\"}],\"name\":\"PlotCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"origin_id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"target_id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"plotId\",\"type\":\"uint256\"}],\"name\":\"PlotTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"int128[]\",\"name\":\"_xs\",\"type\":\"int128[]\"},{\"internalType\":\"int128[]\",\"name\":\"_zs\",\"type\":\"int128[]\"},{\"internalType\":\"uint256\",\"name\":\"_districtId\",\"type\":\"uint256\"}],\"name\":\"adminClaim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int128[]\",\"name\":\"_xs\",\"type\":\"int128[]\"},{\"internalType\":\"int128[]\",\"name\":\"_zs\",\"type\":\"int128[]\"},{\"internalType\":\"uint256\",\"name\":\"_districtId\",\"type\":\"uint256\"}],\"name\":\"claimDistrictLands\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimable\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"districtPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_symbol\",\"type\":\"string\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isOperator\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotDistrictOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"},{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"name\":\"plotIdOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotPriceDistances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotPrices\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plot_x\",\"outputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plot_z\",\"outputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"_claimable\",\"type\":\"bool\"}],\"name\":\"setClaimable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_districtPrice\",\"type\":\"uint256\"}],\"name\":\"setDistrictPrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"_prices\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_distances\",\"type\":\"uint256[]\"}],\"name\":\"setPlotPrices\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_worldSize\",\"type\":\"uint128\"}],\"name\":\"setWorldSize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalPlots\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"origin_id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"target_id\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"plot_ids\",\"type\":\"uint256[]\"}],\"name\":\"transferPlot\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"worldSize\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"district_id\",\"type\":\"uint256\"}],\"name\":\"DistrictName\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"relayerAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"functionSignature\",\"type\":\"bytes\"}],\"name\":\"MetaTransactionExecuted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int128\",\"name\":\"x\",\"type\":\"int128\"},{\"indexed\":false,\"internalType\":\"int128\",\"name\":\"z\",\"type\":\"int128\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"plotId\",\"type\":\"uint256\"}],\"name\":\"PlotCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"origin_id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"target_id\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"plotId\",\"type\":\"uint256\"}],\"name\":\"PlotTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"ERC712_VERSION\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int128[]\",\"name\":\"_xs\",\"type\":\"int128[]\"},{\"internalType\":\"int128[]\",\"name\":\"_zs\",\"type\":\"int128[]\"},{\"internalType\":\"uint256\",\"name\":\"_districtId\",\"type\":\"uint256\"}],\"name\":\"adminClaim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int128[]\",\"name\":\"_xs\",\"type\":\"int128[]\"},{\"internalType\":\"int128[]\",\"name\":\"_zs\",\"type\":\"int128[]\"},{\"internalType\":\"uint256\",\"name\":\"_districtId\",\"type\":\"uint256\"},{\"internalType\":\"bytes24\",\"name\":\"_nickname\",\"type\":\"bytes24\"}],\"name\":\"claimDistrictLands\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimable\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"districtNameOf\",\"outputs\":[{\"internalType\":\"bytes24\",\"name\":\"\",\"type\":\"bytes24\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"districtPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"functionSignature\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"sigR\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"sigS\",\"type\":\"bytes32\"},{\"internalType\":\"uint8\",\"name\":\"sigV\",\"type\":\"uint8\"}],\"name\":\"executeMetaTransaction\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getChainId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDomainSeperator\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"getNonce\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_symbol\",\"type\":\"string\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isOperator\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes24\",\"name\":\"\",\"type\":\"bytes24\"}],\"name\":\"nameDistrictOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotDistrictOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"},{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"name\":\"plotIdOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotPriceDistances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plotPrices\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plot_x\",\"outputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"plot_z\",\"outputs\":[{\"internalType\":\"int128\",\"name\":\"\",\"type\":\"int128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"_claimable\",\"type\":\"bool\"}],\"name\":\"setClaimable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"district_id\",\"type\":\"uint256\"},{\"internalType\":\"bytes24\",\"name\":\"districtName\",\"type\":\"bytes24\"}],\"name\":\"setDistrictName\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_districtPrice\",\"type\":\"uint256\"}],\"name\":\"setDistrictPrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"_prices\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"_distances\",\"type\":\"uint256[]\"}],\"name\":\"setPlotPrices\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_worldSize\",\"type\":\"uint128\"}],\"name\":\"setWorldSize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalPlots\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"origin_id\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"target_id\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"plot_ids\",\"type\":\"uint256[]\"}],\"name\":\"transferPlot\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"worldSize\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // DistrictContractABI is the input ABI used to generate the binding from.
@@ -179,6 +179,37 @@ func (_DistrictContract *DistrictContractTransactorRaw) Transact(opts *bind.Tran
 	return _DistrictContract.Contract.contract.Transact(opts, method, params...)
 }
 
+// ERC712VERSION is a free data retrieval call binding the contract method 0x0f7e5970.
+//
+// Solidity: function ERC712_VERSION() view returns(string)
+func (_DistrictContract *DistrictContractCaller) ERC712VERSION(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "ERC712_VERSION")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// ERC712VERSION is a free data retrieval call binding the contract method 0x0f7e5970.
+//
+// Solidity: function ERC712_VERSION() view returns(string)
+func (_DistrictContract *DistrictContractSession) ERC712VERSION() (string, error) {
+	return _DistrictContract.Contract.ERC712VERSION(&_DistrictContract.CallOpts)
+}
+
+// ERC712VERSION is a free data retrieval call binding the contract method 0x0f7e5970.
+//
+// Solidity: function ERC712_VERSION() view returns(string)
+func (_DistrictContract *DistrictContractCallerSession) ERC712VERSION() (string, error) {
+	return _DistrictContract.Contract.ERC712VERSION(&_DistrictContract.CallOpts)
+}
+
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address owner) view returns(uint256)
@@ -239,6 +270,37 @@ func (_DistrictContract *DistrictContractSession) Claimable() (bool, error) {
 // Solidity: function claimable() view returns(bool)
 func (_DistrictContract *DistrictContractCallerSession) Claimable() (bool, error) {
 	return _DistrictContract.Contract.Claimable(&_DistrictContract.CallOpts)
+}
+
+// DistrictNameOf is a free data retrieval call binding the contract method 0x779fe02c.
+//
+// Solidity: function districtNameOf(uint256 ) view returns(bytes24)
+func (_DistrictContract *DistrictContractCaller) DistrictNameOf(opts *bind.CallOpts, arg0 *big.Int) ([24]byte, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "districtNameOf", arg0)
+
+	if err != nil {
+		return *new([24]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([24]byte)).(*[24]byte)
+
+	return out0, err
+
+}
+
+// DistrictNameOf is a free data retrieval call binding the contract method 0x779fe02c.
+//
+// Solidity: function districtNameOf(uint256 ) view returns(bytes24)
+func (_DistrictContract *DistrictContractSession) DistrictNameOf(arg0 *big.Int) ([24]byte, error) {
+	return _DistrictContract.Contract.DistrictNameOf(&_DistrictContract.CallOpts, arg0)
+}
+
+// DistrictNameOf is a free data retrieval call binding the contract method 0x779fe02c.
+//
+// Solidity: function districtNameOf(uint256 ) view returns(bytes24)
+func (_DistrictContract *DistrictContractCallerSession) DistrictNameOf(arg0 *big.Int) ([24]byte, error) {
+	return _DistrictContract.Contract.DistrictNameOf(&_DistrictContract.CallOpts, arg0)
 }
 
 // DistrictPrice is a free data retrieval call binding the contract method 0xfd58c368.
@@ -303,6 +365,99 @@ func (_DistrictContract *DistrictContractCallerSession) GetApproved(tokenId *big
 	return _DistrictContract.Contract.GetApproved(&_DistrictContract.CallOpts, tokenId)
 }
 
+// GetChainId is a free data retrieval call binding the contract method 0x3408e470.
+//
+// Solidity: function getChainId() view returns(uint256)
+func (_DistrictContract *DistrictContractCaller) GetChainId(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "getChainId")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetChainId is a free data retrieval call binding the contract method 0x3408e470.
+//
+// Solidity: function getChainId() view returns(uint256)
+func (_DistrictContract *DistrictContractSession) GetChainId() (*big.Int, error) {
+	return _DistrictContract.Contract.GetChainId(&_DistrictContract.CallOpts)
+}
+
+// GetChainId is a free data retrieval call binding the contract method 0x3408e470.
+//
+// Solidity: function getChainId() view returns(uint256)
+func (_DistrictContract *DistrictContractCallerSession) GetChainId() (*big.Int, error) {
+	return _DistrictContract.Contract.GetChainId(&_DistrictContract.CallOpts)
+}
+
+// GetDomainSeperator is a free data retrieval call binding the contract method 0x20379ee5.
+//
+// Solidity: function getDomainSeperator() view returns(bytes32)
+func (_DistrictContract *DistrictContractCaller) GetDomainSeperator(opts *bind.CallOpts) ([32]byte, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "getDomainSeperator")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// GetDomainSeperator is a free data retrieval call binding the contract method 0x20379ee5.
+//
+// Solidity: function getDomainSeperator() view returns(bytes32)
+func (_DistrictContract *DistrictContractSession) GetDomainSeperator() ([32]byte, error) {
+	return _DistrictContract.Contract.GetDomainSeperator(&_DistrictContract.CallOpts)
+}
+
+// GetDomainSeperator is a free data retrieval call binding the contract method 0x20379ee5.
+//
+// Solidity: function getDomainSeperator() view returns(bytes32)
+func (_DistrictContract *DistrictContractCallerSession) GetDomainSeperator() ([32]byte, error) {
+	return _DistrictContract.Contract.GetDomainSeperator(&_DistrictContract.CallOpts)
+}
+
+// GetNonce is a free data retrieval call binding the contract method 0x2d0335ab.
+//
+// Solidity: function getNonce(address user) view returns(uint256 nonce)
+func (_DistrictContract *DistrictContractCaller) GetNonce(opts *bind.CallOpts, user common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "getNonce", user)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetNonce is a free data retrieval call binding the contract method 0x2d0335ab.
+//
+// Solidity: function getNonce(address user) view returns(uint256 nonce)
+func (_DistrictContract *DistrictContractSession) GetNonce(user common.Address) (*big.Int, error) {
+	return _DistrictContract.Contract.GetNonce(&_DistrictContract.CallOpts, user)
+}
+
+// GetNonce is a free data retrieval call binding the contract method 0x2d0335ab.
+//
+// Solidity: function getNonce(address user) view returns(uint256 nonce)
+func (_DistrictContract *DistrictContractCallerSession) GetNonce(user common.Address) (*big.Int, error) {
+	return _DistrictContract.Contract.GetNonce(&_DistrictContract.CallOpts, user)
+}
+
 // IsApprovedForAll is a free data retrieval call binding the contract method 0xe985e9c5.
 //
 // Solidity: function isApprovedForAll(address _owner, address _operator) view returns(bool isOperator)
@@ -363,6 +518,37 @@ func (_DistrictContract *DistrictContractSession) Name() (string, error) {
 // Solidity: function name() view returns(string)
 func (_DistrictContract *DistrictContractCallerSession) Name() (string, error) {
 	return _DistrictContract.Contract.Name(&_DistrictContract.CallOpts)
+}
+
+// NameDistrictOf is a free data retrieval call binding the contract method 0xe98e860c.
+//
+// Solidity: function nameDistrictOf(bytes24 ) view returns(uint256)
+func (_DistrictContract *DistrictContractCaller) NameDistrictOf(opts *bind.CallOpts, arg0 [24]byte) (*big.Int, error) {
+	var out []interface{}
+	err := _DistrictContract.contract.Call(opts, &out, "nameDistrictOf", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// NameDistrictOf is a free data retrieval call binding the contract method 0xe98e860c.
+//
+// Solidity: function nameDistrictOf(bytes24 ) view returns(uint256)
+func (_DistrictContract *DistrictContractSession) NameDistrictOf(arg0 [24]byte) (*big.Int, error) {
+	return _DistrictContract.Contract.NameDistrictOf(&_DistrictContract.CallOpts, arg0)
+}
+
+// NameDistrictOf is a free data retrieval call binding the contract method 0xe98e860c.
+//
+// Solidity: function nameDistrictOf(bytes24 ) view returns(uint256)
+func (_DistrictContract *DistrictContractCallerSession) NameDistrictOf(arg0 [24]byte) (*big.Int, error) {
+	return _DistrictContract.Contract.NameDistrictOf(&_DistrictContract.CallOpts, arg0)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -841,25 +1027,46 @@ func (_DistrictContract *DistrictContractTransactorSession) Approve(to common.Ad
 	return _DistrictContract.Contract.Approve(&_DistrictContract.TransactOpts, to, tokenId)
 }
 
-// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x1bb8dc98.
+// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x4bf1e0e2.
 //
-// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId) payable returns()
-func (_DistrictContract *DistrictContractTransactor) ClaimDistrictLands(opts *bind.TransactOpts, _xs []*big.Int, _zs []*big.Int, _districtId *big.Int) (*types.Transaction, error) {
-	return _DistrictContract.contract.Transact(opts, "claimDistrictLands", _xs, _zs, _districtId)
+// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId, bytes24 _nickname) payable returns()
+func (_DistrictContract *DistrictContractTransactor) ClaimDistrictLands(opts *bind.TransactOpts, _xs []*big.Int, _zs []*big.Int, _districtId *big.Int, _nickname [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.contract.Transact(opts, "claimDistrictLands", _xs, _zs, _districtId, _nickname)
 }
 
-// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x1bb8dc98.
+// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x4bf1e0e2.
 //
-// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId) payable returns()
-func (_DistrictContract *DistrictContractSession) ClaimDistrictLands(_xs []*big.Int, _zs []*big.Int, _districtId *big.Int) (*types.Transaction, error) {
-	return _DistrictContract.Contract.ClaimDistrictLands(&_DistrictContract.TransactOpts, _xs, _zs, _districtId)
+// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId, bytes24 _nickname) payable returns()
+func (_DistrictContract *DistrictContractSession) ClaimDistrictLands(_xs []*big.Int, _zs []*big.Int, _districtId *big.Int, _nickname [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.Contract.ClaimDistrictLands(&_DistrictContract.TransactOpts, _xs, _zs, _districtId, _nickname)
 }
 
-// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x1bb8dc98.
+// ClaimDistrictLands is a paid mutator transaction binding the contract method 0x4bf1e0e2.
 //
-// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId) payable returns()
-func (_DistrictContract *DistrictContractTransactorSession) ClaimDistrictLands(_xs []*big.Int, _zs []*big.Int, _districtId *big.Int) (*types.Transaction, error) {
-	return _DistrictContract.Contract.ClaimDistrictLands(&_DistrictContract.TransactOpts, _xs, _zs, _districtId)
+// Solidity: function claimDistrictLands(int128[] _xs, int128[] _zs, uint256 _districtId, bytes24 _nickname) payable returns()
+func (_DistrictContract *DistrictContractTransactorSession) ClaimDistrictLands(_xs []*big.Int, _zs []*big.Int, _districtId *big.Int, _nickname [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.Contract.ClaimDistrictLands(&_DistrictContract.TransactOpts, _xs, _zs, _districtId, _nickname)
+}
+
+// ExecuteMetaTransaction is a paid mutator transaction binding the contract method 0x0c53c51c.
+//
+// Solidity: function executeMetaTransaction(address userAddress, bytes functionSignature, bytes32 sigR, bytes32 sigS, uint8 sigV) payable returns(bytes)
+func (_DistrictContract *DistrictContractTransactor) ExecuteMetaTransaction(opts *bind.TransactOpts, userAddress common.Address, functionSignature []byte, sigR [32]byte, sigS [32]byte, sigV uint8) (*types.Transaction, error) {
+	return _DistrictContract.contract.Transact(opts, "executeMetaTransaction", userAddress, functionSignature, sigR, sigS, sigV)
+}
+
+// ExecuteMetaTransaction is a paid mutator transaction binding the contract method 0x0c53c51c.
+//
+// Solidity: function executeMetaTransaction(address userAddress, bytes functionSignature, bytes32 sigR, bytes32 sigS, uint8 sigV) payable returns(bytes)
+func (_DistrictContract *DistrictContractSession) ExecuteMetaTransaction(userAddress common.Address, functionSignature []byte, sigR [32]byte, sigS [32]byte, sigV uint8) (*types.Transaction, error) {
+	return _DistrictContract.Contract.ExecuteMetaTransaction(&_DistrictContract.TransactOpts, userAddress, functionSignature, sigR, sigS, sigV)
+}
+
+// ExecuteMetaTransaction is a paid mutator transaction binding the contract method 0x0c53c51c.
+//
+// Solidity: function executeMetaTransaction(address userAddress, bytes functionSignature, bytes32 sigR, bytes32 sigS, uint8 sigV) payable returns(bytes)
+func (_DistrictContract *DistrictContractTransactorSession) ExecuteMetaTransaction(userAddress common.Address, functionSignature []byte, sigR [32]byte, sigS [32]byte, sigV uint8) (*types.Transaction, error) {
+	return _DistrictContract.Contract.ExecuteMetaTransaction(&_DistrictContract.TransactOpts, userAddress, functionSignature, sigR, sigS, sigV)
 }
 
 // Initialize is a paid mutator transaction binding the contract method 0x4cd88b76.
@@ -986,6 +1193,27 @@ func (_DistrictContract *DistrictContractSession) SetClaimable(_claimable bool) 
 // Solidity: function setClaimable(bool _claimable) returns()
 func (_DistrictContract *DistrictContractTransactorSession) SetClaimable(_claimable bool) (*types.Transaction, error) {
 	return _DistrictContract.Contract.SetClaimable(&_DistrictContract.TransactOpts, _claimable)
+}
+
+// SetDistrictName is a paid mutator transaction binding the contract method 0x960d82ae.
+//
+// Solidity: function setDistrictName(uint256 district_id, bytes24 districtName) returns()
+func (_DistrictContract *DistrictContractTransactor) SetDistrictName(opts *bind.TransactOpts, district_id *big.Int, districtName [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.contract.Transact(opts, "setDistrictName", district_id, districtName)
+}
+
+// SetDistrictName is a paid mutator transaction binding the contract method 0x960d82ae.
+//
+// Solidity: function setDistrictName(uint256 district_id, bytes24 districtName) returns()
+func (_DistrictContract *DistrictContractSession) SetDistrictName(district_id *big.Int, districtName [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.Contract.SetDistrictName(&_DistrictContract.TransactOpts, district_id, districtName)
+}
+
+// SetDistrictName is a paid mutator transaction binding the contract method 0x960d82ae.
+//
+// Solidity: function setDistrictName(uint256 district_id, bytes24 districtName) returns()
+func (_DistrictContract *DistrictContractTransactorSession) SetDistrictName(district_id *big.Int, districtName [24]byte) (*types.Transaction, error) {
+	return _DistrictContract.Contract.SetDistrictName(&_DistrictContract.TransactOpts, district_id, districtName)
 }
 
 // SetDistrictPrice is a paid mutator transaction binding the contract method 0x8c32f1f1.
@@ -1424,6 +1652,276 @@ func (_DistrictContract *DistrictContractFilterer) WatchApprovalForAll(opts *bin
 func (_DistrictContract *DistrictContractFilterer) ParseApprovalForAll(log types.Log) (*DistrictContractApprovalForAll, error) {
 	event := new(DistrictContractApprovalForAll)
 	if err := _DistrictContract.contract.UnpackLog(event, "ApprovalForAll", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// DistrictContractDistrictNameIterator is returned from FilterDistrictName and is used to iterate over the raw logs and unpacked data for DistrictName events raised by the DistrictContract contract.
+type DistrictContractDistrictNameIterator struct {
+	Event *DistrictContractDistrictName // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DistrictContractDistrictNameIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DistrictContractDistrictName)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DistrictContractDistrictName)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DistrictContractDistrictNameIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DistrictContractDistrictNameIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DistrictContractDistrictName represents a DistrictName event raised by the DistrictContract contract.
+type DistrictContractDistrictName struct {
+	DistrictId *big.Int
+	Raw        types.Log // Blockchain specific contextual infos
+}
+
+// FilterDistrictName is a free log retrieval operation binding the contract event 0x257242c53ca9802d7b970b3ae41707c259e0b36ccce43bc618cfe649768642b3.
+//
+// Solidity: event DistrictName(uint256 district_id)
+func (_DistrictContract *DistrictContractFilterer) FilterDistrictName(opts *bind.FilterOpts) (*DistrictContractDistrictNameIterator, error) {
+
+	logs, sub, err := _DistrictContract.contract.FilterLogs(opts, "DistrictName")
+	if err != nil {
+		return nil, err
+	}
+	return &DistrictContractDistrictNameIterator{contract: _DistrictContract.contract, event: "DistrictName", logs: logs, sub: sub}, nil
+}
+
+// WatchDistrictName is a free log subscription operation binding the contract event 0x257242c53ca9802d7b970b3ae41707c259e0b36ccce43bc618cfe649768642b3.
+//
+// Solidity: event DistrictName(uint256 district_id)
+func (_DistrictContract *DistrictContractFilterer) WatchDistrictName(opts *bind.WatchOpts, sink chan<- *DistrictContractDistrictName) (event.Subscription, error) {
+
+	logs, sub, err := _DistrictContract.contract.WatchLogs(opts, "DistrictName")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DistrictContractDistrictName)
+				if err := _DistrictContract.contract.UnpackLog(event, "DistrictName", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseDistrictName is a log parse operation binding the contract event 0x257242c53ca9802d7b970b3ae41707c259e0b36ccce43bc618cfe649768642b3.
+//
+// Solidity: event DistrictName(uint256 district_id)
+func (_DistrictContract *DistrictContractFilterer) ParseDistrictName(log types.Log) (*DistrictContractDistrictName, error) {
+	event := new(DistrictContractDistrictName)
+	if err := _DistrictContract.contract.UnpackLog(event, "DistrictName", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// DistrictContractMetaTransactionExecutedIterator is returned from FilterMetaTransactionExecuted and is used to iterate over the raw logs and unpacked data for MetaTransactionExecuted events raised by the DistrictContract contract.
+type DistrictContractMetaTransactionExecutedIterator struct {
+	Event *DistrictContractMetaTransactionExecuted // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DistrictContractMetaTransactionExecutedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DistrictContractMetaTransactionExecuted)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DistrictContractMetaTransactionExecuted)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DistrictContractMetaTransactionExecutedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DistrictContractMetaTransactionExecutedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DistrictContractMetaTransactionExecuted represents a MetaTransactionExecuted event raised by the DistrictContract contract.
+type DistrictContractMetaTransactionExecuted struct {
+	UserAddress       common.Address
+	RelayerAddress    common.Address
+	FunctionSignature []byte
+	Raw               types.Log // Blockchain specific contextual infos
+}
+
+// FilterMetaTransactionExecuted is a free log retrieval operation binding the contract event 0x5845892132946850460bff5a0083f71031bc5bf9aadcd40f1de79423eac9b10b.
+//
+// Solidity: event MetaTransactionExecuted(address userAddress, address relayerAddress, bytes functionSignature)
+func (_DistrictContract *DistrictContractFilterer) FilterMetaTransactionExecuted(opts *bind.FilterOpts) (*DistrictContractMetaTransactionExecutedIterator, error) {
+
+	logs, sub, err := _DistrictContract.contract.FilterLogs(opts, "MetaTransactionExecuted")
+	if err != nil {
+		return nil, err
+	}
+	return &DistrictContractMetaTransactionExecutedIterator{contract: _DistrictContract.contract, event: "MetaTransactionExecuted", logs: logs, sub: sub}, nil
+}
+
+// WatchMetaTransactionExecuted is a free log subscription operation binding the contract event 0x5845892132946850460bff5a0083f71031bc5bf9aadcd40f1de79423eac9b10b.
+//
+// Solidity: event MetaTransactionExecuted(address userAddress, address relayerAddress, bytes functionSignature)
+func (_DistrictContract *DistrictContractFilterer) WatchMetaTransactionExecuted(opts *bind.WatchOpts, sink chan<- *DistrictContractMetaTransactionExecuted) (event.Subscription, error) {
+
+	logs, sub, err := _DistrictContract.contract.WatchLogs(opts, "MetaTransactionExecuted")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DistrictContractMetaTransactionExecuted)
+				if err := _DistrictContract.contract.UnpackLog(event, "MetaTransactionExecuted", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseMetaTransactionExecuted is a log parse operation binding the contract event 0x5845892132946850460bff5a0083f71031bc5bf9aadcd40f1de79423eac9b10b.
+//
+// Solidity: event MetaTransactionExecuted(address userAddress, address relayerAddress, bytes functionSignature)
+func (_DistrictContract *DistrictContractFilterer) ParseMetaTransactionExecuted(log types.Log) (*DistrictContractMetaTransactionExecuted, error) {
+	event := new(DistrictContractMetaTransactionExecuted)
+	if err := _DistrictContract.contract.UnpackLog(event, "MetaTransactionExecuted", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

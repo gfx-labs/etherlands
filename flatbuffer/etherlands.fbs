@@ -34,9 +34,10 @@ table GroupPermission {
   value:FlagValue;
 }
 
+
 table District {
   chain_id:uint64;
-  nickname:string;
+  nickname:[byte];
   plots:[uint64];
   owner_uuid:UUID;
   owner_address:string;

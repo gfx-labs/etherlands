@@ -13,7 +13,7 @@ import (
 	"github.com/gfx-labs/etherlands/types"
 )
 
-const CONTRACT_ADDR = "0xc7B4Cdf2c8ff3FC94D4f9f882D86CE824e0FB985"
+const CONTRACT_ADDR = "0x8ed31d7ff5d2ffbf17fe3118a61123f50adb523a"
 const RPC_ADDR = "https://polygon-mainnet.g.alchemy.com/v2/mkvOLrm_XUrvBB5emIKb7AimZDOWct6c"
 const RPC_MAX = 1999
 const FIRST_BLOCK = 18792838
@@ -38,6 +38,10 @@ type PlotCreationEvent struct{
 	plot_id uint64
 }
 
+type DistrictNameEvent struct{
+	district_id uint64
+}
+
 type DistrictConnection struct {
 	provider *ethclient.Client
 	contract *DistrictContract
@@ -46,6 +50,7 @@ type DistrictConnection struct {
 	TransferEventChannel chan TransferEvent
 	PlotTransferEventChannel chan PlotTransferEvent
 	PlotCreationEventChannel chan PlotCreationEvent
+	DistrictNameEventChannel chan DistrictNameEvent
 
 	best_block uint64
 }
@@ -68,6 +73,7 @@ func NewDistrictConnection() (*DistrictConnection,error) {
 	TransferEventChannel: make(chan TransferEvent, 100),
 	PlotTransferEventChannel: make(chan PlotTransferEvent, 100),
 	PlotCreationEventChannel: make(chan PlotCreationEvent, 100),
+	DistrictNameEventChannel: make(chan DistrictNameEvent, 100),
 	best_block: FIRST_BLOCK,
 }, nil
 }
@@ -109,7 +115,11 @@ func (D *DistrictConnection) GetDistrictInfo(district_id uint64) (*types.Distric
 	if err != nil {
 		return nil, err
 	}
-	return types.NewDistrict(district_id, x.String()), nil
+	name_bytes, err := D.contract.DistrictNameOf(&bind.CallOpts{Pending:false},big_id)
+	if err != nil {
+		return nil, err
+	}
+	return types.NewDistrict(district_id, x.String(),name_bytes), nil
 }
 
 func (D *DistrictConnection) UpdateDistrictOwner(district *types.District) (error) {
@@ -170,7 +180,14 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 		Start: D.best_block,
 		End: &target,
 	})
+	if err != nil {
+		return D.best_block, err
+	}
 
+	district_name_logs, err := D.contract.FilterDistrictName(&bind.FilterOpts{
+		Start: D.best_block,
+		End: &target,
+	})
 	if err != nil {
 		return D.best_block, err
 	}
@@ -183,6 +200,12 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 		}
 	}
 
+
+	for district_name_logs.Next() {
+		D.DistrictNameEventChannel<-DistrictNameEvent{
+			district_id: district_name_logs.Event.DistrictId.Uint64(),
+		}
+	}
 
 	for transfer_logs.Next() {
 		D.TransferEventChannel<-TransferEvent{
