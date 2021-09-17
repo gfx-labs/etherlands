@@ -76,9 +76,14 @@ func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 	E.plots_lock.Lock()
 	defer E.plots_lock.Unlock()
 	if plot != nil {
-		E.plots[plot.PlotId()] = plot
-		E.plot_location[plot.GetLocation()] = plot.PlotId()
-		E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
+		if val, ok := E.plots[plot.PlotId()]; ok{
+			val.SetDistrictId(plot.DistrictId());
+		}else{
+			E.plots[plot.PlotId()] = plot
+			E.plot_location[plot.GetLocation()] = plot.PlotId()
+			E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
+			go E.cache.CachePlot(plot)
+		}
 	}
 }
 
@@ -95,11 +100,12 @@ func (E *EtherlandsContext) SetDistrict(district *types.District){
 	defer E.districts_lock.Unlock()
 	if district != nil {
 		if val, ok := E.districts[district.DistrictId()]; ok {
-			E.districts[district.DistrictId()].SetOwnerAddress(val.OwnerAddress());
-			E.districts[district.DistrictId()].SetNickname(*(val.Nickname()));
+			val.SetOwnerAddress(district.OwnerAddress());
+			val.SetNickname(*(district.Nickname()));
 		}else{
 			E.districts[district.DistrictId()] = district
 		}
+		go E.cache.CacheDistrict(E.districts[district.DistrictId()]);
 	}
 }
 
@@ -139,7 +145,6 @@ func (E *EtherlandsContext) load() (error) {
 		}
 		E.districts[i] = district
 		if(district != nil){
-			go E.cache.CacheDistrict(district)
 			E.best_district = i
 			E.SetDistrict(district)
 		}
@@ -160,7 +165,6 @@ func (E *EtherlandsContext) load() (error) {
 		}
 		E.plots[i] = plot
 		if(plot != nil){
-			go E.cache.CachePlot(plot)
 			E.best_plot = i
 			E.SetPlot(plot)
 		}
@@ -197,26 +201,16 @@ func (E *EtherlandsContext) process_events() {
 	for{
 		select{
 		case transfer_event :=<-E.chain_data.TransferEventChannel:
-			district, err := E.GetDistrict(transfer_event.district_id)
-			if err != nil{
-				district, err := E.chain_data.GetDistrictInfo(transfer_event.district_id)
-				if(err == nil){
-					E.SetDistrict(district)
-				}
-			}else{
-				log.Println("updating district ", district.DistrictId())
-				E.chain_data.UpdateDistrictOwner(district);
+			log.Println("updating district", transfer_event.district_id)
+			district, err := E.chain_data.GetDistrictInfo(transfer_event.district_id)
+			if(err == nil){
+				E.SetDistrict(district)
 			}
 		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
-			plot, err := E.GetPlot(plot_transfer_event.plot_id)
-			if err != nil {
-				plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
-				if err == nil{
-					E.SetPlot(plot)
-				}
-				}else{
-				log.Println("updating plot ", plot.PlotId())
-				E.chain_data.UpdatePlotDistrict(plot)
+			log.Println("updating plot ", plot_transfer_event.plot_id)
+			plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
+			if err == nil{
+				E.SetPlot(plot)
 			}
 		case plot_creation_event :=<-E.chain_data.PlotCreationEventChannel:
 			plot, err := E.chain_data.GetPlotInfo(plot_creation_event.plot_id)

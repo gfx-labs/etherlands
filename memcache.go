@@ -46,9 +46,13 @@ func (M *MemoryCache) CachePlot(plot *types.Plot){
 
 func (M *MemoryCache) CacheDistrict(district *types.District){
 	key_one := fmt.Sprintf("district:%d:address",district.DistrictId())
-	//key_two := fmt.Sprintf(district.OwnerAddress() + ":%d:district",district.DistrictId())
-
-	M.redis.Do(*M.ctx, radix.Cmd(nil,"MSET",key_one,district.OwnerAddress()))
+	key_two := fmt.Sprintf("district:%d:name",district.DistrictId())
+	key_three := fmt.Sprintf("name:%s:district",district.StringName())
+	M.redis.Do(*M.ctx, radix.FlatCmd(nil,"MSET",
+	key_one,district.OwnerAddress(),
+	key_two, district.StringName(),
+	key_three, district.DistrictId(),
+))
 }
 
 func (M *MemoryCache) CacheBlockNumber(blockNumber uint64) (error) {
