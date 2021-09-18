@@ -19,7 +19,7 @@ func Parse24Name(nickname [24]byte) string{
   base := ""
   for _, b := range nickname {
     if b == 0x00 {return base}
-    if b >= 0x40 {return base}
+    if b >= 0x42 {return base}
     base = base + ParseLedder(b);
   }
   return base;
@@ -104,8 +104,8 @@ var keycode = map[byte]string{
   0x3d : "Y",
   0x3e : "Z",
   0x3f : "_",
-  0x40 : "",
-  0x41 : "",
+  0x40 : "+",
+  0x41 : "=",
 }
 
 
@@ -174,4 +174,6 @@ var codekey = map[string]byte{
   "Y": 0x3d,
   "Z": 0x3e,
   "_": 0x3f,
+  "+": 0x40,
+  "=": 0x41,
 }
