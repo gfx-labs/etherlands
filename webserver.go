@@ -142,7 +142,7 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 		Attributes: district_attr,
 	}
 
-	DrawDistrict(metadata)
+	//DrawDistrict(metadata)
 	pending, err:= json.Marshal(metadata)
 	if sendFail(w,err) {return;}
 	w.Header().Add("Content-Type","application/json");
