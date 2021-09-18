@@ -106,9 +106,14 @@ func (E *EtherlandsContext) SetDistrict(district *types.District){
 			E.districts[district.DistrictId()] = district
 		}
 		go E.cache.CacheDistrict(E.districts[district.DistrictId()]);
+		go E.CalculateClusterData(district)
 	}
 }
-
+func (E *EtherlandsContext) CalculateClusterData(district *types.District){
+			count := E.plots_zset.GetKeysByScore(district.DistrictId())
+			data := E.GenerateClusterMetadata(count)
+			E.cache.CacheClusters(district, data);
+		}
 
 func (E *EtherlandsContext) load() (error) {
 	E.plots = make(map[uint64]*types.Plot)
@@ -132,6 +137,24 @@ func (E *EtherlandsContext) load() (error) {
 		return err
 	}
 	var i uint64;
+	for i = 1; i <= total_plots; i++ {
+		plot, err := types.LoadPlot(uint64(i))
+		if err != nil || plot == nil{
+			log.Println(fmt.Sprintf("Did not find plot %d in storage, querying chain",i))
+			plot, err = E.chain_data.GetPlotInfo(i)
+			if err != nil {
+				log.Println("Did not find information for plot",i,"on chain")
+			}else{
+				log.Println("saving", plot)
+				plot.Save();
+			}
+		}
+		E.plots[i] = plot
+		if(plot != nil){
+			E.best_plot = i
+			E.SetPlot(plot)
+		}
+	}
 	for i = 1; i <= total_districts; i++ {
 		district, err := types.LoadDistrict(uint64(i))
 		if err != nil || district == nil{
@@ -151,24 +174,7 @@ func (E *EtherlandsContext) load() (error) {
 	}
 
 
-	for i = 1; i <= total_plots; i++ {
-		plot, err := types.LoadPlot(uint64(i))
-		if err != nil || plot == nil{
-			log.Println(fmt.Sprintf("Did not find plot %d in storage, querying chain",i))
-			plot, err = E.chain_data.GetPlotInfo(i)
-			if err != nil {
-				log.Println("Did not find information for plot",i,"on chain")
-			}else{
-				log.Println("saving", plot)
-				plot.Save();
-			}
-		}
-		E.plots[i] = plot
-		if(plot != nil){
-			E.best_plot = i
-			E.SetPlot(plot)
-		}
-	}
+
 
 
 	return nil

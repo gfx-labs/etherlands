@@ -55,6 +55,21 @@ func (M *MemoryCache) CacheDistrict(district *types.District){
 ))
 }
 
+func (M *MemoryCache) CacheClusters(district *types.District, clusters []ClusterMetadata){
+	key_one := fmt.Sprintf("district:%d:clusters",district.DistrictId())
+	value := ""
+	for _, cluster := range clusters{
+		value = value + fmt.Sprintf("%d:%d:%d",cluster.OriginX,cluster.OriginZ,len(cluster.Offsets))
+		value = value + "@"
+	}
+	if(len(value) > 1){
+		value = value[:len(value)-1]
+	}
+	M.redis.Do(*M.ctx, radix.FlatCmd(nil,"MSET",
+	key_one,value,
+))
+}
+
 func (M *MemoryCache) CacheBlockNumber(blockNumber uint64) (error) {
 	return M.redis.Do(*M.ctx,radix.FlatCmd(nil,"SET","reader_last_block",blockNumber))
 }
