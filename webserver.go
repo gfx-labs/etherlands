@@ -116,6 +116,7 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	count := E.plots_zset.GetKeysByScore(district_id)
 	clustered := E.GenerateClusterMetadata(count);
 
+
 	output := fmt.Sprintf("A District containing %d plots at locations", len(count))
 	for _, v := range count{
 		plot, err := E.GetPlot(v)
@@ -140,6 +141,8 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 		ExternalURL: fmt.Sprintf("https://etherlands.io/district/%d",district.DistrictId()),
 		Attributes: district_attr,
 	}
+
+	DrawDistrict(metadata)
 	pending, err:= json.Marshal(metadata)
 	if sendFail(w,err) {return;}
 	w.Header().Add("Content-Type","application/json");

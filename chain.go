@@ -47,10 +47,9 @@ type DistrictConnection struct {
 	contract *DistrictContract
 	ctx *context.Context
 
-	TransferEventChannel chan TransferEvent
-	PlotTransferEventChannel chan PlotTransferEvent
-	PlotCreationEventChannel chan PlotCreationEvent
-	DistrictNameEventChannel chan DistrictNameEvent
+
+	PlotChannel chan uint64
+	DistrictChannel chan uint64
 
 	best_block uint64
 }
@@ -70,10 +69,8 @@ func NewDistrictConnection() (*DistrictConnection,error) {
 	return &DistrictConnection{contract: contract,
 	provider:client,
 	ctx:&ctx,
-	TransferEventChannel: make(chan TransferEvent, 100),
-	PlotTransferEventChannel: make(chan PlotTransferEvent, 100),
-	PlotCreationEventChannel: make(chan PlotCreationEvent, 100),
-	DistrictNameEventChannel: make(chan DistrictNameEvent, 100),
+	PlotChannel: make(chan uint64, 100),
+	DistrictChannel: make(chan uint64, 100),
 	best_block: FIRST_BLOCK,
 }, nil
 }
@@ -191,33 +188,20 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64,error) {
 	}
 
 	for plot_transfer_logs.Next() {
-		D.PlotTransferEventChannel<-PlotTransferEvent{
-			origin_district: plot_transfer_logs.Event.OriginId.Uint64(),
-			target_district: plot_transfer_logs.Event.TargetId.Uint64(),
-			plot_id: plot_transfer_logs.Event.PlotId.Uint64(),
-		}
+		D.DistrictChannel <- plot_transfer_logs.Event.TargetId.Uint64()
+			D.PlotChannel <- plot_transfer_logs.Event.PlotId.Uint64()
 	}
 
-
 	for district_name_logs.Next() {
-		D.DistrictNameEventChannel<-DistrictNameEvent{
-			district_id: district_name_logs.Event.DistrictId.Uint64(),
-		}
+			D.DistrictChannel <- district_name_logs.Event.DistrictId.Uint64()
 	}
 
 	for transfer_logs.Next() {
-		D.TransferEventChannel<-TransferEvent{
-			to: transfer_logs.Event.To.String(),
-			district_id: transfer_logs.Event.TokenId.Uint64(),
-		}
+			D.DistrictChannel <- transfer_logs.Event.TokenId.Uint64()
 	}
 
 	for plot_creation_logs.Next() {
-		D.PlotCreationEventChannel<-PlotCreationEvent{
-			x_coord:plot_creation_logs.Event.X.Int64(),
-			z_coord:plot_creation_logs.Event.Z.Int64(),
-			plot_id: plot_creation_logs.Event.PlotId.Uint64(),
-		}
+			D.PlotChannel <- plot_creation_logs.Event.PlotId.Uint64()
 	}
 
 	D.best_block = target + 1

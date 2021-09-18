@@ -82,7 +82,7 @@ func (E *EtherlandsContext) SetPlot(plot *types.Plot){
 			E.plots[plot.PlotId()] = plot
 		}
 		E.plot_location[plot.GetLocation()] = plot.PlotId()
-		E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(),false)
+		E.plots_zset.AddOrUpdate(plot.PlotId(),plot.DistrictId(), false)
 		go E.cache.CachePlot(plot)
 	}
 }
@@ -197,36 +197,26 @@ func (E *EtherlandsContext) save() {
 	}
 }
 
+
 func (E *EtherlandsContext) process_events() {
 	for{
 		select{
-		case transfer_event :=<-E.chain_data.TransferEventChannel:
-			log.Println("updating district", transfer_event.district_id)
-			district, err := E.chain_data.GetDistrictInfo(transfer_event.district_id)
+		case district_id :=<-E.chain_data.DistrictChannel:
+			log.Println("updating district",district_id)
+			district, err := E.chain_data.GetDistrictInfo(district_id)
 			if(err == nil){
 				E.SetDistrict(district)
 			}
-		case plot_transfer_event :=<-E.chain_data.PlotTransferEventChannel:
-			log.Println("updating plot ", plot_transfer_event.plot_id)
-			plot, err := E.chain_data.GetPlotInfo(plot_transfer_event.plot_id)
+		case plot_id :=<-E.chain_data.PlotChannel:
+			log.Println("updating plot ", plot_id)
+			plot, err := E.chain_data.GetPlotInfo(plot_id)
 			if err == nil{
 				E.SetPlot(plot)
-			}
-		case plot_creation_event :=<-E.chain_data.PlotCreationEventChannel:
-			log.Println("updating plot ", plot_creation_event.plot_id)
-			plot, err := E.chain_data.GetPlotInfo(plot_creation_event.plot_id)
-			if err == nil{
-				E.SetPlot(plot)
-			}
-		case district_name_event :=<-E.chain_data.DistrictNameEventChannel:
-			log.Println("updating district", district_name_event.district_id)
-			district, err := E.chain_data.GetDistrictInfo(district_name_event.district_id)
-			if err == nil{
-				E.SetDistrict(district)
 			}
 		}
 	}
 }
+
 
 func (E* EtherlandsContext) start_events() {
 	query_event_timer := start_repeating(5000)
