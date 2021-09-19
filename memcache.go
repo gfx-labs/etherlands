@@ -50,9 +50,12 @@ func (M *MemoryCache) CacheDistrict(district *types.District){
 	key_one,district.OwnerAddress(),
 	))
 
-	M.redis.Do(*M.ctx, radix.FlatCmd(nil,"HMSET",
-	"district_name",district.DistrictId(),district.StringName(),
+
+	M.redis.Do(*M.ctx, radix.FlatCmd(nil,"HSET",
 	"name_district ",district.StringName(), district.DistrictId(),
+	))
+	M.redis.Do(*M.ctx, radix.FlatCmd(nil,"HSET",
+	"district_name",district.DistrictId(),district.StringName(),
 ))
 
 }
