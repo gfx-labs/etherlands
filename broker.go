@@ -24,5 +24,5 @@ func NewBroker(ctx *context.Context) (*Broker, error) {
 }
 
 func (B *Broker) PublishLink(body string) (error){
-	return B.redis.Do(*B.ctx,radix.Cmd(nil,"PUBLISH",body))
+	return B.redis.Do(*B.ctx,radix.Cmd(nil,"PUBLISH","link",body))
 }
