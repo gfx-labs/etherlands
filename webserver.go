@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	types "github.com/gfx-labs/etherlands/types"
@@ -149,14 +150,28 @@ func (E *EtherlandsContext) ServeDistrictMetadata(w http.ResponseWriter, r *http
 	w.Write(pending)
 }
 
+func (E *EtherlandsContext) ServeLinkForwarder(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
+	msg := strings.Replace(ps.ByName("message"),":","",-1)
+	sig := strings.Replace(ps.ByName("signature"),":","",-1)
+	pkey := strings.Replace(ps.ByName("publickey"),":","",-1)
 
+	tosend := fmt.Sprintf("%s:%s:%s",msg,sig,pkey)
 
+	if (msg != "") && (sig != "") && (pkey != "") {
+		E.broker.PublishLink(tosend)
+		w.WriteHeader(200)
+	}else{
+		w.WriteHeader(400)
+	}
+	w.Write([]byte(tosend))
 
+}
 func (E *EtherlandsContext) StartWebService() {
 	router := httprouter.New()
 	router.GET("/district/:id", E.ServeDistrictMetadata)
 	router.GET("/plot_query/:x1/:x2/:z1/:z2", E.ServePlotQuery)
 	router.GET("/encode_ledders/:name", E.Serve24Creator)
+	router.GET("/link/:message/:signature/:publickey", E.ServeLinkForwarder)
 	log.Println("now hosting web service at 10100")
 	 err := http.ListenAndServe(":10100", router)
 	 if err != nil {

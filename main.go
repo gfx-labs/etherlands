@@ -22,11 +22,18 @@ func main() {
 
 	cache, err := NewMemoryCache(conn.ctx)
 	if err != nil{
-		log.Fatal("failed to connect to redis", err)
+		log.Fatal("failed to connect to redis memcache", err);
+	}
+
+	broker, err := NewBroker(conn.ctx)
+	if err != nil{
+		log.Fatal("failed to connect to redis broker", err)
 	}
 
 
-	etherlands := EtherlandsContext{chain_data:conn, cache:cache}
+
+
+	etherlands := EtherlandsContext{chain_data:conn, cache:cache, broker:broker}
 	etherlands.load()
 	go etherlands.process_events()
 	go etherlands.start_events()
@@ -39,6 +46,7 @@ type EtherlandsContext struct {
 	chain_data *DistrictConnection
 
 	cache *MemoryCache
+	broker *Broker
 
 	plots_lock sync.RWMutex
 	plots map[uint64]*types.Plot
