@@ -105,7 +105,7 @@ var keycode = map[byte]string{
   0x3e : "Z",
   0x3f : "_",
   0x40 : "+",
-  0x41 : "=",
+  0x41 : "!",
 }
 
 
@@ -175,5 +175,5 @@ var codekey = map[string]byte{
   "Z": 0x3e,
   "_": 0x3f,
   "+": 0x40,
-  "=": 0x41,
+  "!": 0x41,
 }
