@@ -9,7 +9,7 @@ import (
 
 type Group struct {
   name string
-  team *Team
+  town *Town
   members []*Gamer
 
   sync.RWMutex
@@ -21,10 +21,10 @@ func (G *Group) Name() string {
   return G.name;
 }
 
-func (G *Group) Team() *Team {
+func (G *Group) Town() *Town {
   G.RLock();
   defer G.RUnlock();
-  return G.team;
+  return G.town;
 }
 
 func (G *Group) Members() []*Gamer {
@@ -33,7 +33,7 @@ func (G *Group) Members() []*Gamer {
   return G.members;
 }
 
-type Team struct {
+type Town struct {
 
   name string
 
@@ -50,60 +50,60 @@ type Team struct {
   sync.RWMutex
 }
 
-func (T *Team) DefaultPlayerPermissionMap() PlayerPermissionMap {
+func (T *Town) DefaultPlayerPermissionMap() PlayerPermissionMap {
   T.RLock()
   defer T.RUnlock()
   return T.defaultPlayerPermissions
 }
 
-func (T *Team) DefaultGroupPermissionMap() GroupPermissionMap {
+func (T *Town) DefaultGroupPermissionMap() GroupPermissionMap {
   T.RLock()
   defer T.RUnlock()
   return T.defaultGroupPermissions
 }
 
-func (T *Team) Owner() *Gamer{
+func (T *Town) Owner() *Gamer{
   T.RLock();
   defer T.RUnlock();
   return T.owner
 }
 
-func (T *Team) Name() string {
+func (T *Town) Name() string {
   T.RLock();
   defer T.RUnlock();
   return T.name
 }
 
 
-func (T *Team) Members() []*Gamer{
+func (T *Town) Members() []*Gamer{
   T.RLock();
   defer T.RUnlock();
   return T.members
 }
 
-func (T *Team) Managers() []*Gamer{
+func (T *Town) Managers() []*Gamer{
   T.RLock();
   defer T.RUnlock();
   return T.members;
 }
 
 
-func (T *Team) Groups() []*Group{
+func (T *Town) Groups() []*Group{
   T.RLock();
   defer T.RUnlock();
   return T.Groups();
 }
 
-func (T *Team) Districts() []*District{
+func (T *Town) Districts() []*District{
   T.RLock();
   defer T.RUnlock();
   return T.districts;
 }
 
 
-func BuildTeamGroupPermissionVector(builder *flatbuffers.Builder, target GroupPermissionMap) flatbuffers.UOffsetT{
+func BuildTownGroupPermissionVector(builder *flatbuffers.Builder, target GroupPermissionMap) flatbuffers.UOffsetT{
   gp_o := BuildGroupPermissions(builder,  target)
-  proto.TeamStartDefaultGroupPermissionsVector(builder,len(gp_o))
+  proto.TownStartDefaultGroupPermissionsVector(builder,len(gp_o))
   for _, v := range gp_o {
     builder.PrependUOffsetT(v)
   }
@@ -112,9 +112,9 @@ func BuildTeamGroupPermissionVector(builder *flatbuffers.Builder, target GroupPe
 
 
 
-func BuildTeamPlayerPermissionVector(builder *flatbuffers.Builder, target PlayerPermissionMap) flatbuffers.UOffsetT{
+func BuildTownPlayerPermissionVector(builder *flatbuffers.Builder, target PlayerPermissionMap) flatbuffers.UOffsetT{
   pp_o := BuildPlayerPermissions(builder, target)
-  proto.TeamStartDefaultPlayerPermissionsVector(builder,len(pp_o))
+  proto.TownStartDefaultPlayerPermissionsVector(builder,len(pp_o))
   for _, v := range pp_o {
     builder.PrependUOffsetT(v)
   }

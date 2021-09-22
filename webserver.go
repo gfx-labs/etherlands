@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -51,6 +54,22 @@ func sendFail(w http.ResponseWriter, err error) bool{
 }
 
 const LIMIT = 1000*1000
+
+func (E *EtherlandsContext) ServeNftImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	slug := ps.ByName("slug")
+	id := ps.ByName("id")
+	location := path.Join("./db","images","opensea",slug,id);
+	if _, err := os.Stat(location); err == nil {
+		image, err := ioutil.ReadFile(location);
+		if err == nil {
+			w.WriteHeader(200)
+			w.Write(image)
+			return;
+		}
+	}
+	w.WriteHeader(400)
+	w.Write([]byte("image not cached"))
+}
 
 func (E *EtherlandsContext) Serve24Creator(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	name := ps.ByName("name")
@@ -172,6 +191,7 @@ func (E *EtherlandsContext) StartWebService() {
 	router.GET("/plot_query/:x1/:x2/:z1/:z2", E.ServePlotQuery)
 	router.GET("/encode_ledders/:name", E.Serve24Creator)
 	router.GET("/link/:message/:signature/:publickey", E.ServeLinkForwarder)
+	router.GET("/nft_image/:slug/:id", E.ServeNftImage)
 	log.Println("now hosting web service at 10100")
 	 err := http.ListenAndServe(":10100", router)
 	 if err != nil {

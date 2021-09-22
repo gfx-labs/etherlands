@@ -47,11 +47,11 @@ table District {
 
 table Group {
   name:string;
-  team:string;
+  town:string;
   members:[UUID];
 }
 
-table Team {
+table Town {
 
   name:string;
   owner:UUID;

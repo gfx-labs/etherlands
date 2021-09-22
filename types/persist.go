@@ -75,13 +75,12 @@ func LoadDistrict(chain_id uint64) (*District, error){
     return nil, errors.New(fmt.Sprintf("Empty file for %d",chain_id))
   }
   read_district := proto.GetRootAsDistrict(bytes, 0)
-  slice_name := read_district.Nickname()
   fixed_name := [24]byte{}
-  for i:=0; (i < len(slice_name)) && (i < 24); i++{
-    if(i >= len(slice_name)){
+  for i:=0; (i < read_district.NicknameLength()) && (i < 24); i++{
+    if i >= read_district.NicknameLength() {
       fixed_name[i] = 0;
     }else{
-      fixed_name[i] = slice_name[i];
+      fixed_name[i] = byte(read_district.Nickname(i));
     }
   }
 
@@ -130,65 +129,65 @@ func (D *District) Save() error {
   return WriteStruct("districts",strconv.FormatUint(D.DistrictId(),10),buf)
 }
 
-func (T *Team) Save() error {
+func (T *Town) Save() error {
   builder := flatbuffers.NewBuilder(1024)
   // create default player permission vector
-  player_permission_offset := BuildTeamPlayerPermissionVector(builder,T.defaultPlayerPermissions)
+  player_permission_offset := BuildTownPlayerPermissionVector(builder,T.defaultPlayerPermissions)
   // create default group permission vector
-  group_permission_offset := BuildTeamGroupPermissionVector(builder,T.defaultGroupPermissions)
+  group_permission_offset := BuildTownGroupPermissionVector(builder,T.defaultGroupPermissions)
 
   // create districts vector
-  proto.TeamStartDistrictsVector(builder, len(T.Districts()))
+  proto.TownStartDistrictsVector(builder, len(T.Districts()))
   for _, v := range T.Districts() {
     builder.PrependUint64(v.DistrictId())
   }
   districts_offset := builder.EndVector(len(T.Districts()))
 
-  // create team manager vector
-  team_managers := T.Managers()
-  proto.TeamStartManagersVector(builder,len(team_managers))
-  for _ , v := range team_managers {
+  // create town manager vector
+  town_managers := T.Managers()
+  proto.TownStartManagersVector(builder,len(town_managers))
+  for _ , v := range town_managers {
     manager_offset := BuildUUID(builder, v.MinecraftId())
     builder.PrependUOffsetT(manager_offset)
   }
-  manager_vector := builder.EndVector(len(team_managers))
+  manager_vector := builder.EndVector(len(town_managers))
 
-  // create team member vector
-  team_members := T.Members()
-  proto.TeamStartMembersVector(builder,len(team_members))
-  for _ , v := range team_members {
+  // create town member vector
+  town_members := T.Members()
+  proto.TownStartMembersVector(builder,len(town_members))
+  for _ , v := range town_members {
     member_offset := BuildUUID(builder, v.MinecraftId())
     builder.PrependUOffsetT(member_offset)
   }
-  member_vector := builder.EndVector(len(team_members))
+  member_vector := builder.EndVector(len(town_members))
 
 
-  //create team table
-  proto.TeamStart(builder)
-  //team name
-  team_name := builder.CreateString(T.Name())
-  proto.TeamAddName(builder, team_name)
+  //create town table
+  proto.TownStart(builder)
+  //town name
+  town_name := builder.CreateString(T.Name())
+  proto.TownAddName(builder, town_name)
 
   //owner
   owner_id := BuildUUID(builder,T.Owner().MinecraftId())
-  proto.TeamAddOwner(builder, owner_id)
+  proto.TownAddOwner(builder, owner_id)
 
   //members
-  proto.TeamAddMembers(builder,member_vector)
+  proto.TownAddMembers(builder,member_vector)
 
   //managers
-  proto.TeamAddManagers(builder,manager_vector)
+  proto.TownAddManagers(builder,manager_vector)
   //districts
-  proto.TeamAddDistricts(builder, districts_offset)
+  proto.TownAddDistricts(builder, districts_offset)
   //perms
-  proto.TeamAddDefaultGroupPermissions(builder, group_permission_offset);
-  proto.TeamAddDefaultPlayerPermissions(builder, player_permission_offset);
+  proto.TownAddDefaultGroupPermissions(builder, group_permission_offset);
+  proto.TownAddDefaultPlayerPermissions(builder, player_permission_offset);
 
   //finish
-  team_offset := proto.TeamEnd(builder)
-  builder.Finish(team_offset)
+  town_offset := proto.TownEnd(builder)
+  builder.Finish(town_offset)
   buf := builder.FinishedBytes()
 
 
-  return WriteStruct("team",T.Name(),buf)
+  return WriteStruct("town",T.Name(),buf)
 }

@@ -19,7 +19,6 @@ func main() {
 		log.Fatal("Failed to connect to District Contract:", err)
 	}
 
-
 	cache, err := NewMemoryCache(conn.ctx)
 	if err != nil{
 		log.Fatal("failed to connect to redis memcache", err);
@@ -29,12 +28,17 @@ func main() {
 	if err != nil{
 		log.Fatal("failed to connect to redis broker", err)
 	}
+	contextless, err := NewCommander(conn.ctx)
+	if err != nil{
+		log.Fatal("failed to connect to contextless redis subscriber", err)
+	}
 
 
-
-
+	go contextless.start()
 	etherlands := EtherlandsContext{chain_data:conn, cache:cache, broker:broker}
+	log.Println("now loading data")
 	etherlands.load()
+	log.Println("done loading data")
 	go etherlands.process_events()
 	go etherlands.start_events()
 	go etherlands.StartWebService()

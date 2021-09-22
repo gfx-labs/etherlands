@@ -34,7 +34,7 @@ func (rcv *Group) Name() []byte {
 	return nil
 }
 
-func (rcv *Group) Team() []byte {
+func (rcv *Group) Town() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -67,8 +67,8 @@ func GroupStart(builder *flatbuffers.Builder) {
 func GroupAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
 }
-func GroupAddTeam(builder *flatbuffers.Builder, team flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(team), 0)
+func GroupAddTown(builder *flatbuffers.Builder, town flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(town), 0)
 }
 func GroupAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(members), 0)

@@ -38,12 +38,30 @@ func (rcv *District) MutateChainId(n uint64) bool {
 	return rcv._tab.MutateUint64Slot(4, n)
 }
 
-func (rcv *District) Nickname() []byte {
+func (rcv *District) Nickname(j int) int8 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetInt8(a + flatbuffers.UOffsetT(j*1))
 	}
-	return nil
+	return 0
+}
+
+func (rcv *District) NicknameLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *District) MutateNickname(j int, n int8) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateInt8(a+flatbuffers.UOffsetT(j*1), n)
+	}
+	return false
 }
 
 func (rcv *District) Plots(j int) uint64 {
@@ -141,6 +159,9 @@ func DistrictAddChainId(builder *flatbuffers.Builder, chainId uint64) {
 }
 func DistrictAddNickname(builder *flatbuffers.Builder, nickname flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(nickname), 0)
+}
+func DistrictStartNicknameVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(1, numElems, 1)
 }
 func DistrictAddPlots(builder *flatbuffers.Builder, plots flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(plots), 0)
