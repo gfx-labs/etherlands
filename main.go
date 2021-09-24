@@ -217,19 +217,30 @@ func (E *EtherlandsContext) save() {
 
 
 func (E *EtherlandsContext) process_events() {
+	district_limiter := NewRateLimiter()
+	plot_limiter := NewRateLimiter()
 	for{
 		select{
 		case district_id :=<-E.chain_data.DistrictChannel:
-			log.Println("updating district",district_id)
-			district, err := E.chain_data.GetDistrictInfo(district_id)
-			if(err == nil){
-				E.SetDistrict(district)
+			if district_limiter.check(district_id) {
+				log.Println("updating district",district_id)
+				district, err := E.chain_data.GetDistrictInfo(district_id)
+				if(err == nil){
+					E.SetDistrict(district)
+				}
+			}else{
+				log.Println("skipping district update",district_id)
 			}
 		case plot_id :=<-E.chain_data.PlotChannel:
+			if plot_limiter.check(plot_id) {
 			log.Println("updating plot ", plot_id)
 			plot, err := E.chain_data.GetPlotInfo(plot_id)
 			if err == nil{
 				E.SetPlot(plot)
+			}
+
+			}else{
+				log.Println("skipping plot update",plot_id)
 			}
 		}
 	}
