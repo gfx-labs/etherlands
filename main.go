@@ -155,7 +155,7 @@ func (E *EtherlandsContext) load() (error) {
 			log.Println(fmt.Sprintf("Did not find plot %d in storage, querying chain",i))
 			plot, err = E.chain_data.GetPlotInfo(i)
 			if err != nil {
-				log.Println("Did not find information for plot",i,"on chain")
+				log.Println("Did not find information for plot",i,"on chain:", err)
 			}else{
 				log.Println("saving", plot)
 				plot.Save();
@@ -173,7 +173,7 @@ func (E *EtherlandsContext) load() (error) {
 			log.Println(fmt.Sprintf("Did not find district %d in storage, querying chain",i))
 			district, err = E.chain_data.GetDistrictInfo(i)
 			if err != nil {
-				log.Println("Did not find information for district",i,"on chain")
+				log.Println("Did not find information for district",i,"on chain:", err)
 			}else{
 				district.Save();
 			}
