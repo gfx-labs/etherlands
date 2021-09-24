@@ -239,15 +239,13 @@ func (E *EtherlandsContext) process_events() {
 func (E* EtherlandsContext) start_events() {
 	query_event_timer := start_repeating(5000)
 	for{
-		select {
-		case _ =<-query_event_timer:
-			log.Println("querying block",E.chain_data.best_block)
-			block, err := E.chain_data.QueryRecentEvents()
-			if err != nil{
-				log.Println(err)
-			}else{
-				E.cache.CacheBlockNumber(block)
-			}
+		_ =<-query_event_timer
+		log.Println("querying block",E.chain_data.best_block)
+		block, err := E.chain_data.QueryRecentEvents()
+		if err != nil{
+			log.Println(err)
+		}else{
+			E.cache.CacheBlockNumber(block)
 		}
 	}
 }
