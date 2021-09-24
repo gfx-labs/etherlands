@@ -241,15 +241,13 @@ func (E* EtherlandsContext) start_events() {
 	for{
 		select {
 		case _ =<-query_event_timer:
-			go (func(){
-				log.Println("querying block",E.chain_data.best_block)
-				block, err := E.chain_data.QueryRecentEvents()
-				if err != nil{
-					log.Println(err)
-				}else{
-					E.cache.CacheBlockNumber(block)
-				}
-			})()
+			log.Println("querying block",E.chain_data.best_block)
+			block, err := E.chain_data.QueryRecentEvents()
+			if err != nil{
+				log.Println(err)
+			}else{
+				E.cache.CacheBlockNumber(block)
+			}
 		}
 	}
 }

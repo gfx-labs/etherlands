@@ -5,7 +5,7 @@ import "time"
 
 
 func start_repeating(milliseconds time.Duration) (chan bool) {
-	output := make(chan bool)
+	output := make(chan bool, 1)
 	go (func(){
 		for{
 			time.Sleep(milliseconds * time.Millisecond)
