@@ -90,7 +90,7 @@ func (D *DistrictConnection) GetPlotInfo(plot_id uint64) (*types.Plot, error) {
 		return nil, err
 	}
 	if(z.Int64() == 0 && x.Int64() == 0 && plot_id != 25){
-		return nil, errors.New(fmt.Sprintf("Plot %d does not yet exist",plot_id))
+		return nil, errors.New(fmt.Sprintf("Plot %d does not yet exist, (%d, %d)",plot_id, z, x))
 	}
 	return types.NewPlot(x.Int64(),z.Int64(),plot_id, district_id.Uint64()), nil
 }
