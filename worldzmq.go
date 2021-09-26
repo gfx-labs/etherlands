@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"log"
+	"strconv"
 	"strings"
 
 	types "github.com/gfx-labs/etherlands/types"
@@ -70,6 +71,8 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 	switch dtype {
 	case "gamer":
 		Z.get_world_gamer_field(args)
+	case "plot":
+		Z.get_world_plot_field(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args.Command(), err) {
@@ -80,11 +83,75 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 			return
 		}
 		Z.sendResponse(args.Command(), gamer_str)
+	case "query":
+		Z.get_world_query_field(args)
 	default:
 		Z.checkError(args.Command(), errors.New("Unspecified Type: "+dtype))
 	}
 }
 
+func (Z *WorldZmq) get_world_query_field(args VarArgs) {
+	field, err := args.MustGet(2)
+	if Z.checkError(args.Command(), err) {
+		return
+	}
+	switch field {
+	case "plot_coord":
+		coord_str, err := args.MustGet(3)
+		if Z.checkError(args.Command(), err) {
+			return
+		}
+		split := strings.Split(coord_str, "_")
+		if len(split) != 2 {
+			Z.genericError(args, "invalid coordinate input")
+			return
+		}
+		x, err := strconv.ParseInt(split[0], 10, 64)
+		if Z.checkError(args.Command(), err) {
+			return
+		}
+		z, err := strconv.ParseInt(split[1], 10, 64)
+		if Z.checkError(args.Command(), err) {
+			return
+		}
+		plot, err := Z.W.SearchPlot(x, z)
+		if Z.checkError(args.Command(), err) {
+			return
+		}
+		Z.sendResponse(args.Command(), strconv.FormatUint(plot.PlotId(), 10))
+	default:
+		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) get_world_plot_field(args VarArgs) {
+	field, err := args.MustGet(3)
+	if Z.checkError(args.Command(), err) {
+		return
+	}
+	uuid_str, err := args.MustGet(2)
+	if Z.checkError(args.Command(), err) {
+		return
+	}
+	plot_id, err := strconv.ParseUint(uuid_str, 10, 64)
+	if Z.checkError(args.Command(), err) {
+		return
+	}
+	plot, err := Z.W.GetPlot(plot_id)
+	if Z.checkError(args.Command(), err) {
+		return
+	}
+	switch field {
+	case "x":
+		Z.sendResponse(args.Command(), strconv.FormatInt(plot.X(), 10))
+	case "z":
+		Z.sendResponse(args.Command(), strconv.FormatInt(plot.Z(), 10))
+	case "district":
+		Z.sendResponse(args.Command(), strconv.FormatUint(plot.DistrictId(), 10))
+	default:
+		Z.checkError(args.Command(), errors.New("Unspecified Field: "+field))
+	}
+}
 func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
 	field, err := args.MustGet(3)
 	if Z.checkError(args.Command(), err) {
@@ -125,6 +192,10 @@ func (Z *WorldZmq) checkError(key string, err error) bool {
 		return true
 	}
 	return false
+}
+
+func (Z *WorldZmq) genericError(args VarArgs, offender string) bool {
+	return Z.checkError(args.Command(), errors.New(args.Command()+": "+offender))
 }
 
 func (Args *VarArgs) Command() string {
