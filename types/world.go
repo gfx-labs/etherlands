@@ -131,9 +131,9 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		plot, err := W.LoadPlot(i)
 		if err != nil {
 			log.Println("failed to read plot", err)
-			go func() {
-				W.PlotRequests <- i
-			}()
+			go func(j uint64) {
+				W.PlotRequests <- j
+			}(i)
 		} else {
 			W.UpdatePlot(plot)
 		}
@@ -142,9 +142,9 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		district, err := W.LoadDistrict(i)
 		if err != nil {
 			log.Println("failed to read district", err)
-			go func() {
-				W.DistrictRequests <- i
-			}()
+			go func(j uint64) {
+				W.DistrictRequests <- j
+			}(i)
 		} else {
 			W.UpdateDistrict(district)
 		}
