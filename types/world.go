@@ -143,6 +143,20 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 			W.UpdateDistrict(district)
 		}
 	}
+	files, err := ListStruct("gamers")
+	if err == nil {
+		for i := 0; i < len(files); i++ {
+			gamer_id, err := uuid.Parse(files[i].Name())
+			if err == nil {
+				gamer, err := W.LoadGamer(gamer_id)
+				if err != nil {
+					log.Println("failed to read gamer", err)
+				} else {
+					W.UpdateGamer(gamer)
+				}
+			}
+		}
+	}
 	// don't start listening for requests until after we load in from memory
 	go func() {
 		for {

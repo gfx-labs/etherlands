@@ -224,7 +224,6 @@ func (D *DistrictConnection) start_query(duration time.Duration) {
 	query_event_timer := start_repeating(duration)
 	for {
 		_ = <-query_event_timer
-		log.Println("querying block", D.best_block)
 		block, err := D.QueryRecentEvents()
 		if err != nil {
 			log.Println(err)
