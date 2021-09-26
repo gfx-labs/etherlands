@@ -75,6 +75,10 @@ func NewWorld() *World {
 	return output
 }
 
+func (W *World) Cache() *MemoryCache {
+	return W.cache
+}
+
 func (W *World) CreateLinkRequest(message string) {
 	W.linkermap.Add(message)
 }

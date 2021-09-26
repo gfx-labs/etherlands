@@ -2,7 +2,9 @@ package types
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/mediocregopher/radix/v4"
 )
@@ -10,6 +12,9 @@ import (
 type MemoryCache struct {
 	redis radix.Client
 	ctx   *context.Context
+
+	links      map[string]string
+	links_lock sync.Mutex
 }
 
 func NewMemoryCache() (*MemoryCache, error) {
@@ -52,7 +57,20 @@ func (M *MemoryCache) CacheDistrict(district *District) {
 		"district_name", district.DistrictId(), district.StringName(),
 	))
 }
+
+func (M *MemoryCache) GetLink(input string) (string, error) {
+	M.links_lock.Lock()
+	if v, ok := M.links[input]; ok {
+		return v, nil
+	}
+	return "", errors.New("no link found")
+}
+
 func (M *MemoryCache) CacheGamer(gamer *Gamer) {
+	M.links_lock.Lock()
+	M.links[gamer.MinecraftId().String()] = gamer.Address()
+	M.links[gamer.Address()] = gamer.MinecraftId().String()
+	M.links_lock.Unlock()
 	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "HMSET", "gamer_links",
 		gamer.MinecraftId().String(), gamer.Address(),
 		gamer.Address(), gamer.MinecraftId().String(),
