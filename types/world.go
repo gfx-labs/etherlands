@@ -64,7 +64,7 @@ func NewWorld() *World {
 		DistrictIn:       make(chan DistrictChainInfo, 100),
 		PlotIn:           make(chan PlotChainInfo, 100),
 
-		linkermap: NewLinkerMap(time.Second * 15),
+		linkermap: NewLinkerMap(time.Minute * 15),
 	}
 	memcache, err := NewMemoryCache()
 	if err == nil {
