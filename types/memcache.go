@@ -23,7 +23,7 @@ func NewMemoryCache() (*MemoryCache, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MemoryCache{redis: redis, ctx: &ctx}, nil
+	return &MemoryCache{redis: redis, ctx: &ctx, links: make(map[string]string)}, nil
 }
 
 func (M *MemoryCache) CachePlot(plot *Plot) {
