@@ -57,7 +57,7 @@ func (Z *WorldZmq) get_scope(args VarArgs) {
 	case "world":
 		Z.get_world_type(args)
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Scope"))
+		Z.checkError(args.Command(), errors.New("Unspecified Scope: "+scope))
 	}
 }
 
@@ -80,7 +80,7 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 		}
 		Z.sendResponse(args.Command(), gamer_str)
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Type"))
+		Z.checkError(args.Command(), errors.New("Unspecified Type: "+dtype))
 	}
 }
 
@@ -104,7 +104,7 @@ func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
 			Z.sendResponse(args.Command(), gamer.Address())
 		}
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Type"))
+		Z.checkError(args.Command(), errors.New("Unspecified Field: "+field))
 	}
 }
 
