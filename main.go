@@ -39,5 +39,6 @@ func main() {
 
 	StartWorldSMP(world)
 	StartWorldWeb(world)
+	StartWorldZmq(world)
 	StartPrompt(world)
 }
