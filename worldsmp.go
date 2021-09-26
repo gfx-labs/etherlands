@@ -91,7 +91,7 @@ func (C *WorldSMP) smp_link_request(message string) error {
 			C.W.CreateLinkRequest(message)
 		}
 	}
-	return errors.New(fmt.Sprintf("invalid input %s", message))
+	return errors.New(fmt.Sprintf("invalid input %s %v", message, args))
 }
 
 type opensea_asset_response struct {
