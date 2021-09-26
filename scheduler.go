@@ -2,14 +2,12 @@ package main
 
 import "time"
 
-
-
-func start_repeating(milliseconds time.Duration) (chan bool) {
+func start_repeating(duration time.Duration) chan bool {
 	output := make(chan bool, 1)
-	go (func(){
-		for{
-			time.Sleep(milliseconds * time.Millisecond)
-			select{
+	go (func() {
+		for {
+			time.Sleep(duration)
+			select {
 			case output <- true:
 			default:
 			}
@@ -18,12 +16,10 @@ func start_repeating(milliseconds time.Duration) (chan bool) {
 	return output
 }
 
-
-
-func start_delay(milliseconds time.Duration) (chan bool) {
+func start_delay(duration time.Duration) chan bool {
 	output := make(chan bool)
-	go (func(){
-		time.Sleep(milliseconds * time.Millisecond)
+	go (func() {
+		time.Sleep(duration)
 		output <- true
 	})()
 	return output

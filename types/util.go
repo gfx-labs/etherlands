@@ -31,11 +31,26 @@ func ReadStruct(root, file string) ([]byte, error) {
   return ioutil.ReadFile(filepath)
 }
 
-
-func BuildUUID(builder *flatbuffers.Builder, id uuid.UUID) flatbuffers.UOffsetT {
-  hi, lo := BreakUUID(id)
-  return proto.CreateUUID(builder,hi,lo)
+func BuildUUID(builder *flatbuffers.Builder, gamerId uuid.UUID) flatbuffers.UOffsetT {
+  return proto.CreateUUID(builder, int8(gamerId[0]),
+    int8(gamerId[1]),
+    int8(gamerId[2]),
+    int8(gamerId[3]),
+    int8(gamerId[4]),
+    int8(gamerId[5]),
+    int8(gamerId[6]),
+    int8(gamerId[7]),
+    int8(gamerId[8]),
+    int8(gamerId[9]),
+    int8(gamerId[10]),
+    int8(gamerId[11]),
+    int8(gamerId[12]),
+    int8(gamerId[13]),
+    int8(gamerId[14]),
+    int8(gamerId[15]),
+  )
 }
+
 
 type PlayerPermissionEntry struct {
   uuid uuid.UUID
@@ -64,9 +79,9 @@ func BuildPlayerPermissions(builder *flatbuffers.Builder, target PlayerPermissio
     proto.PlayerPermissionStart(builder)
     proto.PlayerPermissionAddFlag(builder,v.flag)
     proto.PlayerPermissionAddValue(builder,v.value)
-    hi, lo := BreakUUID(v.uuid);
-    player_uuid := proto.CreateUUID(builder,hi,lo)
-    proto.PlayerPermissionAddMinecraftId(builder, player_uuid)
+    //hi, lo := BreakUUID(v.uuid);
+    //player_uuid := proto.CreateUUID(builder,hi,lo)
+    //proto.PlayerPermissionAddMinecraftId(builder, player_uuid)
     entry := proto.PlayerPermissionEnd(builder)
     pp_o = append(pp_o,entry)
   }

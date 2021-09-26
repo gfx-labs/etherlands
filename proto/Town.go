@@ -164,13 +164,13 @@ func TownAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT) 
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(members), 0)
 }
 func TownStartMembersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(16, numElems, 8)
+	return builder.StartVector(16, numElems, 1)
 }
 func TownAddManagers(builder *flatbuffers.Builder, managers flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(managers), 0)
 }
 func TownStartManagersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(16, numElems, 8)
+	return builder.StartVector(16, numElems, 1)
 }
 func TownAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(districts), 0)

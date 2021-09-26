@@ -1,10 +1,9 @@
-package main
+package types
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/gfx-labs/etherlands/types"
 	"github.com/mediocregopher/radix/v4"
 )
 
@@ -22,7 +21,7 @@ func NewMemoryCache() (*MemoryCache, error) {
 	return &MemoryCache{redis: redis, ctx: &ctx}, nil
 }
 
-func (M *MemoryCache) CachePlot(plot *types.Plot) {
+func (M *MemoryCache) CachePlot(plot *Plot) {
 	key_x := fmt.Sprintf("plot:%d:x", plot.PlotId())
 	value_x := fmt.Sprintf("%d", plot.X())
 	key_z := fmt.Sprintf("plot:%d:z", plot.PlotId())
@@ -40,7 +39,7 @@ func (M *MemoryCache) CachePlot(plot *types.Plot) {
 	M.redis.Do(*M.ctx, radix.Cmd(nil, "ZADD", "districtZplot", value_district, value_coord))
 }
 
-func (M *MemoryCache) CacheDistrict(district *types.District) {
+func (M *MemoryCache) CacheDistrict(district *District) {
 	key_one := fmt.Sprintf("district:%d:address", district.DistrictId())
 	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "MSET",
 		key_one, district.OwnerAddress(),
@@ -52,13 +51,11 @@ func (M *MemoryCache) CacheDistrict(district *types.District) {
 	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "HSET",
 		"district_name", district.DistrictId(), district.StringName(),
 	))
-
 }
+func (M *MemoryCache) CacheGamer(gamer *Gamer) {
+	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "HMSET", "gamer_links",
+		gamer.MinecraftId().String(), gamer.Address(),
+		gamer.Address(), gamer.MinecraftId().String(),
+	))
 
-func (M *MemoryCache) CacheBlockNumber(blockNumber uint64) error {
-	return M.redis.Do(*M.ctx, radix.FlatCmd(nil, "SET", "reader_last_block", blockNumber))
-}
-
-func (M *MemoryCache) GetBlockNumber(bn *uint64) error {
-	return M.redis.Do(*M.ctx, radix.Cmd(bn, "GET", "reader_last_block"))
 }

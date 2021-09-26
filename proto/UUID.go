@@ -19,23 +19,135 @@ func (rcv *UUID) Table() flatbuffers.Table {
 	return rcv._tab.Table
 }
 
-func (rcv *UUID) Hi() uint64 {
-	return rcv._tab.GetUint64(rcv._tab.Pos + flatbuffers.UOffsetT(0))
+func (rcv *UUID) B0() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(0))
 }
-func (rcv *UUID) MutateHi(n uint64) bool {
-	return rcv._tab.MutateUint64(rcv._tab.Pos+flatbuffers.UOffsetT(0), n)
-}
-
-func (rcv *UUID) Lo() uint64 {
-	return rcv._tab.GetUint64(rcv._tab.Pos + flatbuffers.UOffsetT(8))
-}
-func (rcv *UUID) MutateLo(n uint64) bool {
-	return rcv._tab.MutateUint64(rcv._tab.Pos+flatbuffers.UOffsetT(8), n)
+func (rcv *UUID) MutateB0(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(0), n)
 }
 
-func CreateUUID(builder *flatbuffers.Builder, hi uint64, lo uint64) flatbuffers.UOffsetT {
-	builder.Prep(8, 16)
-	builder.PrependUint64(lo)
-	builder.PrependUint64(hi)
+func (rcv *UUID) B1() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(1))
+}
+func (rcv *UUID) MutateB1(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(1), n)
+}
+
+func (rcv *UUID) B2() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(2))
+}
+func (rcv *UUID) MutateB2(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(2), n)
+}
+
+func (rcv *UUID) B3() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(3))
+}
+func (rcv *UUID) MutateB3(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(3), n)
+}
+
+func (rcv *UUID) B4() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(4))
+}
+func (rcv *UUID) MutateB4(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(4), n)
+}
+
+func (rcv *UUID) B5() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(5))
+}
+func (rcv *UUID) MutateB5(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(5), n)
+}
+
+func (rcv *UUID) B6() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(6))
+}
+func (rcv *UUID) MutateB6(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(6), n)
+}
+
+func (rcv *UUID) B7() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(7))
+}
+func (rcv *UUID) MutateB7(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(7), n)
+}
+
+func (rcv *UUID) B8() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(8))
+}
+func (rcv *UUID) MutateB8(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(8), n)
+}
+
+func (rcv *UUID) B9() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(9))
+}
+func (rcv *UUID) MutateB9(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(9), n)
+}
+
+func (rcv *UUID) B10() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(10))
+}
+func (rcv *UUID) MutateB10(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(10), n)
+}
+
+func (rcv *UUID) B11() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(11))
+}
+func (rcv *UUID) MutateB11(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(11), n)
+}
+
+func (rcv *UUID) B12() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(12))
+}
+func (rcv *UUID) MutateB12(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(12), n)
+}
+
+func (rcv *UUID) B13() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(13))
+}
+func (rcv *UUID) MutateB13(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(13), n)
+}
+
+func (rcv *UUID) B14() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(14))
+}
+func (rcv *UUID) MutateB14(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(14), n)
+}
+
+func (rcv *UUID) B15() int8 {
+	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(15))
+}
+func (rcv *UUID) MutateB15(n int8) bool {
+	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(15), n)
+}
+
+func CreateUUID(builder *flatbuffers.Builder, b0 int8, b1 int8, b2 int8, b3 int8, b4 int8, b5 int8, b6 int8, b7 int8, b8 int8, b9 int8, b10 int8, b11 int8, b12 int8, b13 int8, b14 int8, b15 int8) flatbuffers.UOffsetT {
+	builder.Prep(1, 16)
+	builder.PrependInt8(b15)
+	builder.PrependInt8(b14)
+	builder.PrependInt8(b13)
+	builder.PrependInt8(b12)
+	builder.PrependInt8(b11)
+	builder.PrependInt8(b10)
+	builder.PrependInt8(b9)
+	builder.PrependInt8(b8)
+	builder.PrependInt8(b7)
+	builder.PrependInt8(b6)
+	builder.PrependInt8(b5)
+	builder.PrependInt8(b4)
+	builder.PrependInt8(b3)
+	builder.PrependInt8(b2)
+	builder.PrependInt8(b1)
+	builder.PrependInt8(b0)
 	return builder.Offset()
 }

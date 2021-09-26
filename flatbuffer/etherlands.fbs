@@ -5,8 +5,22 @@ enum FlagValue:uint8 {None, Allow, Deny}
 
 
 struct UUID{
-  hi:uint64;
-  lo:uint64;
+  b0:byte;
+  b1:byte;
+  b2:byte;
+  b3:byte;
+  b4:byte;
+  b5:byte;
+  b6:byte;
+  b7:byte;
+  b8:byte;
+  b9:byte;
+  b10:byte;
+  b11:byte;
+  b12:byte;
+  b13:byte;
+  b14:byte;
+  b15:byte;
 }
 
 table Gamer{

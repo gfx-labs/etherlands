@@ -74,7 +74,7 @@ func GroupAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT)
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(members), 0)
 }
 func GroupStartMembersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(16, numElems, 8)
+	return builder.StartVector(16, numElems, 1)
 }
 func GroupEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

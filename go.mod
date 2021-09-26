@@ -9,11 +9,9 @@ replace github.com/gfx-labs/etherlands/types => ./types
 replace github.com/gfx-labs/etherlands/zset => ./zset
 
 require (
+	github.com/c-bata/go-prompt v0.2.6
 	github.com/ethereum/go-ethereum v1.10.8
-	github.com/gfx-labs/etherlands/proto v0.0.0-00010101000000-000000000000
-	github.com/gfx-labs/etherlands/zset v0.0.0-00010101000000-000000000000
-	github.com/google/flatbuffers v2.0.0+incompatible
-	github.com/google/uuid v1.3.0
+	github.com/gfx-labs/etherlands/types v0.0.0-00010101000000-000000000000
 	github.com/mediocregopher/radix/v4 v4.0.0-beta.1
 )
 
@@ -21,10 +19,19 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect
+	github.com/gfx-labs/etherlands/proto v0.0.0-00010101000000-000000000000 // indirect
+	github.com/gfx-labs/etherlands/zset v0.0.0-00010101000000-000000000000 // indirect
+	github.com/go-chi/chi/v5 v5.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/google/flatbuffers v2.0.0+incompatible // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-tty v0.0.3 // indirect
+	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/tilinna/clock v1.0.2 // indirect
