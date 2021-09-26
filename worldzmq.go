@@ -127,20 +127,20 @@ func (Z *WorldZmq) checkError(key string, err error) bool {
 	return false
 }
 
-func (Args VarArgs) Command() string {
-	return strings.Join(Args, ":")
+func (Args *VarArgs) Command() string {
+	return strings.Join(*Args, ":")
 }
 
-func (Args VarArgs) MustGet(idx int) (string, error) {
-	if len(Args) > idx {
-		return Args[idx], nil
+func (Args *VarArgs) MustGet(idx int) (string, error) {
+	if len(*Args) > idx {
+		return (*Args)[idx], nil
 	}
 	return "", errors.New("Variable out of bounds")
 }
 
-func (Args VarArgs) MightGet(idx int) (string, bool) {
-	if len(Args) > idx {
-		return Args[idx], true
+func (Args *VarArgs) MightGet(idx int) (string, bool) {
+	if len(*Args) > idx {
+		return (*Args)[idx], true
 	}
 	return "", false
 }
