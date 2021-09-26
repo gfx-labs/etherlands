@@ -10,12 +10,13 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	types "github.com/gfx-labs/etherlands/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/google/uuid"
 )
 
 type DistrictMetadata struct {
@@ -188,22 +189,55 @@ func (WW *worldweb) serveDistrictMetadata(
 	w.Write(pending)
 }
 
-func (WW *worldweb) serveLinkForwarder(
+func (WW *worldweb) serveLinker(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	msg := strings.Replace(chi.URLParam(r, "message"), ":", "", -1)
-	sig := strings.Replace(chi.URLParam(r, "signature"), ":", "", -1)
-	pkey := strings.Replace(chi.URLParam(r, "publickey"), ":", "", -1)
+	msg := chi.URLParam(r, "message")
+	sig_s := chi.URLParam(r, "signature")
+	pkey := chi.URLParam(r, "publickey")
 
-	tosend := fmt.Sprintf("%s:%s:%s", msg, sig, pkey)
+	encoded_msg := crypto.Keccak256Hash([]byte(
+		fmt.Sprintf("\u0019Ethereum Signed Message:\n%d%s", len(msg), msg),
+	))
+	sig, err := hexutil.Decode(sig_s)
+	if sendFail(w, err) {
+		return
+	}
 
-	if (msg != "") && (sig != "") && (pkey != "") {
+	if sig[64] != 27 && sig[64] != 39 {
+		sendFail(w, errors.New("Malformed Signature"))
+		return
+	}
+
+	sig[64] = sig[64] - 27
+
+	// verify signature & obtain address
+	sigPublicKey, err := crypto.Ecrecover(encoded_msg.Bytes(), sig)
+	if sendFail(w, err) {
+		return
+	}
+	if hexutil.Encode(sigPublicKey) == pkey {
+		sendFail(w, errors.New("public key did not match"))
+		return
+	}
+
+	a := chi.URLParam(r, "a")
+	b := chi.URLParam(r, "b")
+	c := chi.URLParam(r, "c")
+
+	tocheck := fmt.Sprintf("%s:%s:%s:%s", msg, a, b, c)
+	gamer_uuid, err := uuid.Parse(msg)
+	if sendFail(w, err) {
+		return
+	}
+	if WW.W.HonorLinkRequest(gamer_uuid, pkey, tocheck) {
 		w.WriteHeader(200)
+		w.Write([]byte("link successful " + tocheck))
 	} else {
 		w.WriteHeader(400)
+		w.Write([]byte("incorrect magic words " + tocheck))
 	}
-	w.Write([]byte(tosend))
 }
 
 type worldweb struct {
@@ -223,7 +257,7 @@ func StartWorldWeb(W *types.World) {
 	r.Get("/district/{id}", www.serveDistrictMetadata)
 	r.Get("/plot_query/{x1}/{x2}/{z1}/{z2}", www.servePlotQuery)
 	r.Get("/encode_ledders/{name}", www.serve24Creator)
-	r.Get("/link/{message}/{signature}/{publickey}/{a}/{b}/{c}", www.serveLinkForwarder)
+	r.Get("/link/{message}/{signature}/{publickey}/{a}/{b}/{c}", www.serveLinker)
 	r.Get("/nft_image/{slug}/{id}", www.serveNftImage)
 
 	log.Println("launching web service at 10100")

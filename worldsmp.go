@@ -88,7 +88,7 @@ func (C *WorldSMP) smp_link_request(message string) error {
 			return errors.New(fmt.Sprintf("malformed uuid %s", args[0]))
 		}
 		if args[1] != "" && args[2] != "" && args[3] != "" {
-			C.W.CreateLinkRequest(message)
+			C.W.CreateLinkRequest(strings.ToLower(message))
 			return nil
 		}
 	}

@@ -2,6 +2,7 @@ package types
 
 import (
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -78,12 +79,14 @@ func (W *World) CreateLinkRequest(message string) {
 	W.linkermap.Add(message)
 }
 
-func (W *World) HonorLinkRequest(gamer_id uuid.UUID, address string, message string) {
-	if W.linkermap.Check(message) {
+func (W *World) HonorLinkRequest(gamer_id uuid.UUID, address string, message string) bool {
+	if W.linkermap.Check(strings.ToLower(message)) {
 		gamer := W.GetGamer(gamer_id)
 		gamer.SetAddress(address)
 		W.UpdateGamer(gamer)
+		return true
 	}
+	return false
 }
 
 func (W *World) UpdateGamer(gamer *Gamer) {
