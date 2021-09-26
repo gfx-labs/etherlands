@@ -16,7 +16,7 @@ type WorldZmq struct {
 
 func StartWorldZmq(world *types.World) error {
 	publisher := goczmq.NewPubChanneler("tcp://*:10105")
-	subscriber := goczmq.NewSubChanneler("tcp://127.0.0.1:10106")
+	subscriber := goczmq.NewSubChanneler("tcp://127.0.0.1:10106", "GET")
 	zmq := &WorldZmq{W: world, publisher: publisher, subscriber: subscriber}
 	go zmq.StartPublishing()
 	go zmq.StartListening()
@@ -27,6 +27,7 @@ func (Z *WorldZmq) StartPublishing() {
 }
 
 func (Z *WorldZmq) StartListening() {
+	log.Println("now listening")
 	for {
 		message := <-Z.subscriber.RecvChan
 		log.Println(message)
