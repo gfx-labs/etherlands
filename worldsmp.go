@@ -89,6 +89,7 @@ func (C *WorldSMP) smp_link_request(message string) error {
 		}
 		if args[1] != "" && args[2] != "" && args[3] != "" {
 			C.W.CreateLinkRequest(message)
+			return nil
 		}
 	}
 	return errors.New(fmt.Sprintf("invalid input %s %v", message, args))
