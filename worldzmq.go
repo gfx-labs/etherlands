@@ -69,7 +69,7 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 	}
 	switch dtype {
 	case "gamer":
-		Z.get_world_type(args)
+		Z.get_world_gamer_field(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args.Command(), err) {
