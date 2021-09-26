@@ -37,6 +37,7 @@ func (Z *WorldZmq) StartListening() {
 		var args VarArgs
 		message := <-Z.subscriber.RecvChan
 		command := string(message[0])
+		log.Printf("[%s] %s\n", message, command)
 		args = strings.Split(string(message[1]), ":")
 		switch command {
 		case "GET":
