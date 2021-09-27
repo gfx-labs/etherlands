@@ -60,6 +60,7 @@ func (M *MemoryCache) CacheDistrict(district *District) {
 
 func (M *MemoryCache) GetLink(input string) (string, error) {
 	M.links_lock.Lock()
+	defer M.links_lock.Unlock()
 	if v, ok := M.links[input]; ok {
 		return v, nil
 	}
