@@ -123,7 +123,10 @@ func (W *World) UpdateTown(town *Town) {
 	if _, ok := W.towns[town.GetKey()]; !ok {
 		W.towns[town.GetKey()] = town
 	}
-	//	W.cache.CacheTown(W.towns[town.GetKey()])
+	for k := range town.Members() {
+		W.uuid_town.AddOrUpdate(k, town.Name(), town)
+	}
+	W.cache.CacheTown(W.towns[town.GetKey()])
 	go W.towns[town.GetKey()].Save()
 }
 

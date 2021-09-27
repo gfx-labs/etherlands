@@ -158,6 +158,8 @@ func (Z *WorldZmq) ask_world_gamer_field(args VarArgs) {
 	case "pos":
 		x, y, z := gamer.GetPosXYZ()
 		Z.sendResponse(args, fmt.Sprintf("%d_%d_%d", x, y, z))
+	case "town":
+		Z.sendResponse(args, Z.W.TownOfGamer(gamer))
 	default:
 		Z.genericError(args, field)
 	}
