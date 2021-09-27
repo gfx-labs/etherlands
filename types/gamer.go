@@ -13,11 +13,15 @@ type Gamer struct {
 	nickname    string
 	address     string
 	minecraftId uuid.UUID
-
-	mutex sync.RWMutex
+	mutex       sync.RWMutex
 
 	key   FamilyKey
 	world *World
+
+	pos_x     int64
+	pos_y     int64
+	pos_z     int64
+	pos_mutex sync.RWMutex
 }
 
 func NewGamerKey(gamer_id uuid.UUID) FamilyKey {
@@ -49,6 +53,19 @@ func (G *Gamer) SetAddress(address string) {
 	G.mutex.Lock()
 	defer G.mutex.Unlock()
 	G.address = address
+}
+
+func (G *Gamer) SetPosXYZ(x, y, z int64) {
+	G.mutex.Lock()
+	defer G.mutex.Unlock()
+	G.pos_x = x
+	G.pos_y = y
+	G.pos_z = z
+}
+func (G *Gamer) GetPosXYZ() (x, y, z int64) {
+	G.mutex.Lock()
+	defer G.mutex.Unlock()
+	return G.pos_x, G.pos_y, G.pos_z
 }
 
 func (G *Gamer) GetKey() FamilyKey {
