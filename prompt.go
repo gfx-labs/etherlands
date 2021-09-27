@@ -14,14 +14,20 @@ func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "districts", Description: "District Summary"},
 		{Text: "plots", Description: "Plot Summary"},
+		{Text: "gamers", Description: "Gamer Summary"},
+
 		{Text: "district", Description: "District Info"},
 		{Text: "plot", Description: "Plot Info"},
+
+		{Text: "hit", Description: "ask world with request"},
+		{Text: "ask", Description: "hit world with request"},
+
 		{Text: "stop", Description: "stops the server"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
-func StartPrompt(W *types.World) {
+func StartPrompt(W *types.World, pipe *WorldZmq) {
 	for {
 		dd := prompt.Input(">> ", completer,
 			prompt.OptionTitle("Etherlands World Browser"),
@@ -40,6 +46,17 @@ func StartPrompt(W *types.World) {
 					districts[i].DistrictId(),
 					districts[i].OwnerAddress(),
 					districts[i].StringName(),
+				)
+			}
+		case "gamers":
+			log.Printf("gamers: %d", W.GamerCount())
+			gamers := W.Gamers()
+			for i := 0; i < len(gamers); i++ {
+				fmt.Printf(
+					"  %s > %s town: %s\n",
+					gamers[i].MinecraftId().String(),
+					gamers[i].Address(),
+					gamers[i].GetTown(),
 				)
 			}
 		case "plots":
@@ -83,6 +100,14 @@ func StartPrompt(W *types.World) {
 					}
 					fmt.Print("\n")
 				}
+			}
+		case "hit":
+			if len(blocks) > 1 {
+				pipe.recvChan <- [2]string{"HIT", "world:" + blocks[1]}
+			}
+		case "ask":
+			if len(blocks) > 1 {
+				pipe.recvChan <- [2]string{"ASK", "world:" + blocks[1]}
 			}
 		case "stop":
 			return

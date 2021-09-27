@@ -9,6 +9,22 @@ import (
 	proto "github.com/gfx-labs/etherlands/proto"
 )
 
+func (W *World) GamerCount() int {
+	return len(W.districts)
+}
+
+func (W *World) Gamers() []*Gamer {
+	output := []*Gamer{}
+	W.gamers_lock.RLock()
+	defer W.gamers_lock.RUnlock()
+	for _, v := range W.gamers {
+		if v != nil {
+			output = append(output, v)
+		}
+	}
+	return output
+}
+
 // note - loading a gamer from memory will pause everything
 // design improvement will be to make this a gamer distributor that sends to channels
 // but w/e we will do that... another decade....
