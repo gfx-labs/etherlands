@@ -205,10 +205,11 @@ func (T *Town) Save() error {
 
 	owner_id := BuildUUID(builder, T.Owner())
 
+	town_name := builder.CreateString(T.Name())
+
 	//create town table
 	proto.TownStart(builder)
 	//town name
-	town_name := builder.CreateString(T.Name())
 	proto.TownAddName(builder, town_name)
 
 	//owner
