@@ -41,9 +41,12 @@ func (W *World) GetTown(name string) (*Town, error) {
 	return nil, errors.New(fmt.Sprintf("town %s could not be found", name))
 }
 
+type town_create_input struct {
+	name  string
+	owner *Gamer
+}
+
 func (W *World) CreateTown(name string, owner *Gamer) error {
-	W.towns_lock.RLock()
-	defer W.towns_lock.RUnlock()
 	town, err := W.GetTown(name)
 	if err != nil && town == nil {
 		newTown := W.initTown(name)
