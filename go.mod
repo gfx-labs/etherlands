@@ -10,14 +10,17 @@ replace github.com/gfx-labs/etherlands/zset => ./zset
 
 replace github.com/gfx-labs/etherlands/utils => ./utils
 
+replace github.com/gfx-labs/etherlands/logger => ./logger
+
 require (
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/ethereum/go-ethereum v1.10.8
+	github.com/gfx-labs/etherlands/logger v0.0.0-00010101000000-000000000000
 	github.com/gfx-labs/etherlands/types v0.0.0-00010101000000-000000000000
 	github.com/gfx-labs/etherlands/utils v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/google/uuid v1.3.0
-	github.com/mediocregopher/radix/v4 v4.0.0-beta.1
+	github.com/pebbe/zmq4 v1.2.7
 )
 
 require (
@@ -34,11 +37,9 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-tty v0.0.3 // indirect
-	github.com/pebbe/zmq4 v1.2.7 // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
-	github.com/tilinna/clock v1.0.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect

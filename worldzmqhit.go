@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -103,7 +102,6 @@ func (Z *WorldZmq) opensea_image_download(contract, id string) error {
 	if err != nil {
 		return err
 	}
-	log.Println(formatted)
 	if len(formatted.Assets) > 0 {
 		image_url := formatted.Assets[0].ImageURL
 		resp_img, err := http.Get(image_url)

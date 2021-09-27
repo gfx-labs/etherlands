@@ -2,10 +2,11 @@ package main
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 	"sync"
+
+	logger "github.com/gfx-labs/etherlands/logger"
 
 	types "github.com/gfx-labs/etherlands/types"
 	zmq "github.com/pebbe/zmq4"
@@ -78,14 +79,14 @@ func (Z *WorldZmq) StartListening() {
 		message := <-Z.recvChan
 		verb := string(message[0])
 		args = strings.Split(string(message[1]), ":")
-		log.Printf("[%s] %s\n", verb, args.Command())
+		logger.Log.Printf("[%s] %s\n", verb, args.Command())
 		switch verb {
 		case "ASK":
 			Z.ask_scope(args)
 		case "HIT":
 			Z.hit_scope(args)
 		default:
-			log.Println("Unrecognized Verb:", verb)
+			logger.Log.Println("Unrecognized Verb:", verb)
 		}
 	}
 }
@@ -95,6 +96,7 @@ func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 		args.Command(),
 		string(content),
 	}
+	logger.Log.Printf("[out|%s] %s\n", args.Command(), content)
 }
 
 func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
