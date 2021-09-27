@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strings"
 	"sync"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -28,7 +29,7 @@ type Gamer struct {
 func NewGamerKey(gamer_id uuid.UUID) FamilyKey {
 	return FamilyKey{
 		datatype: GAMER_FAMILY,
-		subkey:   gamer_id.String(),
+		subkey:   strings.ToLower(gamer_id.String()),
 	}
 }
 
