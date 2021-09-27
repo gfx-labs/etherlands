@@ -8,11 +8,16 @@ replace github.com/gfx-labs/etherlands/types => ./types
 
 replace github.com/gfx-labs/etherlands/zset => ./zset
 
+replace github.com/gfx-labs/etherlands/utils => ./utils
+
 require (
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/gfx-labs/etherlands/types v0.0.0-00010101000000-000000000000
+	github.com/go-chi/chi/v5 v5.0.4
+	github.com/google/uuid v1.3.0
 	github.com/mediocregopher/radix/v4 v4.0.0-beta.1
+	github.com/zeromq/goczmq v4.1.0+incompatible
 )
 
 require (
@@ -20,12 +25,11 @@ require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect
 	github.com/gfx-labs/etherlands/proto v0.0.0-00010101000000-000000000000 // indirect
+	github.com/gfx-labs/etherlands/utils v0.0.0-00010101000000-000000000000 // indirect
 	github.com/gfx-labs/etherlands/zset v0.0.0-00010101000000-000000000000 // indirect
-	github.com/go-chi/chi/v5 v5.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/google/flatbuffers v2.0.0+incompatible // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -37,7 +41,6 @@ require (
 	github.com/tilinna/clock v1.0.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect
-	github.com/zeromq/goczmq v4.1.0+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
 	golang.org/x/sys v0.0.0-20210816183151-1e6c022a8912 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect

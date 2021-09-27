@@ -19,31 +19,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type DistrictMetadata struct {
-	Owner       string            `json:"owner"`
-	Name        string            `json:"name"`
-	Contains    []uint64          `json:"contains"`
-	Clusters    []ClusterMetadata `json:"clusters"`
-	Description string            `json:"description"`
-	Image       string            `json:"image"`
-	ExternalURL string            `json:"external_url"`
-	Attributes  []Attribute       `json:"attributes"`
-}
-
-type Attribute struct {
-	DisplayType string `json:"display_type,omitempty"`
-	TraitType   string `json:"trait_type"`
-	Value       int64  `json:"value"`
-}
-
-type PlotSearchResult struct {
-	IdArray       []uint64   `json:"id_array"`
-	DistrictArray []uint64   `json:"district_array"`
-	LocationArray [][2]int64 `json:"location_array"`
-
-	Count int `json:"count"`
-}
-
 func sendFail(w http.ResponseWriter, err error) bool {
 	if err != nil {
 		w.WriteHeader(400)
@@ -137,6 +112,14 @@ func (WW *worldweb) servePlotQuery(w http.ResponseWriter, r *http.Request) {
 	w.Write(pending)
 }
 
+type PlotSearchResult struct {
+	IdArray       []uint64   `json:"id_array"`
+	DistrictArray []uint64   `json:"district_array"`
+	LocationArray [][2]int64 `json:"location_array"`
+
+	Count int `json:"count"`
+}
+
 func (WW *worldweb) serveDistrictMetadata(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -153,7 +136,7 @@ func (WW *worldweb) serveDistrictMetadata(
 	}
 
 	count := WW.W.PlotsOfDistrict(district_id)
-	clustered := GenerateClusterMetadata(WW.W, count)
+	clustered := WW.W.Cache().GetClusters(district_id)
 
 	output := fmt.Sprintf("A District containing %d plots at locations", len(count))
 	for _, v := range count {
@@ -162,14 +145,14 @@ func (WW *worldweb) serveDistrictMetadata(
 			output = fmt.Sprintf(output+", [%d,%d]", plot.X(), plot.Z())
 		}
 	}
-	district_attr := []Attribute{}
+	district_attr := []types.Attribute{}
 	district_attr = append(district_attr,
-		Attribute{
+		types.Attribute{
 			DisplayType: "number",
 			TraitType:   "Size",
 			Value:       int64(len(count)),
 		})
-	metadata := DistrictMetadata{
+	metadata := types.DistrictMetadata{
 		Owner:       district.OwnerAddress(),
 		Name:        district.StringName(),
 		Contains:    count,

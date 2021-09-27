@@ -33,7 +33,7 @@ type World struct {
 
 	linkermap *LinkerMap
 
-	cache *MemoryCache
+	cache *WorldCache
 }
 
 type DistrictChainInfo struct {
@@ -66,16 +66,16 @@ func NewWorld() *World {
 
 		linkermap: NewLinkerMap(time.Minute * 15),
 	}
-	memcache, err := NewMemoryCache()
+	memcache, err := output.NewWorldCache()
 	if err == nil {
 		output.cache = memcache
 	} else {
-		log.Println("no redis - running in dumb mode")
+		log.Println("failed to init cache")
 	}
 	return output
 }
 
-func (W *World) Cache() *MemoryCache {
+func (W *World) Cache() *WorldCache {
 	return W.cache
 }
 
@@ -180,8 +180,12 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 					district_info.Nickname,
 				)
 			} else {
-				district.SetNickname(district_info.Nickname)
-				district.SetOwnerAddress(district_info.Owner)
+				if *district.Nickname() != district_info.Nickname {
+					district.SetNickname(district_info.Nickname)
+				}
+				if district.OwnerAddress() != district_info.Owner {
+					district.SetOwnerAddress(district_info.Owner)
+				}
 			}
 			W.UpdateDistrict(district)
 		}
@@ -200,7 +204,9 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 					plot_info.DistrictId,
 				)
 			} else {
-				plot.SetDistrictId(plot_info.DistrictId)
+				if plot.DistrictId() != plot_info.DistrictId {
+					plot.SetDistrictId(plot_info.DistrictId)
+				}
 			}
 			W.UpdatePlot(plot)
 		}

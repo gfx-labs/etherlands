@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -219,6 +220,29 @@ func (Z *WorldZmq) get_world_district_field(args VarArgs) {
 	switch field {
 	case "name":
 		Z.sendResponse(args, district.StringName())
+	case "plots":
+		plots := Z.W.PlotsOfDistrict(district.DistrictId())
+		temp := make([]string, len(plots))
+		for i := 0; i < len(plots); i++ {
+			temp[i] = strconv.FormatUint(plots[i], 10)
+		}
+		Z.sendResponse(args, strings.Join(temp, "_"))
+	case "clusters":
+		clusters := Z.W.Cache().GetClusters(district.DistrictId())
+		value := ""
+		for _, cluster := range clusters {
+			value = value + fmt.Sprintf(
+				"%d:%d:%d",
+				cluster.OriginX,
+				cluster.OriginZ,
+				len(cluster.Offsets),
+			)
+			value = value + "@"
+		}
+		if len(value) > 1 {
+			value = value[:len(value)-1]
+		}
+		Z.sendResponse(args, value)
 	case "owner_addr":
 		Z.sendResponse(args, district.OwnerAddress())
 	default:

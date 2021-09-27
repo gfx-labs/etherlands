@@ -18,3 +18,4 @@ db
 # vendor/
 
 etherlands
+.lock*

@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
+	utils "github.com/gfx-labs/etherlands/utils"
 	"github.com/mediocregopher/radix/v4"
 )
 
-type MemoryCache struct {
+type WorldCache struct {
 	redis radix.Client
 	ctx   *context.Context
 
@@ -18,21 +20,30 @@ type MemoryCache struct {
 
 	name_district      map[string]uint64
 	name_district_lock sync.RWMutex
+
+	clusters      map[uint64][]ClusterMetadata
+	cluster_lock  sync.RWMutex
+	cluster_limit *utils.RateLimit
+
+	W *World
 }
 
-func NewMemoryCache() (*MemoryCache, error) {
+func (W *World) NewWorldCache() (*WorldCache, error) {
 	ctx := context.Background()
 	redis, err := (radix.PoolConfig{}).New(ctx, "tcp", "127.0.0.1:6379")
 	if err != nil {
 		return nil, err
 	}
-	return &MemoryCache{redis: redis, ctx: &ctx,
+	return &WorldCache{redis: redis, ctx: &ctx,
+		W:             W,
 		links:         make(map[string]string),
 		name_district: make(map[string]uint64),
+		clusters:      make(map[uint64][]ClusterMetadata),
+		cluster_limit: utils.NewRateLimiter(1 * time.Minute),
 	}, nil
 }
 
-func (M *MemoryCache) CachePlot(plot *Plot) {
+func (M *WorldCache) CachePlot(plot *Plot) {
 	key_x := fmt.Sprintf("plot:%d:x", plot.PlotId())
 	value_x := fmt.Sprintf("%d", plot.X())
 	key_z := fmt.Sprintf("plot:%d:z", plot.PlotId())
@@ -50,7 +61,7 @@ func (M *MemoryCache) CachePlot(plot *Plot) {
 	M.redis.Do(*M.ctx, radix.Cmd(nil, "ZADD", "districtZplot", value_district, value_coord))
 }
 
-func (M *MemoryCache) CacheDistrict(district *District) {
+func (M *WorldCache) CacheDistrict(district *District) {
 	M.name_district_lock.Lock()
 	M.name_district[district.StringName()] = district.DistrictId()
 	M.name_district_lock.Unlock()
@@ -67,24 +78,7 @@ func (M *MemoryCache) CacheDistrict(district *District) {
 	))
 }
 
-func (M *MemoryCache) GetDistrictByName(input string) (uint64, error) {
-	M.name_district_lock.RLock()
-	defer M.name_district_lock.RUnlock()
-	if v, ok := M.name_district[input]; ok {
-		return v, nil
-	}
-	return 0, errors.New("no district found")
-}
-func (M *MemoryCache) GetLink(input string) (string, error) {
-	M.links_lock.RLock()
-	defer M.links_lock.RUnlock()
-	if v, ok := M.links[input]; ok {
-		return v, nil
-	}
-	return "", errors.New("no link found")
-}
-
-func (M *MemoryCache) CacheGamer(gamer *Gamer) {
+func (M *WorldCache) CacheGamer(gamer *Gamer) {
 	M.links_lock.Lock()
 	M.links[gamer.MinecraftId().String()] = gamer.Address()
 	M.links[gamer.Address()] = gamer.MinecraftId().String()
@@ -94,4 +88,43 @@ func (M *MemoryCache) CacheGamer(gamer *Gamer) {
 		gamer.Address(), gamer.MinecraftId().String(),
 	))
 
+}
+
+func (M *WorldCache) GetDistrictByName(input string) (uint64, error) {
+	M.name_district_lock.RLock()
+	defer M.name_district_lock.RUnlock()
+	if v, ok := M.name_district[input]; ok {
+		return v, nil
+	}
+	return 0, errors.New("no district found")
+}
+func (M *WorldCache) GetLink(input string) (string, error) {
+	M.links_lock.RLock()
+	defer M.links_lock.RUnlock()
+	if v, ok := M.links[input]; ok {
+		return v, nil
+	}
+	return "", errors.New("no link found")
+}
+
+func (M *WorldCache) CacheClusters(input uint64, clusters []ClusterMetadata) {
+
+	M.cluster_lock.Lock()
+	M.clusters[input] = clusters
+	M.cluster_lock.Unlock()
+}
+
+func (M *WorldCache) GetClusters(input uint64) []ClusterMetadata {
+	if !M.cluster_limit.Check(input) {
+		M.cluster_lock.RLock()
+		if v, ok := M.clusters[input]; ok {
+			M.cluster_lock.RUnlock()
+			return v
+		}
+		M.cluster_lock.RUnlock()
+	}
+	count := M.W.PlotsOfDistrict(input)
+	clustered := M.W.GenerateClusterMetadata(count)
+	M.CacheClusters(input, clustered)
+	return clustered
 }

@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
+	"io/ioutil"
 	"log"
 	"math/big"
+	"os"
 	"time"
 
 	//"log"
@@ -12,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	types "github.com/gfx-labs/etherlands/types"
+	"github.com/gfx-labs/etherlands/utils"
 )
 
 const CONTRACT_ADDR = "0x8ed31d7ff5d2ffbf17fe3118a61123f50adb523a"
@@ -23,8 +27,6 @@ type DistrictConnection struct {
 	provider *ethclient.Client
 	contract *DistrictContract
 	ctx      *context.Context
-
-	cache *MemoryCache
 
 	W *types.World
 
@@ -83,22 +85,30 @@ func NewDistrictConnection(W *types.World) (*DistrictConnection, error) {
 	output := &DistrictConnection{contract: contract,
 		provider:   client,
 		ctx:        &ctx,
-		best_block: FIRST_BLOCK,
+		best_block: getBlockNumber(),
 		W:          W,
 	}
-	memcache, err := NewMemoryCache()
-	if err == nil {
-		var num uint64
-		err = memcache.GetBlockNumber(&num)
-		if err == nil {
-			output.best_block = num
-		}
-		output.cache = memcache
-	} else {
-		log.Println("no redis - running in dumb mode")
-	}
-
 	return output, nil
+}
+
+func getBlockNumber() uint64 {
+	a, err := ioutil.ReadFile(".lock_block")
+	if err != nil {
+		return FIRST_BLOCK
+	}
+	num, er := binary.Uvarint(a)
+	if er == 0 {
+		num = FIRST_BLOCK
+	}
+	return num
+}
+
+func setBlockNumber(num uint64) {
+	buf := make([]byte, 8)
+	count := binary.PutUvarint(buf, num)
+	if count != 0 {
+		os.WriteFile(".lock_block", buf, os.FileMode(0777))
+	}
 }
 
 func (D *DistrictConnection) GetTotalPlots() (uint64, error) {
@@ -189,12 +199,12 @@ func (D *DistrictConnection) QueryRecentEvents() (uint64, error) {
 	return target + 1, nil
 }
 func (D *DistrictConnection) process_events() {
-	district_limiter := NewRateLimiter()
-	plot_limiter := NewRateLimiter()
+	district_limiter := utils.NewRateLimiter(5 * time.Second)
+	plot_limiter := utils.NewRateLimiter(5 * time.Second)
 	for {
 		select {
 		case district_id := <-D.W.DistrictRequests:
-			if district_limiter.check(district_id) {
+			if district_limiter.Check(district_id) {
 				log.Println("updating district", district_id)
 				district, err := D.GetDistrictInfo(district_id)
 				if err == nil {
@@ -204,7 +214,7 @@ func (D *DistrictConnection) process_events() {
 				log.Println("skipping district update", district_id)
 			}
 		case plot_id := <-D.W.PlotRequests:
-			if plot_limiter.check(plot_id) {
+			if plot_limiter.Check(plot_id) {
 				log.Println("updating plot ", plot_id)
 				plot, err := D.GetPlotInfo(plot_id)
 				if err == nil {
@@ -228,9 +238,7 @@ func (D *DistrictConnection) start_query(duration time.Duration) {
 		if err != nil {
 			log.Println(err)
 		} else {
-			if D.cache != nil {
-				D.cache.CacheBlockNumber(block)
-			}
+			setBlockNumber(block)
 		}
 	}
 }

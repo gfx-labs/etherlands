@@ -1,16 +1,14 @@
-package main
+package types
 
 import (
 	"math"
-
-	types "github.com/gfx-labs/etherlands/types"
 )
 
 type plot_id = uint64
 
-func Cluster(W *types.World, plot_ids []uint64) [][]plot_id {
+func (W *World) Cluster(plot_ids []uint64) [][]plot_id {
 	result := make(map[plot_id]uint64)
-	db := make(map[plot_id]*types.Plot)
+	db := make(map[plot_id]*Plot)
 	for _, v := range plot_ids {
 		plot, err := W.GetPlot(v)
 		if err == nil {
@@ -34,22 +32,11 @@ func Cluster(W *types.World, plot_ids []uint64) [][]plot_id {
 	return output
 }
 
-type ClusterMetadata struct {
-	OriginX int64 `json:"origin_x"`
-	OriginZ int64 `json:"origin_z"`
-	LengthX int64 `json:"length_x"`
-	LengthZ int64 `json:"length_z"`
-
-	Offsets [][2]int64 `json:"offsets"`
-	PlotIds []uint64   `json:"plot_ids"`
-}
-
-func GenerateClusterMetadata(
-	W *types.World,
+func (W *World) GenerateClusterMetadata(
 	plot_ids []uint64,
 ) []ClusterMetadata {
 	output := []ClusterMetadata{}
-	clustered := Cluster(W, plot_ids)
+	clustered := W.Cluster(plot_ids)
 	for _, cluster := range clustered {
 
 		var min_x int64 = math.MaxInt64
@@ -97,9 +84,9 @@ func GenerateClusterMetadata(
 }
 
 func find_neighbors(
-	W *types.World,
+	W *World,
 	clusters *map[plot_id]uint64,
-	plotdb map[plot_id]*types.Plot,
+	plotdb map[plot_id]*Plot,
 	plot uint64,
 	current_cluster uint64,
 ) {
