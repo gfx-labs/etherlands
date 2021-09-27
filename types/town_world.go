@@ -27,10 +27,11 @@ func (W *World) Towns() []*Town {
 
 func (W *World) GetTown(name string) (*Town, error) {
 	W.towns_lock.RLock()
-	defer W.towns_lock.RUnlock()
 	if val, ok := W.towns[NewTownKey(name)]; ok {
+		W.towns_lock.RUnlock()
 		return val, nil
 	}
+	W.towns_lock.RUnlock()
 	//obtain a write lock
 	W.towns_lock.Lock()
 	defer W.towns_lock.Unlock()
