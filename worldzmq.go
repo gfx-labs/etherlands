@@ -173,7 +173,7 @@ func (Z *WorldZmq) get_world_plot_field(args VarArgs) {
 	case "district":
 		Z.sendResponse(args, strconv.FormatUint(plot.DistrictId(), 10))
 	default:
-		Z.checkError(args, errors.New("Unspecified Field: "+field))
+		Z.genericError(args, field)
 	}
 }
 func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
@@ -196,7 +196,7 @@ func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
 			Z.sendResponse(args, gamer.Address())
 		}
 	default:
-		Z.checkError(args, errors.New("Unspecified Field: "+field))
+		Z.genericError(args, field)
 	}
 }
 func (Z *WorldZmq) get_world_district_field(args VarArgs) {
@@ -222,7 +222,7 @@ func (Z *WorldZmq) get_world_district_field(args VarArgs) {
 	case "owner_addr":
 		Z.sendResponse(args, district.OwnerAddress())
 	default:
-		Z.checkError(args, errors.New("Unspecified Field: "+field))
+		Z.genericError(args, field)
 	}
 }
 
