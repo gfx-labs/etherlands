@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 
@@ -18,8 +17,7 @@ func (W *World) Gamers() []*Gamer {
 	output := []*Gamer{}
 	W.gamers_lock.RLock()
 	defer W.gamers_lock.RUnlock()
-	for k, v := range W.gamers {
-		log.Println(k, v)
+	for _, v := range W.gamers {
 		if v != nil {
 			output = append(output, v)
 		}
