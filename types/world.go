@@ -131,7 +131,7 @@ func (W *World) UpdateDistrict(district *District) {
 // every plot is always loaded into memory
 // plot location is immutable!!!
 func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
-	for i := uint64(1); i < plot_count+1; i++ {
+	for i := uint64(1); i <= plot_count; i++ {
 		plot, err := W.LoadPlot(i)
 		if err != nil {
 			log.Println("failed to read plot", err)
@@ -142,7 +142,7 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 			W.UpdatePlot(plot)
 		}
 	}
-	for i := uint64(1); i < district_count; i++ {
+	for i := uint64(1); i <= district_count; i++ {
 		district, err := W.LoadDistrict(i)
 		if err != nil {
 			log.Println("failed to read district", err)

@@ -17,7 +17,9 @@ func (W *World) Districts() []*District {
 	W.districts_lock.RLock()
 	defer W.districts_lock.RUnlock()
 	for _, v := range W.districts {
-		output = append(output, v)
+		if v != nil {
+			output = append(output, v)
+		}
 	}
 	return output
 }

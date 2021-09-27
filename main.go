@@ -28,6 +28,8 @@ func main() {
 		return
 	}
 
+	log.Println(total_districts, total_plots)
+
 	err = world.LoadWorld(total_districts, total_plots)
 	if err != nil {
 		log.Println("error loading world:", err)
