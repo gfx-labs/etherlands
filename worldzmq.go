@@ -80,7 +80,7 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 		if Z.checkError(args, err) {
 			return
 		}
-		gamer_str, err := Z.W.Cache().GetLink(addr)
+		gamer_str, err := Z.W.Cache().GetLink(strings.ToLower(addr))
 		if Z.checkError(args, err) {
 			return
 		}
