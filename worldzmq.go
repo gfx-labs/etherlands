@@ -9,35 +9,65 @@ import (
 
 	types "github.com/gfx-labs/etherlands/types"
 	"github.com/google/uuid"
-	"github.com/zeromq/goczmq"
+	zmq "github.com/pebbe/zmq4"
 )
 
 type WorldZmq struct {
 	W *types.World
 
-	publisher  *goczmq.Channeler
-	subscriber *goczmq.Channeler
+	publisher  *zmq.Socket
+	subscriber *zmq.Socket
+
+	recvChan chan [2]string
+	sendChan chan [2]string
 }
 
 type VarArgs []string
 
 func StartWorldZmq(world *types.World) error {
-	publisher := goczmq.NewPubChanneler("tcp://*:10105")
-	subscriber := goczmq.NewSubChanneler("tcp://127.0.0.1:10106", "GET")
-	zmq := &WorldZmq{W: world, publisher: publisher, subscriber: subscriber}
+	publisher, err := zmq.NewSocket(zmq.PUB)
+	if err != nil {
+		return err
+	}
+	publisher.Bind("tcp://*:10105")
+	subscriber, err := zmq.NewSocket(zmq.SUB)
+	if err != nil {
+		return err
+	}
+	subscriber.Connect("tcp://127.0.0.1:10106")
+	subscriber.SetSubscribe("")
+	zmq := &WorldZmq{W: world, publisher: publisher, subscriber: subscriber,
+		recvChan: make(chan [2]string, 100),
+		sendChan: make(chan [2]string, 100),
+	}
 	go zmq.StartPublishing()
+	go zmq.StartSubscribing()
 	go zmq.StartListening()
 	return nil
 }
 
 func (Z *WorldZmq) StartPublishing() {
+	for {
+		pair := <-Z.sendChan
+		Z.publisher.Send(pair[0], zmq.SNDMORE)
+		Z.publisher.Send(pair[1], 0)
+	}
+}
+
+func (Z *WorldZmq) StartSubscribing() {
+	for {
+		verb, err1 := Z.subscriber.Recv(0)
+		command, err2 := Z.subscriber.Recv(0)
+		if err1 == nil && err2 == nil {
+			Z.recvChan <- [2]string{verb, command}
+		}
+	}
 }
 
 func (Z *WorldZmq) StartListening() {
-	log.Println("now listening")
 	for {
 		var args VarArgs
-		message := <-Z.subscriber.RecvChan
+		message := <-Z.recvChan
 		verb := string(message[0])
 		args = strings.Split(string(message[1]), ":")
 		log.Printf("[%s] %s\n", verb, args.Command())
@@ -251,17 +281,17 @@ func (Z *WorldZmq) get_world_district_field(args VarArgs) {
 }
 
 func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
-	Z.publisher.SendChan <- [][]byte{
-		[]byte(args.Command()),
-		[]byte(string(content)),
+	Z.sendChan <- [2]string{
+		args.Command(),
+		string(content),
 	}
 }
 
 func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
 	if err != nil {
-		Z.publisher.SendChan <- [][]byte{
-			[]byte(args.Command()),
-			[]byte("error:" + err.Error()),
+		Z.sendChan <- [2]string{
+			args.Command(),
+			"error:" + err.Error(),
 		}
 		return true
 	}
