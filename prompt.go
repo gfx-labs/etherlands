@@ -18,6 +18,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 		{Text: "gamers", Description: "Gamer Summary"},
 
 		{Text: "district", Description: "District Info"},
+		{Text: "town", Description: "town Summary"},
 		{Text: "plot", Description: "Plot Info"},
 
 		{Text: "hit", Description: "ask world with request"},
@@ -68,6 +69,21 @@ func StartPrompt(W *types.World, pipe *WorldZmq) {
 					"  %s > %s\n",
 					towns[i].Name(),
 					towns[i].Owner().String(),
+				)
+			}
+		case "town":
+			if len(blocks) > 1 {
+				name := blocks[1]
+				town, err := W.GetTown(name)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				log.Printf(
+					"town %s: Owner:(%s) members: %v",
+					town.Name(),
+					town.Owner().String(),
+					town.Members(),
 				)
 			}
 		case "plots":
