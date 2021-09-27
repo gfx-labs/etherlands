@@ -59,6 +59,16 @@ func StartPrompt(W *types.World, pipe *WorldZmq) {
 					gamers[i].GetTown(),
 				)
 			}
+		case "towns":
+			log.Printf("towns: %d", W.TownCount())
+			towns := W.Towns()
+			for i := 0; i < len(towns); i++ {
+				fmt.Printf(
+					"  %s > %s\n",
+					towns[i].Name(),
+					towns[i].Owner().String(),
+				)
+			}
 		case "plots":
 			log.Printf("plots: %d", W.PlotCount())
 		case "plot":

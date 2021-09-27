@@ -9,6 +9,22 @@ import (
 	uuid "github.com/google/uuid"
 )
 
+func (W *World) TownCount() int {
+	return len(W.towns)
+}
+
+func (W *World) Towns() []*Town {
+	output := []*Town{}
+	W.towns_lock.RLock()
+	defer W.towns_lock.RUnlock()
+	for _, v := range W.towns {
+		if v != nil {
+			output = append(output, v)
+		}
+	}
+	return output
+}
+
 func (W *World) GetTown(name string) (*Town, error) {
 	W.towns_lock.RLock()
 	defer W.towns_lock.RUnlock()
