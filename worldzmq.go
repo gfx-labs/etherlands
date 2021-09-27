@@ -73,6 +73,8 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 		Z.get_world_gamer_field(args)
 	case "plot":
 		Z.get_world_plot_field(args)
+	case "district":
+		Z.get_world_plot_field(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args, err) {
@@ -171,6 +173,32 @@ func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
 		if gamer.Address() != "" {
 			Z.sendResponse(args, gamer.Address())
 		}
+	default:
+		Z.checkError(args, errors.New("Unspecified Field: "+field))
+	}
+}
+func (Z *WorldZmq) get_world_district_field(args VarArgs) {
+	field, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	district_str, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	district_id, err := strconv.ParseUint(district_str, 10, 64)
+	if Z.checkError(args, err) {
+		return
+	}
+	district, err := Z.W.GetDistrict(district_id)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch field {
+	case "name":
+		Z.sendResponse(args, district.StringName())
+	case "owner_addr":
+		Z.sendResponse(args, district.OwnerAddress())
 	default:
 		Z.checkError(args, errors.New("Unspecified Field: "+field))
 	}
