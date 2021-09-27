@@ -72,7 +72,7 @@ func (Z *WorldZmq) StartListening() {
 		args = strings.Split(string(message[1]), ":")
 		log.Printf("[%s] %s\n", verb, args.Command())
 		switch verb {
-		case "GET":
+		case "ASK":
 			Z.get_scope(args)
 		default:
 			log.Println("Unrecognized Verb:", verb)
