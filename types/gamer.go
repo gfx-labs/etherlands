@@ -56,6 +56,12 @@ func (G *Gamer) SetTown(name string) {
 	G.town = name
 }
 
+func (G *Gamer) HasTown() bool {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	return G.world.TownOfGamer(G) != ""
+}
+
 func (G *Gamer) MinecraftId() uuid.UUID {
 	G.mutex.RLock()
 	defer G.mutex.RUnlock()

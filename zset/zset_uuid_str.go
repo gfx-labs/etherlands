@@ -31,7 +31,7 @@ type ZSetUUIDStr struct {
 	dict   map[uuid.UUID]*ZSetUUIDStrNode
 }
 
-func createStrNode(level int, score string, key uuid.UUID, value interface{}) *ZSetUUIDStrNode {
+func createUUIDStrNode(level int, score string, key uuid.UUID, value interface{}) *ZSetUUIDStrNode {
 	node := ZSetUUIDStrNode{
 		score: score,
 		key:   key,
@@ -56,7 +56,7 @@ func (Z *ZSetUUIDStr) insertNode(score string, key uuid.UUID, value interface{})
 		for x.level[i].forward != nil &&
 			(x.level[i].forward.score < score ||
 				(x.level[i].forward.score == score &&
-					x.level[i].forward.key < key)) {
+					x.level[i].forward.key.String() < key.String())) {
 			rank[i] += x.level[i].span
 			x = x.level[i].forward
 		}
@@ -74,7 +74,7 @@ func (Z *ZSetUUIDStr) insertNode(score string, key uuid.UUID, value interface{})
 		Z.level = level
 	}
 
-	x = createStrNode(level, score, key, value)
+	x = createUUIDStrNode(level, score, key, value)
 	for i := 0; i < level; i++ {
 		x.level[i].forward = update[i].level[i].forward
 		update[i].level[i].forward = x
@@ -128,7 +128,7 @@ func (Z *ZSetUUIDStr) delete(score string, key uuid.UUID) bool {
 		for x.level[i].forward != nil &&
 			(x.level[i].forward.score < score ||
 				(x.level[i].forward.score == score &&
-					x.level[i].forward.key < key)) {
+					x.level[i].forward.key.String() < key.String())) {
 			x = x.level[i].forward
 		}
 		update[i] = x
@@ -141,12 +141,14 @@ func (Z *ZSetUUIDStr) delete(score string, key uuid.UUID) bool {
 	return false
 }
 
+var ZERO_UUID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+
 func CreateZSetUUIDStr() *ZSetUUIDStr {
 	sortedSet := ZSetUUIDStr{
 		level: 1,
 		dict:  make(map[uuid.UUID]*ZSetUUIDStrNode),
 	}
-	sortedSet.header = createStrNode(SKIPLIST_MAXLEVEL, "", 0, nil)
+	sortedSet.header = createUUIDStrNode(SKIPLIST_MAXLEVEL, "", ZERO_UUID, nil)
 	return &sortedSet
 }
 
@@ -310,7 +312,7 @@ func (Z *ZSetUUIDStr) FindRank(key uuid.UUID) int {
 			for x.level[i].forward != nil &&
 				(x.level[i].forward.score < node.score ||
 					(x.level[i].forward.score == node.score &&
-						x.level[i].forward.key <= node.key)) {
+						x.level[i].forward.key.String() <= node.key.String())) {
 				rank += int(x.level[i].span)
 				x = x.level[i].forward
 			}

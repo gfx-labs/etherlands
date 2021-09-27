@@ -226,7 +226,7 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		if Z.checkError(args, err) {
 			return
 		}
-		if !gamer.HasTown {
+		if !gamer.HasTown() {
 			Z.W.CreateTown(name, gamer)
 		}
 	default:
