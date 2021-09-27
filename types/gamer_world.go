@@ -59,6 +59,7 @@ func (W *World) GetGamer(gamer_id uuid.UUID) *Gamer {
 func (W *World) newGamer(gamer_id uuid.UUID) *Gamer {
 	return &Gamer{
 		world:       W,
+		key:         NewGamerKey(gamer_id),
 		minecraftId: gamer_id,
 	}
 }
@@ -78,6 +79,7 @@ func (W *World) LoadGamer(gamer_id uuid.UUID) (*Gamer, error) {
 	return &Gamer{
 		world:       W,
 		minecraftId: read_uuid,
+		key:         NewGamerKey(read_uuid),
 		address:     string(read_gamer.Address()),
 		nickname:    string(read_gamer.Nickname()),
 	}, nil
