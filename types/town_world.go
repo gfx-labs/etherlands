@@ -232,7 +232,7 @@ func (T *Town) Save() error {
 	builder.Finish(town_offset)
 	buf := builder.FinishedBytes()
 
-	return WriteStruct("town", T.Name(), buf)
+	return WriteStruct("towns", T.Name(), buf)
 }
 
 func BuildGroupVector(
