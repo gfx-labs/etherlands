@@ -51,7 +51,7 @@ func (Z *WorldZmq) StartListening() {
 
 func (Z *WorldZmq) get_scope(args VarArgs) {
 	scope, err := args.MustGet(0)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 
@@ -59,13 +59,13 @@ func (Z *WorldZmq) get_scope(args VarArgs) {
 	case "world":
 		Z.get_world_type(args)
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Scope: "+scope))
+		Z.checkError(args, errors.New("Unspecified Scope: "+scope))
 	}
 }
 
 func (Z *WorldZmq) get_world_type(args VarArgs) {
 	dtype, err := args.MustGet(1)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	switch dtype {
@@ -75,30 +75,30 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 		Z.get_world_plot_field(args)
 	case "links":
 		addr, err := args.MustGet(2)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
 		gamer_str, err := Z.W.Cache().GetLink(addr)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
-		Z.sendResponse(args.Command(), gamer_str)
+		Z.sendResponse(args, gamer_str)
 	case "query":
 		Z.get_world_query_field(args)
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Type: "+dtype))
+		Z.checkError(args, errors.New("Unspecified Type: "+dtype))
 	}
 }
 
 func (Z *WorldZmq) get_world_query_field(args VarArgs) {
 	field, err := args.MustGet(2)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	switch field {
 	case "plot_coord":
 		coord_str, err := args.MustGet(3)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
 		split := strings.Split(coord_str, "_")
@@ -107,18 +107,18 @@ func (Z *WorldZmq) get_world_query_field(args VarArgs) {
 			return
 		}
 		x, err := strconv.ParseInt(split[0], 10, 64)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
 		z, err := strconv.ParseInt(split[1], 10, 64)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
 		plot, err := Z.W.SearchPlot(x, z)
-		if Z.checkError(args.Command(), err) {
+		if Z.checkError(args, err) {
 			return
 		}
-		Z.sendResponse(args.Command(), strconv.FormatUint(plot.PlotId(), 10))
+		Z.sendResponse(args, strconv.FormatUint(plot.PlotId(), 10))
 	default:
 		Z.genericError(args, field)
 	}
@@ -126,67 +126,67 @@ func (Z *WorldZmq) get_world_query_field(args VarArgs) {
 
 func (Z *WorldZmq) get_world_plot_field(args VarArgs) {
 	field, err := args.MustGet(3)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	uuid_str, err := args.MustGet(2)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	plot_id, err := strconv.ParseUint(uuid_str, 10, 64)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	plot, err := Z.W.GetPlot(plot_id)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	switch field {
 	case "x":
-		Z.sendResponse(args.Command(), strconv.FormatInt(plot.X(), 10))
+		Z.sendResponse(args, strconv.FormatInt(plot.X(), 10))
 	case "z":
-		Z.sendResponse(args.Command(), strconv.FormatInt(plot.Z(), 10))
+		Z.sendResponse(args, strconv.FormatInt(plot.Z(), 10))
 	case "district":
-		Z.sendResponse(args.Command(), strconv.FormatUint(plot.DistrictId(), 10))
+		Z.sendResponse(args, strconv.FormatUint(plot.DistrictId(), 10))
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Field: "+field))
+		Z.checkError(args, errors.New("Unspecified Field: "+field))
 	}
 }
 func (Z *WorldZmq) get_world_gamer_field(args VarArgs) {
 	field, err := args.MustGet(3)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	uuid_str, err := args.MustGet(2)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	gamer_id, err := uuid.Parse(uuid_str)
-	if Z.checkError(args.Command(), err) {
+	if Z.checkError(args, err) {
 		return
 	}
 	gamer := Z.W.GetGamer(gamer_id)
 	switch field {
 	case "address":
 		if gamer.Address() != "" {
-			Z.sendResponse(args.Command(), gamer.Address())
+			Z.sendResponse(args, gamer.Address())
 		}
 	default:
-		Z.checkError(args.Command(), errors.New("Unspecified Field: "+field))
+		Z.checkError(args, errors.New("Unspecified Field: "+field))
 	}
 }
 
-func (Z *WorldZmq) sendResponse(key string, content string) {
+func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 	Z.publisher.SendChan <- [][]byte{
-		[]byte(key),
+		[]byte(args.Command()),
 		[]byte(content),
 	}
 }
 
-func (Z *WorldZmq) checkError(key string, err error) bool {
+func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
 	if err != nil {
 		Z.publisher.SendChan <- [][]byte{
-			[]byte(key),
+			[]byte(args.Command()),
 			[]byte("error:" + err.Error()),
 		}
 		return true
@@ -195,7 +195,7 @@ func (Z *WorldZmq) checkError(key string, err error) bool {
 }
 
 func (Z *WorldZmq) genericError(args VarArgs, offender string) bool {
-	return Z.checkError(args.Command(), errors.New(args.Command()+": "+offender))
+	return Z.checkError(args, errors.New(args.Command()+": "+offender))
 }
 
 func (Args *VarArgs) Command() string {
