@@ -14,7 +14,10 @@ type MemoryCache struct {
 	ctx   *context.Context
 
 	links      map[string]string
-	links_lock sync.Mutex
+	links_lock sync.RWMutex
+
+	name_district      map[string]uint64
+	name_district_lock sync.RWMutex
 }
 
 func NewMemoryCache() (*MemoryCache, error) {
@@ -23,7 +26,10 @@ func NewMemoryCache() (*MemoryCache, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MemoryCache{redis: redis, ctx: &ctx, links: make(map[string]string)}, nil
+	return &MemoryCache{redis: redis, ctx: &ctx,
+		links:         make(map[string]string),
+		name_district: make(map[string]uint64),
+	}, nil
 }
 
 func (M *MemoryCache) CachePlot(plot *Plot) {
@@ -45,11 +51,14 @@ func (M *MemoryCache) CachePlot(plot *Plot) {
 }
 
 func (M *MemoryCache) CacheDistrict(district *District) {
+	M.name_district_lock.Lock()
+	M.name_district[district.StringName()] = district.DistrictId()
+	M.name_district_lock.Unlock()
+
 	key_one := fmt.Sprintf("district:%d:address", district.DistrictId())
 	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "MSET",
 		key_one, district.OwnerAddress(),
 	))
-
 	M.redis.Do(*M.ctx, radix.FlatCmd(nil, "HSET",
 		"name_district", district.StringName(), district.DistrictId(),
 	))
@@ -58,9 +67,17 @@ func (M *MemoryCache) CacheDistrict(district *District) {
 	))
 }
 
+func (M *MemoryCache) GetDistrictByName(input string) (uint64, error) {
+	M.name_district_lock.RLock()
+	defer M.name_district_lock.RUnlock()
+	if v, ok := M.name_district[input]; ok {
+		return v, nil
+	}
+	return 0, errors.New("no district found")
+}
 func (M *MemoryCache) GetLink(input string) (string, error) {
-	M.links_lock.Lock()
-	defer M.links_lock.Unlock()
+	M.links_lock.RLock()
+	defer M.links_lock.RUnlock()
 	if v, ok := M.links[input]; ok {
 		return v, nil
 	}

@@ -121,6 +121,28 @@ func (Z *WorldZmq) get_world_query_field(args VarArgs) {
 			return
 		}
 		Z.sendResponse(args, strconv.FormatUint(plot.PlotId(), 10))
+	case "district_by_name":
+		district_name, err := args.MustGet(3)
+		if Z.checkError(args, err) {
+			return
+		}
+		district_id, err := Z.W.Cache().GetDistrictByName(district_name)
+		if Z.checkError(args, err) {
+			return
+		}
+		Z.sendResponse(args, strconv.FormatUint(district_id, 10))
+	case "district_names":
+		out := []string{}
+		for _, v := range Z.W.Districts() {
+			out = append(out, v.StringName())
+		}
+		Z.sendResponse(args, strings.Join(out, "_"))
+	case "district_ids":
+		out := []string{}
+		for _, v := range Z.W.Districts() {
+			out = append(out, strconv.FormatUint(v.DistrictId(), 10))
+		}
+		Z.sendResponse(args, strings.Join(out, "_"))
 	default:
 		Z.genericError(args, field)
 	}
