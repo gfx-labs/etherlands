@@ -32,9 +32,6 @@ func (W *World) GetTown(name string) (*Town, error) {
 		return val, nil
 	}
 	W.towns_lock.RUnlock()
-	//obtain a write lock
-	W.towns_lock.Lock()
-	defer W.towns_lock.Unlock()
 	// if not in live cache, see if town file exists
 	if res, err := W.LoadTown(name); err == nil {
 		return res, nil
