@@ -229,7 +229,7 @@ func (Z *WorldZmq) get_world_district_field(args VarArgs) {
 func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 	Z.publisher.SendChan <- [][]byte{
 		[]byte(args.Command()),
-		[]byte(content),
+		[]byte(string(content)),
 	}
 }
 
