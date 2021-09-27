@@ -32,15 +32,15 @@ func (Z *WorldZmq) lock(name string) func() {
 
 type VarArgs []string
 
-func StartWorldZmq(world *types.World) error {
+func StartWorldZmq(world *types.World) (*WorldZmq, error) {
 	publisher, err := zmq.NewSocket(zmq.PUB)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	publisher.Bind("tcp://*:10105")
 	subscriber, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	subscriber.Bind("tcp://127.0.0.1:10106")
 	subscriber.SetSubscribe("")
@@ -51,7 +51,7 @@ func StartWorldZmq(world *types.World) error {
 	go zmq.StartPublishing()
 	go zmq.StartSubscribing()
 	go zmq.StartListening()
-	return nil
+	return zmq, nil
 }
 
 func (Z *WorldZmq) StartPublishing() {

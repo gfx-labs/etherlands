@@ -40,6 +40,8 @@ func main() {
 	go conn.start_query(5 * time.Second)
 
 	StartWorldWeb(world)
-	StartWorldZmq(world)
-	StartPrompt(world)
+	wz, err := StartWorldZmq(world)
+	if err == nil {
+		StartPrompt(world, wz)
+	}
 }
