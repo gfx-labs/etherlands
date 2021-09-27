@@ -125,6 +125,7 @@ func (W *World) UpdateTown(town *Town) {
 	if _, ok := W.towns[town.GetKey()]; !ok {
 		W.towns[town.GetKey()] = town
 	}
+	W.uuid_town.AddOrUpdate(town.Owner(), town.Name(), town)
 	for k := range town.Members() {
 		W.uuid_town.AddOrUpdate(k, town.Name(), town)
 	}
