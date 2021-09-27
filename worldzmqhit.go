@@ -39,15 +39,15 @@ func (Z *WorldZmq) world_link_request(args VarArgs) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("malformed uuid %s", uuid_str))
 	}
-	a, err := args.MustGet(2)
+	a, err := args.MustGet(3)
 	if err != nil {
 		return err
 	}
-	b, err := args.MustGet(2)
+	b, err := args.MustGet(4)
 	if err != nil {
 		return err
 	}
-	c, err := args.MustGet(2)
+	c, err := args.MustGet(5)
 	if err != nil {
 		return err
 	}
