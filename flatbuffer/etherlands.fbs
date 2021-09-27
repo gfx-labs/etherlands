@@ -42,8 +42,8 @@ table PlayerPermission {
   value:FlagValue;
 }
 
-table GroupPermission {
-  group:string;
+table TeamPermission {
+  team:string;
   flag:AccessFlag;
   value:FlagValue;
 }
@@ -57,7 +57,7 @@ table District {
   owner_address:string;
 }
 
-table Group {
+table Team {
   name:string;
   members:[UUID];
 }
@@ -66,8 +66,8 @@ table PlayerPermissionMap {
   permissions:[PlayerPermission];
 }
 
-table GroupPermissionMap {
-  permissions:[GroupPermission];
+table TeamPermissionMap {
+  permissions:[TeamPermission];
 }
 
 table DistrictPlayerPermissionMap {
@@ -75,9 +75,9 @@ table DistrictPlayerPermissionMap {
   permissions:[PlayerPermissionMap];
 }
 
-table DistrictGroupPermissionMap {
+table DistrictTeamPermissionMap {
   districts:[uint64];
-  permissions:[GroupPermissionMap];
+  permissions:[TeamPermissionMap];
 }
 
 table Town {
@@ -86,13 +86,13 @@ table Town {
 
   members:[UUID];
   managers:[UUID];
-  groups:[Group];
+  teams:[Team];
 
   districts:[uint64];
 
   default_player_permissions:PlayerPermissionMap;
-  default_group_permissions:GroupPermissionMap;
+  default_team_permissions:TeamPermissionMap;
 
   district_player_permissions:DistrictPlayerPermissionMap;
-  district_group_permissions:DistrictGroupPermissionMap;
+  district_team_permissions:DistrictTeamPermissionMap;
 }

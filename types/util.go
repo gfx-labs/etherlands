@@ -61,18 +61,18 @@ type PlayerPermissionEntry struct {
 	value proto.FlagValue
 }
 
-func BuildGroupPermissions(
+func BuildTeamPermissions(
 	builder *flatbuffers.Builder,
-	target *GroupPermissionMap,
+	target *TeamPermissionMap,
 ) []flatbuffers.UOffsetT {
 	gp_o := []flatbuffers.UOffsetT{}
-	for _, v := range FlattenGroupPermissionMap(target) {
-		proto.GroupPermissionStart(builder)
-		proto.GroupPermissionAddFlag(builder, v.flag)
-		proto.GroupPermissionAddValue(builder, v.value)
-		group_name := builder.CreateString(v.name)
-		proto.GroupPermissionAddGroup(builder, group_name)
-		entry := proto.GroupPermissionEnd(builder)
+	for _, v := range FlattenTeamPermissionMap(target) {
+		proto.TeamPermissionStart(builder)
+		proto.TeamPermissionAddFlag(builder, v.flag)
+		proto.TeamPermissionAddValue(builder, v.value)
+		team_name := builder.CreateString(v.name)
+		proto.TeamPermissionAddTeam(builder, team_name)
+		entry := proto.TeamPermissionEnd(builder)
 		gp_o = append(gp_o, entry)
 	}
 	return gp_o
@@ -109,17 +109,17 @@ func FlattenPlayerPermissionMap(target *PlayerPermissionMap) []PlayerPermissionE
 	return output
 }
 
-type GroupPermissionEntry struct {
+type TeamPermissionEntry struct {
 	name  string
 	flag  proto.AccessFlag
 	value proto.FlagValue
 }
 
-func FlattenGroupPermissionMap(target *GroupPermissionMap) []GroupPermissionEntry {
-	output := []GroupPermissionEntry{}
+func FlattenTeamPermissionMap(target *TeamPermissionMap) []TeamPermissionEntry {
+	output := []TeamPermissionEntry{}
 	for id, map_value := range target.i {
 		for flag, value := range map_value {
-			output = append(output, GroupPermissionEntry{
+			output = append(output, TeamPermissionEntry{
 				name:  id,
 				flag:  flag,
 				value: value,

@@ -1,35 +1,52 @@
 package types
 
 import (
+	"errors"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
 
-type Group struct {
+type Team struct {
 	name    string
 	town    string
-	members []uuid.UUID
+	members map[uuid.UUID]struct{}
 
 	sync.RWMutex
 }
 
-func (G *Group) Name() string {
+func (G *Team) Name() string {
 	G.RLock()
 	defer G.RUnlock()
 	return G.name
 }
 
-func (G *Group) Town() string {
+func (G *Team) Town() string {
 	G.RLock()
 	defer G.RUnlock()
 	return G.town
 }
 
-func (G *Group) Members() []uuid.UUID {
+func (G *Team) Has(gamer *Gamer) bool {
+	G.RLock()
+	defer G.RUnlock()
+	_, ok := G.members[gamer.MinecraftId()]
+	return ok
+}
+
+func (G *Team) Members() map[uuid.UUID]struct{} {
 	G.RLock()
 	defer G.RUnlock()
 	return G.members
+}
+func (T *Town) Team(name string) *Team {
+	T.RLock()
+	defer T.RUnlock()
+	if v, ok := T.teams[name]; ok {
+		return v
+	}
+	return nil
 }
 
 type Town struct {
@@ -38,20 +55,55 @@ type Town struct {
 	owner   uuid.UUID
 	members map[uuid.UUID]struct{}
 
-	groups    map[string]*Group
+	teams     map[string]*Team
 	districts []uint64
 
 	defaultPlayerPermissions *PlayerPermissionMap
-	defaultGroupPermissions  *GroupPermissionMap
+	defaultTeamPermissions   *TeamPermissionMap
 
 	districtPlayerPermissions map[uint64]*PlayerPermissionMap
-	districtGroupPermissions  map[uint64]*GroupPermissionMap
+	districtTeamPermissions   map[uint64]*TeamPermissionMap
 	district_player_lock      *DistrictLock
-	district_group_lock       *DistrictLock
+	district_team_lock        *DistrictLock
 
 	sync.RWMutex
 
 	W *World
+
+	invites       map[uuid.UUID]struct{}
+	inviteAddChan chan uuid.UUID
+	inviteDelChan chan uuid.UUID
+}
+
+func (T *Town) ProcessInvites(timeout time.Duration) {
+	for {
+		var target uuid.UUID
+		select {
+		case target = <-T.inviteAddChan:
+			T.invites[target] = struct{}{}
+			go func() {
+				time.Sleep(timeout)
+				T.inviteDelChan <- target
+			}()
+		case target = <-T.inviteDelChan:
+			delete(T.invites, target)
+		}
+	}
+}
+
+func (T *Town) InviteGamer(sender, receiver *Gamer) error {
+	if T.IsManager(sender) {
+		T.inviteAddChan <- receiver.MinecraftId()
+		return nil
+	}
+	return errors.New("you must be a manager to invite")
+}
+
+func (T *Town) IsManager(gamer *Gamer) bool {
+	if team := T.Team("manager"); team != nil {
+		return team.Has(gamer)
+	}
+	return T.Owner() == gamer.MinecraftId()
 }
 
 func (T *Town) GetKey() FamilyKey {
@@ -73,10 +125,10 @@ func (T *Town) DefaultPlayerPermissions() *PlayerPermissionMap {
 	return T.defaultPlayerPermissions
 }
 
-func (T *Town) DefaultGroupPermissions() *GroupPermissionMap {
+func (T *Town) DefaultTeamPermissions() *TeamPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
-	return T.defaultGroupPermissions
+	return T.defaultTeamPermissions
 }
 
 func (T *Town) DistrictPlayerPermissions() map[uint64]*PlayerPermissionMap {
@@ -85,10 +137,10 @@ func (T *Town) DistrictPlayerPermissions() map[uint64]*PlayerPermissionMap {
 	return T.districtPlayerPermissions
 }
 
-func (T *Town) DistrictGroupPermissions() map[uint64]*GroupPermissionMap {
+func (T *Town) DistrictTeamPermissions() map[uint64]*TeamPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
-	return T.districtGroupPermissions
+	return T.districtTeamPermissions
 }
 
 func (T *Town) DistrictPlayerPermission(district_id uint64) *PlayerPermissionMap {
@@ -101,14 +153,14 @@ func (T *Town) DistrictPlayerPermission(district_id uint64) *PlayerPermissionMap
 	return T.districtPlayerPermissions[district_id]
 }
 
-func (T *Town) DistrictGroupPermission(district_id uint64) *GroupPermissionMap {
+func (T *Town) DistrictTeamPermission(district_id uint64) *TeamPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
-	if v, ok := T.districtGroupPermissions[district_id]; ok {
+	if v, ok := T.districtTeamPermissions[district_id]; ok {
 		return v
 	}
-	T.districtGroupPermissions[district_id] = NewGroupPermissionMap()
-	return T.districtGroupPermissions[district_id]
+	T.districtTeamPermissions[district_id] = NewTeamPermissionMap()
+	return T.districtTeamPermissions[district_id]
 }
 
 func (T *Town) Owner() uuid.UUID {
@@ -141,10 +193,10 @@ func (T *Town) AddMember(id uuid.UUID) {
 	T.members[id] = struct{}{}
 }
 
-func (T *Town) Groups() []*Group {
+func (T *Town) Teams() map[string]*Team {
 	T.RLock()
 	defer T.RUnlock()
-	return T.Groups()
+	return T.teams
 }
 
 func (T *Town) Districts() []uint64 {

@@ -227,9 +227,9 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		}
 		if !gamer.HasTown() {
 			go Z.W.CreateTown(name, gamer)
-			Z.sendResponse(args, "true")
+			Z.sendGamerResult(gamer.MinecraftId(), "successfully created town "+name)
 		} else {
-			Z.sendResponse(args, "false")
+			Z.sendGamerError(gamer.MinecraftId(), errors.New("Please leave your town before creating one"))
 		}
 	default:
 		Z.genericError(args, field)
@@ -300,11 +300,54 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 		return
 	}
 	switch field {
-	case "name":
-		Z.sendResponse(args, town.Name())
+	case "invite":
+		Z.hit_world_town_user_action(args)
 	case "owner_uuid":
 		Z.sendResponse(args, town.Owner().String())
 	default:
 		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
+	uuid_str, err := args.MustGet(4)
+	if Z.checkError(args, err) {
+		return
+	}
+	gamer_id, err := uuid.Parse(uuid_str)
+	if Z.checkError(args, err) {
+		return
+	}
+	gamer := Z.W.GetGamer(gamer_id)
+	action, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_name, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkError(args, err) {
+		return
+	}
+	// new args start at 5
+	switch action {
+	case "invite":
+		target_str, err := args.MustGet(5)
+		if Z.checkError(args, err) {
+			return
+		}
+		target_id, err := uuid.Parse(target_str)
+		if Z.checkError(args, err) {
+			return
+		}
+		target := Z.W.GetGamer(target_id)
+		if Z.checkError(args, err) {
+			return
+		}
+		town.InviteGamer(gamer, target)
+	default:
+		Z.genericError(args, action)
 	}
 }

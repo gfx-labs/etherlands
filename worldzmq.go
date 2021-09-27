@@ -2,11 +2,13 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 
 	logger "github.com/gfx-labs/etherlands/logger"
+	"github.com/google/uuid"
 
 	types "github.com/gfx-labs/etherlands/types"
 	zmq "github.com/pebbe/zmq4"
@@ -98,6 +100,21 @@ func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 	}
 	logger.Log.Printf("[OUT] %s %s\n", args.Command(), content)
 }
+func (Z *WorldZmq) sendGamerError(target uuid.UUID, err error) {
+	Z.sendChan <- [2]string{
+		"CHAT",
+		fmt.Sprintf("gamer:%s:%s", target.String(), err.Error()),
+	}
+	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), err.Error())
+}
+
+func (Z *WorldZmq) sendGamerResult(target uuid.UUID, result string) {
+	Z.sendChan <- [2]string{
+		"chat",
+		fmt.Sprintf("gamer:%s:%s", target.String(), result),
+	}
+	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), result)
+}
 
 func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
 	if err != nil {
@@ -144,4 +161,27 @@ func (Args *VarArgs) MightGet(idx int) (string, bool) {
 		return (*Args)[idx], true
 	}
 	return "", false
+}
+
+func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
+	if len(set) == 0 {
+		return ""
+	}
+	out := ""
+	first := true
+	for k := range set {
+		if first {
+			out = out + k.String()
+			first = false
+		} else {
+			out = out + "_" + k.String()
+		}
+	}
+	return out
+}
+
+func FlattenTownTeam(team *types.Team) string {
+	out := team.Name() + "@"
+	out = out + FlattenUUIDSet(team.Members())
+	return out
 }

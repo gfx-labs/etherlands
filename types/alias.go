@@ -11,7 +11,7 @@ type PlayerPermissionMap struct {
 	i       map[uuid.UUID]map[proto.AccessFlag]proto.FlagValue
 	mutexes sync.Map
 }
-type GroupPermissionMap struct {
+type TeamPermissionMap struct {
 	i       map[string]map[proto.AccessFlag]proto.FlagValue
 	mutexes sync.Map
 }
@@ -31,8 +31,8 @@ func NewDistrictLock() *DistrictLock {
 	return &DistrictLock{}
 }
 
-func NewGroupPermissionMap() *GroupPermissionMap {
-	return &GroupPermissionMap{
+func NewTeamPermissionMap() *TeamPermissionMap {
+	return &TeamPermissionMap{
 		i: make(map[string]map[proto.AccessFlag]proto.FlagValue),
 	}
 }
@@ -43,7 +43,7 @@ func NewPlayerPermissionMap() *PlayerPermissionMap {
 	}
 }
 
-func (P *GroupPermissionMap) lock(name string) func() {
+func (P *TeamPermissionMap) lock(name string) func() {
 	value, _ := P.mutexes.LoadOrStore(name, &sync.Mutex{})
 	mtx := value.(*sync.Mutex)
 	mtx.Lock()
@@ -83,26 +83,26 @@ func (P *PlayerPermissionMap) read(
 	return proto.FlagValueNone
 }
 
-func (P *GroupPermissionMap) insert(
-	group_id string,
+func (P *TeamPermissionMap) insert(
+	team_id string,
 	flag proto.AccessFlag,
 	value proto.FlagValue,
 ) {
-	unlock := P.lock(group_id)
+	unlock := P.lock(team_id)
 	defer unlock()
-	if _, ok := P.i[group_id]; !ok {
-		P.i[group_id] = make(map[proto.AccessFlag]proto.FlagValue)
+	if _, ok := P.i[team_id]; !ok {
+		P.i[team_id] = make(map[proto.AccessFlag]proto.FlagValue)
 	}
-	P.i[group_id][flag] = value
+	P.i[team_id][flag] = value
 }
 
-func (P *GroupPermissionMap) read(
-	group_id string,
+func (P *TeamPermissionMap) read(
+	team_id string,
 	flag proto.AccessFlag,
 ) proto.FlagValue {
-	unlock := P.lock(group_id)
+	unlock := P.lock(team_id)
 	defer unlock()
-	if v, ok := P.i[group_id]; ok {
+	if v, ok := P.i[team_id]; ok {
 		if v2, ok := v[flag]; ok {
 			return v2
 		}
