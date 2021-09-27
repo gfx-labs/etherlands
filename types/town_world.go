@@ -189,7 +189,7 @@ func (T *Town) Save() error {
 	}
 	districts_offset := builder.EndVector(len(T.Districts()))
 
-	// create town member vector
+	// prepare town member vector
 	town_members := T.Members()
 	me_o := make([]flatbuffers.UOffsetT, len(town_members))
 	idx := 0
@@ -197,24 +197,24 @@ func (T *Town) Save() error {
 		me_o[idx] = BuildUUID(builder, k)
 		idx = idx + 1
 	}
+
+	// create town member vector
 	proto.TownStartMembersVector(builder, len(town_members))
 	for _, v := range me_o {
 		builder.PrependUOffsetT(v)
 	}
 	member_vector := builder.EndVector(len(town_members))
 
-	owner_id := BuildUUID(builder, T.Owner())
-
 	town_name := builder.CreateString(T.Name())
+
+	owner_id := BuildUUID(builder, T.Owner())
 
 	//create town table
 	proto.TownStart(builder)
 	//town name
 	proto.TownAddName(builder, town_name)
-
 	//owner
 	proto.TownAddOwner(builder, owner_id)
-
 	//members
 	proto.TownAddMembers(builder, member_vector)
 
