@@ -62,6 +62,7 @@ func (W *World) CreateTown(name string, owner *Gamer) error {
 func (W *World) initTown(name string) *Town {
 	return &Town{
 		W:                        W,
+		name:                     name,
 		members:                  make(map[uuid.UUID]struct{}),
 		districts:                make([]uint64, 0),
 		groups:                   make(map[string]*Group),
