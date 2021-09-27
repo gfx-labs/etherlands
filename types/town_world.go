@@ -161,7 +161,7 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		}
 	}
 
-	//W.UpdateTown(pending_town)
+	W.UpdateTown(pending_town)
 	return pending_town, nil
 }
 
@@ -208,14 +208,14 @@ func (T *Town) Save() error {
 
 	town_name := builder.CreateString(T.Name())
 
-	//owner_id := BuildUUID(builder, T.Owner())
+	owner_id := BuildUUID(builder, T.Owner())
 
 	//create town table
 	proto.TownStart(builder)
+	//owner
+	proto.TownAddOwner(builder, owner_id)
 	//town name
 	proto.TownAddName(builder, town_name)
-	//owner
-	//proto.TownAddOwner(builder, owner_id)
 	//members
 	proto.TownAddMembers(builder, member_vector)
 
