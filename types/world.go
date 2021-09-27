@@ -172,8 +172,8 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		for {
 			district_info := <-W.DistrictIn
 			log.Println("district info:", district_info)
-			district, _ := W.GetDistrict(district_info.DistrictId)
-			if district == nil {
+			district, err := W.GetDistrict(district_info.DistrictId)
+			if err != nil {
 				W.NewDistrict(
 					district_info.DistrictId,
 					district_info.Owner,
@@ -196,7 +196,7 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 			plot_info := <-W.PlotIn
 			log.Println("plot info:", plot_info)
 			plot, err := W.GetPlot(plot_info.PlotId)
-			if err == nil {
+			if err != nil {
 				plot = W.newPlot(
 					plot_info.X,
 					plot_info.Z,
