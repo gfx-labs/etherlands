@@ -32,7 +32,7 @@ func StartWorldZmq(world *types.World) error {
 	if err != nil {
 		return err
 	}
-	subscriber.Connect("tcp://127.0.0.1:10106")
+	subscriber.Bind("tcp://127.0.0.1:10106")
 	subscriber.SetSubscribe("")
 	zmq := &WorldZmq{W: world, publisher: publisher, subscriber: subscriber,
 		recvChan: make(chan [2]string, 100),
