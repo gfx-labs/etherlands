@@ -10,7 +10,7 @@ import (
 )
 
 func (W *World) GamerCount() int {
-	return len(W.districts)
+	return len(W.gamers)
 }
 
 func (W *World) Gamers() []*Gamer {
