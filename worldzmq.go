@@ -74,7 +74,7 @@ func (Z *WorldZmq) get_world_type(args VarArgs) {
 	case "plot":
 		Z.get_world_plot_field(args)
 	case "district":
-		Z.get_world_plot_field(args)
+		Z.get_world_district_field(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args, err) {
