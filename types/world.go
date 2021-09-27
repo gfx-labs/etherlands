@@ -100,7 +100,9 @@ func (W *World) UpdateGamer(gamer *Gamer) {
 	W.gamers_lock.Lock()
 	defer W.gamers_lock.Unlock()
 	if _, ok := W.gamers[gamer.GetKey()]; !ok {
-		W.gamers[gamer.GetKey()] = gamer
+		if gamer.GetKey().datatype == GAMER_FAMILY {
+			W.gamers[gamer.GetKey()] = gamer
+		}
 	}
 	W.cache.CacheGamer(W.gamers[gamer.GetKey()])
 	go W.gamers[gamer.GetKey()].Save()

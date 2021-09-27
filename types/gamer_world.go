@@ -46,13 +46,13 @@ func (W *World) GetGamer(gamer_id uuid.UUID) *Gamer {
 	// if not in live cache, see if gamer file exists
 	if res, err := W.LoadGamer(gamer_id); err == nil {
 		// add it to the cache
-		W.gamers[NewGamerKey(gamer_id)] = res
+		W.UpdateGamer(res)
 		return res
 	}
 	// oh no!! the gamer does not exist!!! make one!!!
 	output := W.newGamer(gamer_id)
 	// add it to the cache
-	W.gamers[NewGamerKey(gamer_id)] = output
+	W.UpdateGamer(output)
 	return output
 }
 
