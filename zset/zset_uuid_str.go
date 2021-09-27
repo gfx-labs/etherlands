@@ -1,46 +1,48 @@
 package zset
 
-type ZSetStrLevel struct {
-	forward *ZSetStrNode
+import "github.com/google/uuid"
+
+type ZSetUUIDStrLevel struct {
+	forward *ZSetUUIDStrNode
 	span    int64
 }
 
-type ZSetStrNode struct {
-	key      uint64
+type ZSetUUIDStrNode struct {
+	key      uuid.UUID
 	Value    interface{}
 	score    string
-	previous *ZSetStrNode
-	level    []ZSetStrLevel
+	previous *ZSetUUIDStrNode
+	level    []ZSetUUIDStrLevel
 }
 
-func (this *ZSetStrNode) Key() uint64 {
+func (this *ZSetUUIDStrNode) Key() uuid.UUID {
 	return this.key
 }
 
-func (this *ZSetStrNode) Score() string {
+func (this *ZSetUUIDStrNode) Score() string {
 	return this.score
 }
 
-type ZSetStr struct {
-	header *ZSetStrNode
-	tail   *ZSetStrNode
+type ZSetUUIDStr struct {
+	header *ZSetUUIDStrNode
+	tail   *ZSetUUIDStrNode
 	length int64
 	level  int
-	dict   map[uint64]*ZSetStrNode
+	dict   map[uuid.UUID]*ZSetUUIDStrNode
 }
 
-func createStrNode(level int, score string, key uint64, value interface{}) *ZSetStrNode {
-	node := ZSetStrNode{
+func createStrNode(level int, score string, key uuid.UUID, value interface{}) *ZSetUUIDStrNode {
+	node := ZSetUUIDStrNode{
 		score: score,
 		key:   key,
 		Value: value,
-		level: make([]ZSetStrLevel, level),
+		level: make([]ZSetUUIDStrLevel, level),
 	}
 	return &node
 }
 
-func (Z *ZSetStr) insertNode(score string, key uint64, value interface{}) *ZSetStrNode {
-	var update [SKIPLIST_MAXLEVEL]*ZSetStrNode
+func (Z *ZSetUUIDStr) insertNode(score string, key uuid.UUID, value interface{}) *ZSetUUIDStrNode {
+	var update [SKIPLIST_MAXLEVEL]*ZSetUUIDStrNode
 	var rank [SKIPLIST_MAXLEVEL]int64
 
 	x := Z.header
@@ -98,7 +100,7 @@ func (Z *ZSetStr) insertNode(score string, key uint64, value interface{}) *ZSetS
 	return x
 }
 
-func (Z *ZSetStr) deleteNode(x *ZSetStrNode, update [SKIPLIST_MAXLEVEL]*ZSetStrNode) {
+func (Z *ZSetUUIDStr) deleteNode(x *ZSetUUIDStrNode, update [SKIPLIST_MAXLEVEL]*ZSetUUIDStrNode) {
 	for i := 0; i < Z.level; i++ {
 		if update[i].level[i].forward == x {
 			update[i].level[i].span += x.level[i].span - 1
@@ -119,8 +121,8 @@ func (Z *ZSetStr) deleteNode(x *ZSetStrNode, update [SKIPLIST_MAXLEVEL]*ZSetStrN
 	delete(Z.dict, x.key)
 }
 
-func (Z *ZSetStr) delete(score string, key uint64) bool {
-	var update [SKIPLIST_MAXLEVEL]*ZSetStrNode
+func (Z *ZSetUUIDStr) delete(score string, key uuid.UUID) bool {
+	var update [SKIPLIST_MAXLEVEL]*ZSetUUIDStrNode
 	x := Z.header
 	for i := Z.level - 1; i >= 0; i-- {
 		for x.level[i].forward != nil &&
@@ -139,21 +141,21 @@ func (Z *ZSetStr) delete(score string, key uint64) bool {
 	return false
 }
 
-func CreateZSetStr() *ZSetStr {
-	sortedSet := ZSetStr{
+func CreateZSetUUIDStr() *ZSetUUIDStr {
+	sortedSet := ZSetUUIDStr{
 		level: 1,
-		dict:  make(map[uint64]*ZSetStrNode),
+		dict:  make(map[uuid.UUID]*ZSetUUIDStrNode),
 	}
 	sortedSet.header = createStrNode(SKIPLIST_MAXLEVEL, "", 0, nil)
 	return &sortedSet
 }
 
-func (Z *ZSetStr) GetCount() int {
+func (Z *ZSetUUIDStr) GetCount() int {
 	return int(Z.length)
 }
 
-func (Z *ZSetStr) AddOrUpdate(key uint64, score string, value interface{}) bool {
-	var newNode *ZSetStrNode = nil
+func (Z *ZSetUUIDStr) AddOrUpdate(key uuid.UUID, score string, value interface{}) bool {
+	var newNode *ZSetUUIDStrNode = nil
 
 	found := Z.dict[key]
 	if found != nil {
@@ -173,7 +175,7 @@ func (Z *ZSetStr) AddOrUpdate(key uint64, score string, value interface{}) bool 
 	return found == nil
 }
 
-func (Z *ZSetStr) Remove(key uint64) *ZSetStrNode {
+func (Z *ZSetUUIDStr) Remove(key uuid.UUID) *ZSetUUIDStrNode {
 	found := Z.dict[key]
 	if found != nil {
 		Z.delete(found.score, found.key)
@@ -182,9 +184,9 @@ func (Z *ZSetStr) Remove(key uint64) *ZSetStrNode {
 	return nil
 }
 
-func (Z *ZSetStr) GetKeysByScore(score string) []uint64 {
+func (Z *ZSetUUIDStr) GetKeysByScore(score string) []uuid.UUID {
 	var limit int = int((^uint(0)) >> 1)
-	var keys []uint64
+	var keys []uuid.UUID
 	if Z.length == 0 {
 		return keys
 	}
@@ -214,7 +216,7 @@ func (Z *ZSetStr) GetKeysByScore(score string) []uint64 {
 	return keys
 }
 
-func (Z *ZSetStr) sanitizeIndexes(start int, end int) (int, int, bool) {
+func (Z *ZSetUUIDStr) sanitizeIndexes(start int, end int) (int, int, bool) {
 	if start < 0 {
 		start = int(Z.length) + start + 1
 	}
@@ -235,10 +237,10 @@ func (Z *ZSetStr) sanitizeIndexes(start int, end int) (int, int, bool) {
 	return start, end, reverse
 }
 
-func (Z *ZSetStr) findNodeByRank(
+func (Z *ZSetUUIDStr) findNodeByRank(
 	start int,
 	remove bool,
-) (traversed int, x *ZSetStrNode, update [SKIPLIST_MAXLEVEL]*ZSetStrNode) {
+) (traversed int, x *ZSetUUIDStrNode, update [SKIPLIST_MAXLEVEL]*ZSetUUIDStrNode) {
 	x = Z.header
 	for i := Z.level - 1; i >= 0; i-- {
 		for x.level[i].forward != nil &&
@@ -257,10 +259,10 @@ func (Z *ZSetStr) findNodeByRank(
 	return
 }
 
-func (Z *ZSetStr) GetByRankRange(start int, end int, remove bool) []*ZSetStrNode {
+func (Z *ZSetUUIDStr) GetByRankRange(start int, end int, remove bool) []*ZSetUUIDStrNode {
 	start, end, reverse := Z.sanitizeIndexes(start, end)
 
-	var nodes []*ZSetStrNode
+	var nodes []*ZSetUUIDStrNode
 
 	traversed, x, update := Z.findNodeByRank(start, remove)
 
@@ -287,7 +289,7 @@ func (Z *ZSetStr) GetByRankRange(start int, end int, remove bool) []*ZSetStrNode
 	return nodes
 }
 
-func (Z *ZSetStr) GetByRank(rank int, remove bool) *ZSetStrNode {
+func (Z *ZSetUUIDStr) GetByRank(rank int, remove bool) *ZSetUUIDStrNode {
 	nodes := Z.GetByRankRange(rank, rank, remove)
 	if len(nodes) == 1 {
 		return nodes[0]
@@ -295,11 +297,11 @@ func (Z *ZSetStr) GetByRank(rank int, remove bool) *ZSetStrNode {
 	return nil
 }
 
-func (Z *ZSetStr) GetByKey(key uint64) *ZSetStrNode {
+func (Z *ZSetUUIDStr) GetByKey(key uuid.UUID) *ZSetUUIDStrNode {
 	return Z.dict[key]
 }
 
-func (Z *ZSetStr) FindRank(key uint64) int {
+func (Z *ZSetUUIDStr) FindRank(key uuid.UUID) int {
 	var rank int = 0
 	node := Z.dict[key]
 	if node != nil {
@@ -321,10 +323,10 @@ func (Z *ZSetStr) FindRank(key uint64) int {
 	return 0
 }
 
-func (Z *ZSetStr) IterFuncByRankRange(
+func (Z *ZSetUUIDStr) IterFuncByRankRange(
 	start int,
 	end int,
-	fn func(key uint64, value interface{}) bool,
+	fn func(key uuid.UUID, value interface{}) bool,
 ) {
 	if fn == nil {
 		return
@@ -332,7 +334,7 @@ func (Z *ZSetStr) IterFuncByRankRange(
 
 	start, end, reverse := Z.sanitizeIndexes(start, end)
 	traversed, x, _ := Z.findNodeByRank(start, false)
-	var nodes []*ZSetStrNode
+	var nodes []*ZSetUUIDStrNode
 
 	x = x.level[0].forward
 	for x != nil && traversed < end {

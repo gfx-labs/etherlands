@@ -63,7 +63,7 @@ type PlayerPermissionEntry struct {
 
 func BuildGroupPermissions(
 	builder *flatbuffers.Builder,
-	target GroupPermissionMap,
+	target *GroupPermissionMap,
 ) []flatbuffers.UOffsetT {
 	gp_o := []flatbuffers.UOffsetT{}
 	for _, v := range FlattenGroupPermissionMap(target) {
@@ -80,25 +80,24 @@ func BuildGroupPermissions(
 
 func BuildPlayerPermissions(
 	builder *flatbuffers.Builder,
-	target PlayerPermissionMap,
+	target *PlayerPermissionMap,
 ) []flatbuffers.UOffsetT {
 	pp_o := []flatbuffers.UOffsetT{}
 	for _, v := range FlattenPlayerPermissionMap(target) {
+		player_uuid := BuildUUID(builder, v.uuid)
 		proto.PlayerPermissionStart(builder)
 		proto.PlayerPermissionAddFlag(builder, v.flag)
 		proto.PlayerPermissionAddValue(builder, v.value)
-		//hi, lo := BreakUUID(v.uuid);
-		//player_uuid := proto.CreateUUID(builder,hi,lo)
-		//proto.PlayerPermissionAddMinecraftId(builder, player_uuid)
+		proto.PlayerPermissionAddMinecraftId(builder, player_uuid)
 		entry := proto.PlayerPermissionEnd(builder)
 		pp_o = append(pp_o, entry)
 	}
 	return pp_o
 }
 
-func FlattenPlayerPermissionMap(target PlayerPermissionMap) []PlayerPermissionEntry {
+func FlattenPlayerPermissionMap(target *PlayerPermissionMap) []PlayerPermissionEntry {
 	output := []PlayerPermissionEntry{}
-	for id, map_value := range target {
+	for id, map_value := range target.i {
 		for flag, value := range map_value {
 			output = append(output, PlayerPermissionEntry{
 				uuid:  id,
@@ -116,9 +115,9 @@ type GroupPermissionEntry struct {
 	value proto.FlagValue
 }
 
-func FlattenGroupPermissionMap(target GroupPermissionMap) []GroupPermissionEntry {
+func FlattenGroupPermissionMap(target *GroupPermissionMap) []GroupPermissionEntry {
 	output := []GroupPermissionEntry{}
-	for id, map_value := range target {
+	for id, map_value := range target.i {
 		for flag, value := range map_value {
 			output = append(output, GroupPermissionEntry{
 				name:  id,

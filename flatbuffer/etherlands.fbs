@@ -55,27 +55,44 @@ table District {
   plots:[uint64];
   owner_uuid:UUID;
   owner_address:string;
-  player_permissions:[PlayerPermission];
-  group_permissions:[GroupPermission];
 }
 
 table Group {
   name:string;
-  town:string;
   members:[UUID];
 }
 
-table Town {
+table PlayerPermissionMap {
+  permissions:[PlayerPermission];
+}
 
+table GroupPermissionMap {
+  permissions:[GroupPermission];
+}
+
+table DistrictPlayerPermissionMap {
+  districts:[uint64];
+  permissions:[PlayerPermissionMap];
+}
+
+table DistrictGroupPermissionMap {
+  districts:[uint64];
+  permissions:[GroupPermissionMap];
+}
+
+table Town {
   name:string;
   owner:UUID;
 
   members:[UUID];
   managers:[UUID];
-
+  groups:[Group];
 
   districts:[uint64];
 
-  default_player_permissions:[PlayerPermission];
-  default_group_permissions:[GroupPermission];
+  default_player_permissions:PlayerPermissionMap;
+  default_group_permissions:GroupPermissionMap;
+
+  district_player_permissions:DistrictPlayerPermissionMap;
+  district_group_permissions:DistrictGroupPermissionMap;
 }

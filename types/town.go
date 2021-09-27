@@ -3,120 +3,152 @@ package types
 import (
 	"sync"
 
-  flatbuffers "github.com/google/flatbuffers/go"
-  proto "github.com/gfx-labs/etherlands/proto"
+	"github.com/google/uuid"
 )
 
 type Group struct {
-  name string
-  town *Town
-  members []*Gamer
+	name    string
+	town    string
+	members []uuid.UUID
 
-  sync.RWMutex
+	sync.RWMutex
 }
 
 func (G *Group) Name() string {
-  G.RLock();
-  defer G.RUnlock();
-  return G.name;
+	G.RLock()
+	defer G.RUnlock()
+	return G.name
 }
 
-func (G *Group) Town() *Town {
-  G.RLock();
-  defer G.RUnlock();
-  return G.town;
+func (G *Group) Town() string {
+	G.RLock()
+	defer G.RUnlock()
+	return G.town
 }
 
-func (G *Group) Members() []*Gamer {
-  G.RLock();
-  defer G.RUnlock();
-  return G.members;
+func (G *Group) Members() []uuid.UUID {
+	G.RLock()
+	defer G.RUnlock()
+	return G.members
 }
 
 type Town struct {
+	name string
 
-  name string
+	owner   uuid.UUID
+	members map[uuid.UUID]struct{}
 
-  owner *Gamer
-  members []*Gamer
-  managers []*Gamer
+	groups    map[string]*Group
+	districts []uint64
 
-  groups map[string][]*Group
-  districts []*District
+	defaultPlayerPermissions *PlayerPermissionMap
+	defaultGroupPermissions  *GroupPermissionMap
 
-  defaultPlayerPermissions PlayerPermissionMap
-  defaultGroupPermissions GroupPermissionMap
+	districtPlayerPermissions map[uint64]*PlayerPermissionMap
+	districtGroupPermissions  map[uint64]*GroupPermissionMap
+	district_player_lock      *DistrictLock
+	district_group_lock       *DistrictLock
 
-  sync.RWMutex
+	sync.RWMutex
+
+	W *World
 }
 
-func (T *Town) DefaultPlayerPermissionMap() PlayerPermissionMap {
-  T.RLock()
-  defer T.RUnlock()
-  return T.defaultPlayerPermissions
+func (T *Town) GetKey() FamilyKey {
+	T.RLock()
+	defer T.RUnlock()
+	return NewTownKey(T.name)
 }
 
-func (T *Town) DefaultGroupPermissionMap() GroupPermissionMap {
-  T.RLock()
-  defer T.RUnlock()
-  return T.defaultGroupPermissions
+func NewTownKey(town_name string) FamilyKey {
+	return FamilyKey{
+		datatype: TOWN_FAMILY,
+		subkey:   town_name,
+	}
 }
 
-func (T *Town) Owner() *Gamer{
-  T.RLock();
-  defer T.RUnlock();
-  return T.owner
+func (T *Town) DefaultPlayerPermissions() *PlayerPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	return T.defaultPlayerPermissions
+}
+
+func (T *Town) DefaultGroupPermissions() *GroupPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	return T.defaultGroupPermissions
+}
+
+func (T *Town) DistrictPlayerPermissions() map[uint64]*PlayerPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	return T.districtPlayerPermissions
+}
+
+func (T *Town) DistrictGroupPermissions() map[uint64]*GroupPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	return T.districtGroupPermissions
+}
+
+func (T *Town) DistrictPlayerPermission(district_id uint64) *PlayerPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	if v, ok := T.districtPlayerPermissions[district_id]; ok {
+		return v
+	}
+	T.districtPlayerPermissions[district_id] = NewPlayerPermissionMap()
+	return T.districtPlayerPermissions[district_id]
+}
+
+func (T *Town) DistrictGroupPermission(district_id uint64) *GroupPermissionMap {
+	T.RLock()
+	defer T.RUnlock()
+	if v, ok := T.districtGroupPermissions[district_id]; ok {
+		return v
+	}
+	T.districtGroupPermissions[district_id] = NewGroupPermissionMap()
+	return T.districtGroupPermissions[district_id]
+}
+
+func (T *Town) Owner() uuid.UUID {
+	T.RLock()
+	defer T.RUnlock()
+	return T.owner
+}
+
+func (T *Town) SetOwner(owner uuid.UUID) {
+	T.Lock()
+	defer T.Unlock()
+	T.owner = owner
 }
 
 func (T *Town) Name() string {
-  T.RLock();
-  defer T.RUnlock();
-  return T.name
+	T.RLock()
+	defer T.RUnlock()
+	return T.name
 }
 
-
-func (T *Town) Members() []*Gamer{
-  T.RLock();
-  defer T.RUnlock();
-  return T.members
+func (T *Town) Members() map[uuid.UUID]struct{} {
+	T.RLock()
+	defer T.RUnlock()
+	return T.members
 }
 
-func (T *Town) Managers() []*Gamer{
-  T.RLock();
-  defer T.RUnlock();
-  return T.members;
+func (T *Town) AddMember(id uuid.UUID) {
+	T.Lock()
+	defer T.Unlock()
+	T.members[id] = struct{}{}
 }
 
-
-func (T *Town) Groups() []*Group{
-  T.RLock();
-  defer T.RUnlock();
-  return T.Groups();
+func (T *Town) Groups() []*Group {
+	T.RLock()
+	defer T.RUnlock()
+	return T.Groups()
 }
 
-func (T *Town) Districts() []*District{
-  T.RLock();
-  defer T.RUnlock();
-  return T.districts;
-}
-
-
-func BuildTownGroupPermissionVector(builder *flatbuffers.Builder, target GroupPermissionMap) flatbuffers.UOffsetT{
-  gp_o := BuildGroupPermissions(builder,  target)
-  proto.TownStartDefaultGroupPermissionsVector(builder,len(gp_o))
-  for _, v := range gp_o {
-    builder.PrependUOffsetT(v)
-  }
-  return builder.EndVector(len(gp_o))
-}
-
-
-
-func BuildTownPlayerPermissionVector(builder *flatbuffers.Builder, target PlayerPermissionMap) flatbuffers.UOffsetT{
-  pp_o := BuildPlayerPermissions(builder, target)
-  proto.TownStartDefaultPlayerPermissionsVector(builder,len(pp_o))
-  for _, v := range pp_o {
-    builder.PrependUOffsetT(v)
-  }
-  return builder.EndVector(len(pp_o))
+func (T *Town) Districts() []uint64 {
+	T.RLock()
+	defer T.RUnlock()
+	return T.districts
 }

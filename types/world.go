@@ -23,7 +23,9 @@ type World struct {
 	gamers      map[FamilyKey]*Gamer
 	gamers_lock sync.RWMutex
 
-	towns map[FamilyKey]*Town
+	towns      map[FamilyKey]*Town
+	uuid_town  *zset.ZSetUUIDStr
+	towns_lock sync.RWMutex
 
 	DistrictRequests chan uint64
 	PlotRequests     chan uint64
@@ -58,6 +60,7 @@ func NewWorld() *World {
 		plot_location:  make(map[[2]int64]uint64),
 		plot_district:  zset.CreateZSet(),
 		district_owner: zset.CreateZSetStr(),
+		uuid_town:      zset.CreateZSetUUIDStr(),
 
 		DistrictRequests: make(chan uint64, 100),
 		PlotRequests:     make(chan uint64, 100),
@@ -112,6 +115,16 @@ func (W *World) UpdatePlot(plot *Plot) {
 		W.plots[plot.GetKey()] = plot
 	}
 	W.cache.CachePlot(W.plots[plot.GetKey()])
+}
+
+func (W *World) UpdateTown(town *Town) {
+	W.towns_lock.Lock()
+	defer W.towns_lock.Unlock()
+	if _, ok := W.towns[town.GetKey()]; !ok {
+		W.towns[town.GetKey()] = town
+	}
+	//	W.cache.CacheTown(W.towns[town.GetKey()])
+	go W.towns[town.GetKey()].Save()
 }
 
 func (W *World) UpdateDistrict(district *District) {

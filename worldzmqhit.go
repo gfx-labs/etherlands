@@ -145,6 +145,8 @@ func (Z *WorldZmq) hit_world_type(args VarArgs) {
 		Z.hit_world_plot_field(args)
 	case "district":
 		Z.hit_world_district_field(args)
+	case "town":
+		Z.hit_world_town_field(args)
 	case "link_request":
 		err = Z.world_link_request(args)
 		if Z.checkError(args, err) {
@@ -219,6 +221,14 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 			return
 		}
 		gamer.SetPosXYZ(x, y, z)
+	case "create_town":
+		name, err := args.MustGet(4)
+		if Z.checkError(args, err) {
+			return
+		}
+		if !gamer.HasTown {
+			Z.W.CreateTown(name, gamer)
+		}
 	default:
 		Z.genericError(args, field)
 	}
@@ -269,6 +279,29 @@ func (Z *WorldZmq) hit_world_district_field(args VarArgs) {
 		Z.sendResponse(args, value)
 	case "owner_addr":
 		Z.sendResponse(args, district.OwnerAddress())
+	default:
+		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
+	field, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_name, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch field {
+	case "name":
+		Z.sendResponse(args, town.Name())
+	case "owner_uuid":
+		Z.sendResponse(args, town.Owner().String())
 	default:
 		Z.genericError(args, field)
 	}

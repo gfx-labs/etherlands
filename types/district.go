@@ -16,9 +16,6 @@ type District struct {
 
 	nickname *[24]byte
 
-	playerPermissions PlayerPermissionMap
-	groupPermissions  GroupPermissionMap
-
 	mutex sync.RWMutex
 
 	key   FamilyKey
@@ -67,41 +64,17 @@ func (D *District) Owner() *Gamer {
 	return D.owner
 }
 
-func (D *District) PlayerPermissions() PlayerPermissionMap {
-	D.mutex.RLock()
-	defer D.mutex.RUnlock()
-	return D.playerPermissions
-}
-
-func (D *District) GroupPermissions() GroupPermissionMap {
-	D.mutex.RLock()
-	defer D.mutex.RUnlock()
-	return D.groupPermissions
-}
-
-func BuildDistrictGroupPermissionVector(
-	builder *flatbuffers.Builder,
-	target GroupPermissionMap,
-) flatbuffers.UOffsetT {
-	gp_o := BuildGroupPermissions(builder, target)
-	proto.DistrictStartGroupPermissionsVector(builder, len(gp_o))
-	for _, v := range gp_o {
-		builder.PrependUOffsetT(v)
-	}
-	return builder.EndVector(len(gp_o))
-}
-
-func BuildDistrictPlayerPermissionVector(
-	builder *flatbuffers.Builder,
-	target PlayerPermissionMap,
-) flatbuffers.UOffsetT {
-	pp_o := BuildPlayerPermissions(builder, target)
-	proto.DistrictStartPlayerPermissionsVector(builder, len(pp_o))
-	for _, v := range pp_o {
-		builder.PrependUOffsetT(v)
-	}
-	return builder.EndVector(len(pp_o))
-}
+//func (D *District) PlayerPermissions() PlayerPermissionMap {
+//	D.mutex.RLock()
+//	defer D.mutex.RUnlock()
+//	return D.playerPermissions
+//}
+//
+//func (D *District) GroupPermissions() GroupPermissionMap {
+//	D.mutex.RLock()
+//	defer D.mutex.RUnlock()
+//	return D.groupPermissions
+//}
 
 func (D *District) GetKey() FamilyKey {
 	return D.key
@@ -118,23 +91,21 @@ func (D *District) Save() error {
 	plots_offset := builder.EndVector(len(D.Plots()))
 	owner_address_offset := builder.CreateString(D.OwnerAddress())
 
-	player_permission_offset := BuildDistrictPlayerPermissionVector(builder, D.PlayerPermissions())
-	group_permission_offset := BuildDistrictGroupPermissionVector(builder, D.GroupPermissions())
+	var owner_uuid_offset flatbuffers.UOffsetT
+	if D.Owner() != nil {
+		owner_uuid_offset = BuildUUID(builder, D.Owner().MinecraftId())
+	}
 
 	proto.DistrictStart(builder)
 
 	proto.DistrictAddChainId(builder, D.DistrictId())
 
 	proto.DistrictAddNickname(builder, nickname_offset)
-
 	if D.Owner() != nil {
-		owner_uuid_offset := BuildUUID(builder, D.Owner().MinecraftId())
 		proto.DistrictAddOwnerUuid(builder, owner_uuid_offset)
 	}
 	proto.DistrictAddOwnerAddress(builder, owner_address_offset)
 	proto.DistrictAddPlots(builder, plots_offset)
-	proto.DistrictAddGroupPermissions(builder, group_permission_offset)
-	proto.DistrictAddPlayerPermissions(builder, player_permission_offset)
 
 	//finish
 	district_offset := proto.DistrictEnd(builder)

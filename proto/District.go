@@ -111,48 +111,8 @@ func (rcv *District) OwnerAddress() []byte {
 	return nil
 }
 
-func (rcv *District) PlayerPermissions(obj *PlayerPermission, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
-	}
-	return false
-}
-
-func (rcv *District) PlayerPermissionsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
-func (rcv *District) GroupPermissions(obj *GroupPermission, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
-	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
-	}
-	return false
-}
-
-func (rcv *District) GroupPermissionsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
 func DistrictStart(builder *flatbuffers.Builder) {
-	builder.StartObject(7)
+	builder.StartObject(5)
 }
 func DistrictAddChainId(builder *flatbuffers.Builder, chainId uint64) {
 	builder.PrependUint64Slot(0, chainId, 0)
@@ -174,18 +134,6 @@ func DistrictAddOwnerUuid(builder *flatbuffers.Builder, ownerUuid flatbuffers.UO
 }
 func DistrictAddOwnerAddress(builder *flatbuffers.Builder, ownerAddress flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(ownerAddress), 0)
-}
-func DistrictAddPlayerPermissions(builder *flatbuffers.Builder, playerPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(playerPermissions), 0)
-}
-func DistrictStartPlayerPermissionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
-}
-func DistrictAddGroupPermissions(builder *flatbuffers.Builder, groupPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(groupPermissions), 0)
-}
-func DistrictStartGroupPermissionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
 }
 func DistrictEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

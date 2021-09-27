@@ -34,16 +34,8 @@ func (rcv *Group) Name() []byte {
 	return nil
 }
 
-func (rcv *Group) Town() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *Group) Members(obj *UUID, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 16
@@ -54,7 +46,7 @@ func (rcv *Group) Members(obj *UUID, j int) bool {
 }
 
 func (rcv *Group) MembersLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -62,16 +54,13 @@ func (rcv *Group) MembersLength() int {
 }
 
 func GroupStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(2)
 }
 func GroupAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
 }
-func GroupAddTown(builder *flatbuffers.Builder, town flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(town), 0)
-}
 func GroupAddMembers(builder *flatbuffers.Builder, members flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(members), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(members), 0)
 }
 func GroupStartMembersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(16, numElems, 1)

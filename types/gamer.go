@@ -12,6 +12,7 @@ import (
 type Gamer struct {
 	nickname    string
 	address     string
+	town        string
 	minecraftId uuid.UUID
 	mutex       sync.RWMutex
 
@@ -41,6 +42,18 @@ func (G *Gamer) Address() string {
 	G.mutex.RLock()
 	defer G.mutex.RUnlock()
 	return G.address
+}
+
+func (G *Gamer) GetTown() string {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	return G.town
+}
+
+func (G *Gamer) SetTown(name string) {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	G.town = name
 }
 
 func (G *Gamer) MinecraftId() uuid.UUID {

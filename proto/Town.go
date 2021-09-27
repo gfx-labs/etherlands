@@ -85,8 +85,28 @@ func (rcv *Town) ManagersLength() int {
 	return 0
 }
 
-func (rcv *Town) Districts(j int) uint64 {
+func (rcv *Town) Groups(obj *Group, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Town) GroupsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Town) Districts(j int) uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetUint64(a + flatbuffers.UOffsetT(j*8))
@@ -95,7 +115,7 @@ func (rcv *Town) Districts(j int) uint64 {
 }
 
 func (rcv *Town) DistrictsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -103,7 +123,7 @@ func (rcv *Town) DistrictsLength() int {
 }
 
 func (rcv *Town) MutateDistricts(j int, n uint64) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.MutateUint64(a+flatbuffers.UOffsetT(j*8), n)
@@ -111,48 +131,60 @@ func (rcv *Town) MutateDistricts(j int, n uint64) bool {
 	return false
 }
 
-func (rcv *Town) DefaultPlayerPermissions(obj *PlayerPermission, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
-		obj.Init(rcv._tab.Bytes, x)
-		return true
-	}
-	return false
-}
-
-func (rcv *Town) DefaultPlayerPermissionsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
-func (rcv *Town) DefaultGroupPermissions(obj *GroupPermission, j int) bool {
+func (rcv *Town) DefaultPlayerPermissions(obj *PlayerPermissionMap) *PlayerPermissionMap {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
-		x := rcv._tab.Vector(o)
-		x += flatbuffers.UOffsetT(j) * 4
-		x = rcv._tab.Indirect(x)
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(PlayerPermissionMap)
+		}
 		obj.Init(rcv._tab.Bytes, x)
-		return true
+		return obj
 	}
-	return false
+	return nil
 }
 
-func (rcv *Town) DefaultGroupPermissionsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+func (rcv *Town) DefaultGroupPermissions(obj *GroupPermissionMap) *GroupPermissionMap {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
-		return rcv._tab.VectorLen(o)
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(GroupPermissionMap)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
-	return 0
+	return nil
+}
+
+func (rcv *Town) DistrictPlayerPermissions(obj *DistrictPlayerPermissionMap) *DistrictPlayerPermissionMap {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(DistrictPlayerPermissionMap)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
+func (rcv *Town) DistrictGroupPermissions(obj *DistrictGroupPermissionMap) *DistrictGroupPermissionMap {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(DistrictGroupPermissionMap)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
 }
 
 func TownStart(builder *flatbuffers.Builder) {
-	builder.StartObject(7)
+	builder.StartObject(10)
 }
 func TownAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
@@ -172,23 +204,29 @@ func TownAddManagers(builder *flatbuffers.Builder, managers flatbuffers.UOffsetT
 func TownStartManagersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(16, numElems, 1)
 }
+func TownAddGroups(builder *flatbuffers.Builder, groups flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(groups), 0)
+}
+func TownStartGroupsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
 func TownAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(districts), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(districts), 0)
 }
 func TownStartDistrictsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(8, numElems, 8)
 }
 func TownAddDefaultPlayerPermissions(builder *flatbuffers.Builder, defaultPlayerPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(defaultPlayerPermissions), 0)
-}
-func TownStartDefaultPlayerPermissionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(defaultPlayerPermissions), 0)
 }
 func TownAddDefaultGroupPermissions(builder *flatbuffers.Builder, defaultGroupPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(defaultGroupPermissions), 0)
+	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(defaultGroupPermissions), 0)
 }
-func TownStartDefaultGroupPermissionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(4, numElems, 4)
+func TownAddDistrictPlayerPermissions(builder *flatbuffers.Builder, districtPlayerPermissions flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(districtPlayerPermissions), 0)
+}
+func TownAddDistrictGroupPermissions(builder *flatbuffers.Builder, districtGroupPermissions flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(districtGroupPermissions), 0)
 }
 func TownEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
