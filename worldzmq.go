@@ -110,7 +110,7 @@ func (Z *WorldZmq) sendGamerError(target uuid.UUID, err error) {
 
 func (Z *WorldZmq) sendGamerResult(target uuid.UUID, result string) {
 	Z.sendChan <- [2]string{
-		"chat",
+		"CHAT",
 		fmt.Sprintf("gamer:%s:%s", target.String(), result),
 	}
 	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), result)
