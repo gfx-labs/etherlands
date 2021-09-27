@@ -219,6 +219,7 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 			return
 		}
 		gamer.SetPosXYZ(x, y, z)
+		Z.sendResponse(args, "true")
 	case "create_town":
 		name, err := args.MustGet(4)
 		if Z.checkError(args, err) {
@@ -226,6 +227,9 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		}
 		if !gamer.HasTown() {
 			Z.W.CreateTown(name, gamer)
+			Z.sendResponse(args, "true")
+		} else {
+			Z.sendResponse(args, "false")
 		}
 	default:
 		Z.genericError(args, field)
