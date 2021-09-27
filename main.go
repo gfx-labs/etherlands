@@ -39,7 +39,6 @@ func main() {
 	go conn.process_events()
 	go conn.start_query(5 * time.Second)
 
-	StartWorldSMP(world)
 	StartWorldWeb(world)
 	StartWorldZmq(world)
 	StartPrompt(world)

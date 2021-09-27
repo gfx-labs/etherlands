@@ -1,8 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -23,19 +30,107 @@ func (Z *WorldZmq) hit_scope(args VarArgs) {
 	}
 }
 
-func (Z *WorldZmq) smp_link_request(message string) error {
-	args := strings.Split(message, ":")
-	if len(args) == 4 {
-		_, err := uuid.Parse(args[0])
-		if err != nil {
-			return errors.New(fmt.Sprintf("malformed uuid %s", args[0]))
-		}
-		if args[1] != "" && args[2] != "" && args[3] != "" {
-			Z.W.CreateLinkRequest(strings.ToLower(message))
-			return nil
-		}
+func (Z *WorldZmq) world_link_request(args VarArgs) error {
+	uuid_str, err := args.MustGet(2)
+	if err != nil {
+		return err
 	}
-	return errors.New(fmt.Sprintf("invalid input %s %v", message, args))
+	_, err = uuid.Parse(uuid_str)
+	if err != nil {
+		return errors.New(fmt.Sprintf("malformed uuid %s", uuid_str))
+	}
+	a, err := args.MustGet(2)
+	if err != nil {
+		return err
+	}
+	b, err := args.MustGet(2)
+	if err != nil {
+		return err
+	}
+	c, err := args.MustGet(2)
+	if err != nil {
+		return err
+	}
+	if a != "" && b != "" && c != "" {
+		Z.W.CreateLinkRequest(fmt.Sprintf("%s:%s:%s:%s", uuid_str, a, b, c))
+		return nil
+	}
+	return errors.New(fmt.Sprintf("invalid input %v", args))
+}
+
+type opensea_asset_response struct {
+	Assets []struct {
+		ImageURL      string `json:"image_url"`
+		AssetContract struct {
+			Address string `json:"address"`
+		} `json:"asset_contract"`
+		Owner struct {
+			Address string `json:"address"`
+		} `json:"owner"`
+		Collection struct {
+			Slug string `json:"slug"`
+		} `json:"collection"`
+	} `json:"assets"`
+}
+
+func (Z *WorldZmq) opensea_image_download(contract, id string) error {
+	unlock := Z.lock("nft" + contract + ":" + id)
+	defer unlock()
+	var url string
+	if strings.HasPrefix(contract, "0x") {
+		url = fmt.Sprintf(
+			"https://api.opensea.io/api/v1/assets?asset_contract_address=%s&token_ids=%s",
+			contract,
+			id,
+		)
+	} else {
+		url = fmt.Sprintf("https://api.opensea.io/api/v1/assets?collection=%s&token_ids=%s", contract, id)
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return err
+	}
+	resp_bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var formatted opensea_asset_response
+	err = json.Unmarshal(resp_bytes, &formatted)
+	if err != nil {
+		return err
+	}
+	log.Println(formatted)
+	if len(formatted.Assets) > 0 {
+		image_url := formatted.Assets[0].ImageURL
+		resp_img, err := http.Get(image_url)
+		if err != nil {
+			return err
+		}
+		defer resp_img.Body.Close()
+		folder := path.Join(
+			"./db",
+			"images",
+			"opensea",
+			formatted.Assets[0].AssetContract.Address,
+		)
+		symlink := path.Join("./db", "images", "opensea", formatted.Assets[0].Collection.Slug)
+		os.MkdirAll(folder, 0777)
+		if _, err = os.Stat(symlink); os.IsNotExist(err) {
+			os.Symlink(formatted.Assets[0].AssetContract.Address, symlink)
+		}
+		file, err := os.Create(path.Join(folder, contract))
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(file, resp_img.Body)
+		return err
+	}
+	return errors.New("no image found")
 }
 
 func (Z *WorldZmq) hit_world_type(args VarArgs) {
@@ -51,11 +146,20 @@ func (Z *WorldZmq) hit_world_type(args VarArgs) {
 	case "district":
 		Z.hit_world_district_field(args)
 	case "link_request":
-		link_info, err := args.MustGet(2)
+		err = Z.world_link_request(args)
 		if Z.checkError(args, err) {
 			return
 		}
-		Z.smp_link_request(link_info)
+	case "image_download":
+		collection, err := args.MustGet(2)
+		if Z.checkError(args, err) {
+			return
+		}
+		nft_id, err := args.MustGet(3)
+		if Z.checkError(args, err) {
+			return
+		}
+		err = Z.opensea_image_download(collection, nft_id)
 		if Z.checkError(args, err) {
 			return
 		}

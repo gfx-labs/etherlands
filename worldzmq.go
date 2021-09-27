@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	types "github.com/gfx-labs/etherlands/types"
 	zmq "github.com/pebbe/zmq4"
@@ -18,6 +19,15 @@ type WorldZmq struct {
 
 	recvChan chan [2]string
 	sendChan chan [2]string
+
+	mutexes sync.Map
+}
+
+func (Z *WorldZmq) lock(name string) func() {
+	value, _ := Z.mutexes.LoadOrStore(name, &sync.Mutex{})
+	mtx := value.(*sync.Mutex)
+	mtx.Lock()
+	return func() { mtx.Unlock() }
 }
 
 type VarArgs []string
