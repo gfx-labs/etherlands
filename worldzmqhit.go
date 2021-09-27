@@ -226,7 +226,7 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 			return
 		}
 		if !gamer.HasTown() {
-			Z.W.CreateTown(name, gamer)
+			go Z.W.CreateTown(name, gamer)
 			Z.sendResponse(args, "true")
 		} else {
 			Z.sendResponse(args, "false")
