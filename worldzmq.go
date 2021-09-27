@@ -96,7 +96,7 @@ func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 		args.Command(),
 		string(content),
 	}
-	logger.Log.Printf("[out|%s] %s\n", args.Command(), content)
+	logger.Log.Printf("[OUT] %s %s\n", args.Command(), content)
 }
 
 func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
