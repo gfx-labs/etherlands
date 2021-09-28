@@ -206,8 +206,8 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 		team_name, _ := args.MustGet(5)
 		flag_str, _ := args.MustGet(7)
 		value_str, _ := args.MustGet(8)
-		_, ok := proto.EnumValuesAccessFlag[flag_str]
-		_, ok2 := proto.EnumValuesAccessFlag[value_str]
+		_, ok := proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)]
+		_, ok2 := proto.EnumValuesAccessFlag[strings.ToTitle(value_str)]
 		if !ok || !ok2 {
 			Z.checkGamerError(gamer, errors.New("malformed flag enums"))
 			return
