@@ -90,10 +90,10 @@ func BuildTeamPermissions(
 ) []flatbuffers.UOffsetT {
 	gp_o := []flatbuffers.UOffsetT{}
 	for _, v := range FlattenTeamPermissionMap(target) {
+		team_name := builder.CreateString(v.name)
 		proto.TeamPermissionStart(builder)
 		proto.TeamPermissionAddFlag(builder, v.flag)
 		proto.TeamPermissionAddValue(builder, v.value)
-		team_name := builder.CreateString(v.name)
 		proto.TeamPermissionAddTeam(builder, team_name)
 		entry := proto.TeamPermissionEnd(builder)
 		gp_o = append(gp_o, entry)
