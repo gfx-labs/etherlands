@@ -229,16 +229,13 @@ func buildTeamVector(
 	for k, v := range target {
 		name := builder.CreateString(k)
 		memes := v.Members()
-		gmo := make([]flatbuffers.UOffsetT, len(memes))
-		idx := 0
+		proto.TeamStartMembersVector(builder, len(memes))
 		for k := range memes {
-			gmo[idx] = BuildUUID(builder, k)
-			idx = idx + 1
+			builder.PrependUOffsetT(BuildUUID(builder, k))
 		}
+		members_vector := builder.EndVector(len(memes))
 		proto.TeamStart(builder)
-		for j := 0; j < len(gmo); j++ {
-			proto.TeamAddMembers(builder, gmo[j])
-		}
+		proto.TeamAddMembers(builder, members_vector)
 		proto.TeamAddPriority(builder, v.Priority())
 		proto.TeamAddName(builder, name)
 		go_a = append(go_a, proto.TeamEnd(builder))
