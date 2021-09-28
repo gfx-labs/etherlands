@@ -59,9 +59,9 @@ table District {
 }
 
 table Team {
+  members:[UUID];
   name:string;
   priority:int64;
-  members:[UUID];
 }
 
 table PlayerPermissionMap {

@@ -32,6 +32,13 @@ type MapLock struct {
 	sync.Map
 }
 
+func (D *MapLock) lock_str(file string) func() {
+	value, _ := D.LoadOrStore(file, &sync.Mutex{})
+	mtx := value.(*sync.Mutex)
+	mtx.Lock()
+	return func() { mtx.Unlock() }
+}
+
 func (D *MapLock) lock(district_id uint64) func() {
 	value, _ := D.LoadOrStore(district_id, &sync.Mutex{})
 	mtx := value.(*sync.Mutex)

@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var filelock = MapLock{}
+
 func WriteStruct(root, file string, data []byte) error {
 	path := filepath.Join(".", "db", root)
 	err := os.MkdirAll(path, os.ModePerm)
@@ -17,6 +19,8 @@ func WriteStruct(root, file string, data []byte) error {
 		return err
 	}
 	filepath := path + "/" + file
+	unlock := filelock.lock_str(filepath)
+	defer unlock()
 	err = ioutil.WriteFile(filepath, data, 0666)
 	if err != nil {
 		return err
@@ -31,6 +35,8 @@ func DeleteStruct(root, file string) error {
 		return err
 	}
 	filepath := path + "/" + file
+	unlock := filelock.lock_str(filepath)
+	defer unlock()
 	err = os.Remove(filepath)
 	if err != nil {
 		return err
@@ -41,6 +47,8 @@ func DeleteStruct(root, file string) error {
 func ReadStruct(root, file string) ([]byte, error) {
 	path := filepath.Join(".", "db", root)
 	filepath := path + "/" + file
+	unlock := filelock.lock_str(filepath)
+	defer unlock()
 	return ioutil.ReadFile(filepath)
 }
 
