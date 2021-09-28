@@ -40,22 +40,22 @@ type World struct {
 func (W *World) SaveWorld() {
 	W.gamers_lock.Lock()
 	for _, v := range W.gamers {
-		go v.Save()
+		v.Save()
 	}
 	W.gamers_lock.Unlock()
 	W.plots_lock.Lock()
 	for _, v := range W.plots {
-		go v.Save()
+		v.Save()
 	}
 	W.plots_lock.Unlock()
 	W.districts_lock.Lock()
 	for _, v := range W.districts {
-		go v.Save()
+		v.Save()
 	}
 	W.districts_lock.Unlock()
 	W.towns_lock.Lock()
 	for _, v := range W.towns {
-		go v.Save()
+		v.Save()
 	}
 	W.towns_lock.Unlock()
 }
