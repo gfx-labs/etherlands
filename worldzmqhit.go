@@ -366,8 +366,8 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
-		Z.sendTownResult(
-			town.Name(),
+		Z.sendGamerResult(
+			gamer,
 			fmt.Sprintf("ayy you deleted ur town gj"),
 		)
 	case "leave":
