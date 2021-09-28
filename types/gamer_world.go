@@ -109,6 +109,9 @@ func (G *Gamer) Save() error {
 	addr := builder.CreateString(G.Address())
 	nick := builder.CreateString(G.Nickname())
 	town := builder.CreateString(G.Town())
+	proto.GamerStart(builder)
+	proto.GamerAddAddress(builder, addr)
+	proto.GamerAddNickname(builder, nick)
 	uuid := proto.CreateUUID(builder, G.minecraftId[0],
 		G.minecraftId[1],
 		G.minecraftId[2],
@@ -126,10 +129,6 @@ func (G *Gamer) Save() error {
 		G.minecraftId[14],
 		G.minecraftId[15],
 	)
-	proto.GamerStart(builder)
-	proto.GamerAddAddress(builder, addr)
-	proto.GamerAddNickname(builder, nick)
-
 	proto.GamerAddMinecraftId(builder, uuid)
 	proto.GamerAddTown(builder, town)
 
