@@ -359,7 +359,7 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 		}
 		Z.sendGamerResult(
 			gamer,
-			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),
+			fmt.Sprintf("Tou have joined [town.%s]", town.Name()),
 		)
 		Z.sendTownResult(
 			town.Name(),

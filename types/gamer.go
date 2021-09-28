@@ -66,7 +66,7 @@ func (G *Gamer) DeleteTown(town *Town, validate string) error {
 }
 
 func (G *Gamer) LeaveTown(town *Town) error {
-	if town.CheckInvite(G, time.Minute*15) {
+	if G.Town() != "" {
 		if town.Owner() != G.minecraftId {
 			return nil
 		}
