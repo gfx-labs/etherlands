@@ -275,8 +275,13 @@ func (Z *WorldZmq) hit_world_district_field_action(args VarArgs) {
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
-		Z.sendGamerResult(gamer,
-			fmt.Sprintf("District %s is now delegated to %s", gamer.Town(), district.Town()),
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf(
+				"District %s is now delegated to %s",
+				district.StringName(),
+				district.Town(),
+			),
 		)
 	case "reclaim":
 		err = district.Reclaim(gamer)
