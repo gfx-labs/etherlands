@@ -123,7 +123,7 @@ func (Z *WorldZmq) sendGamerModal(gamer *types.Gamer, result string) {
 func (Z *WorldZmq) sendUUIDModal(target uuid.UUID, result string) {
 	Z.sendChan <- [2]string{
 		"CHAT",
-		fmt.Sprintf("gamer:%s:%s", target.String(), result),
+		fmt.Sprintf("modal:%s:%s", target.String(), result),
 	}
 	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), result)
 }
