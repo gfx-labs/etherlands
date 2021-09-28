@@ -68,6 +68,8 @@ func (G *Gamer) DeleteTown(town *Town, validate string) error {
 func (G *Gamer) LeaveTown(town *Town) error {
 	if G.Town() != "" {
 		if town.Owner() != G.minecraftId {
+			G.SetTown("")
+			G.Update()
 			return nil
 		}
 		return errors.New(fmt.Sprintf("You may not leave the team you own"))
