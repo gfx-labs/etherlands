@@ -104,7 +104,7 @@ func (W *World) LoadTown(name string) (*Town, error) {
 				puuid := new(proto.UUID)
 				if team.Members(puuid, j) {
 					new_uuid := ProtoResolveUUID(puuid)
-					log.Println(new_uuid.String(), puuid, j)
+					log.Println(new_uuid.String(), puuid.B0(), j)
 					team_members[new_uuid] = struct{}{}
 				}
 			}
