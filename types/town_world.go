@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -102,9 +101,9 @@ func (W *World) LoadTown(name string) (*Town, error) {
 			team_members := make(map[uuid.UUID]struct{})
 			for j := 0; j < team.MembersLength(); j++ {
 				puuid := new(proto.UUID)
+				puuid
 				if team.Members(puuid, j) {
 					new_uuid := ProtoResolveUUID(puuid)
-					log.Println(new_uuid.String(), puuid.B0(), j)
 					team_members[new_uuid] = struct{}{}
 				}
 			}
@@ -219,7 +218,7 @@ func buildTeamVector(
 		memes := v.Members()
 		proto.TeamStartMembersVector(builder, len(memes))
 		for k := range memes {
-			builder.PrependUOffsetT(BuildUUID(builder, k))
+			BuildUUID(builder, k)
 		}
 		members_vector := builder.EndVector(len(memes))
 		proto.TeamStart(builder)

@@ -85,22 +85,22 @@ func (W *World) LoadGamer(gamer_id uuid.UUID) (*Gamer, error) {
 
 func ProtoResolveUUID(puuid *proto.UUID) uuid.UUID {
 	return [16]byte{
-		byte(puuid.B0()),
-		byte(puuid.B1()),
-		byte(puuid.B2()),
-		byte(puuid.B3()),
-		byte(puuid.B4()),
-		byte(puuid.B5()),
-		byte(puuid.B6()),
-		byte(puuid.B7()),
-		byte(puuid.B8()),
-		byte(puuid.B9()),
-		byte(puuid.B10()),
-		byte(puuid.B11()),
-		byte(puuid.B12()),
-		byte(puuid.B13()),
-		byte(puuid.B14()),
-		byte(puuid.B15()),
+		puuid.B0(),
+		puuid.B1(),
+		puuid.B2(),
+		puuid.B3(),
+		puuid.B4(),
+		puuid.B5(),
+		puuid.B6(),
+		puuid.B7(),
+		puuid.B8(),
+		puuid.B9(),
+		puuid.B10(),
+		puuid.B11(),
+		puuid.B12(),
+		puuid.B13(),
+		puuid.B14(),
+		puuid.B15(),
 	}
 }
 
