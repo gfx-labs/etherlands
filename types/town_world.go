@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -93,7 +94,6 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	}
 	read_town := proto.GetRootAsTown(bytes, 0)
 	pending_town := W.initTown(name)
-
 	pending_town.name = string(read_town.Name())
 	pending_town.owner = ProtoResolveUUID(read_town.Owner(nil))
 	for i := 0; i < read_town.TeamsLength(); i++ {
@@ -104,6 +104,7 @@ func (W *World) LoadTown(name string) (*Town, error) {
 				puuid := new(proto.UUID)
 				if team.Members(puuid, j) {
 					new_uuid := ProtoResolveUUID(puuid)
+					log.Println(new_uuid.String())
 					team_members[new_uuid] = struct{}{}
 				}
 			}
