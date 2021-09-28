@@ -41,13 +41,14 @@ func (W *World) GetGamer(gamer_id uuid.UUID) *Gamer {
 
 	//obtain a write lock
 	W.gamers_lock.Lock()
-	defer W.gamers_lock.Unlock()
 	// if not in live cache, see if gamer file exists
 	if res, err := W.LoadGamer(gamer_id); err == nil {
+		W.gamers_lock.Unlock()
 		// add it to the cache
 		W.UpdateGamer(res)
 		return res
 	}
+	W.gamers_lock.Unlock()
 	// oh no!! the gamer does not exist!!! make one!!!
 	output := W.newGamer(gamer_id)
 	// add it to the cache
