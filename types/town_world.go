@@ -177,13 +177,6 @@ func (T *Town) Save() error {
 	)
 	T.districtTeamPermissions.global.Unlock()
 
-	// create districts vector
-	proto.TownStartDistrictsVector(builder, len(T.Districts()))
-	for _, v := range T.Districts() {
-		builder.PrependUint64(v)
-	}
-	districts_offset := builder.EndVector(len(T.Districts()))
-
 	// prepare town member vector
 	town_members := T.Members()
 	me_o := make([]flatbuffers.UOffsetT, len(town_members))
@@ -206,9 +199,6 @@ func (T *Town) Save() error {
 
 	//teams
 	proto.TownAddTeams(builder, team_vector)
-
-	//districts
-	proto.TownAddDistricts(builder, districts_offset)
 
 	//perms
 	proto.TownAddDistrictPlayerPermissions(builder, district_player_permission_offset)
@@ -242,8 +232,8 @@ func buildTeamVector(
 		go_a = append(go_a, proto.TeamEnd(builder))
 	}
 	proto.TownStartTeamsVector(builder, len(go_a))
-	for i := 0; i < len(go_a); i++ {
-		builder.PrependUOffsetT(go_a[i])
+	for _, v := range go_a {
+		builder.PrependUOffsetT(v)
 	}
 	return builder.EndVector(len(go_a))
 

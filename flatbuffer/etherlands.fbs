@@ -88,8 +88,6 @@ table Town {
 
   teams:[Team];
 
-  districts:[uint64];
-
   district_player_permissions:DistrictPlayerPermissionMap;
   district_team_permissions:DistrictTeamPermissionMap;
 }
