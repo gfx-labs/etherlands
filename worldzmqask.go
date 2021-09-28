@@ -126,17 +126,11 @@ func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
 		Z.sendResponse(args, town.Owner().String())
 	case "members":
 		Z.sendResponse(args, FlattenUUIDSet(town.Members()))
-	case "managers":
-		managers := town.Team("managers")
-		if managers == nil {
-			Z.sendResponse(args, "")
-		} else {
-			Z.sendResponse(args, FlattenUUIDSet(managers.Members()))
-		}
 	case "teams":
 		string_set := make(map[string]struct{})
-		string_set["members"] = struct{}{}
-		string_set["outsiders"] = struct{}{}
+		string_set["member"] = struct{}{}
+		string_set["outsider"] = struct{}{}
+		string_set["manager"] = struct{}{}
 		for _, v := range town.Teams() {
 			string_set[v.Name()] = struct{}{}
 		}

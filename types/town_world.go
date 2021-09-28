@@ -73,6 +73,9 @@ func (W *World) initTown(name string) *Town {
 		district_player_lock:      NewMapLock(),
 		district_team_lock:        NewMapLock(),
 	}
+	town.teams["manager"] = &Team{name: "manager", priority: 100}
+	town.teams["member"] = &Team{name: "member", priority: -100}
+	town.teams["outsider"] = &Team{name: "outsider", priority: -1}
 	go town.ProcessInvites(15 * time.Minute)
 	return town
 }
