@@ -57,6 +57,7 @@ func (G *Gamer) DeleteTown(town *Town, validate string) error {
 			G.SetTown("")
 			G.Update()
 			G.W.DeleteTown(town)
+			return nil
 		}
 		return errors.New(fmt.Sprintf("kick everyone else from your town first"))
 	}
