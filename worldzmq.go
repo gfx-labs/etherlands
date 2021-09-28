@@ -158,7 +158,7 @@ func (Args *VarArgs) MustGet(idx int) (string, error) {
 	if len(*Args) > idx {
 		return (*Args)[idx], nil
 	}
-	return "", errors.New("Variable out of bounds")
+	return "", errors.New("Missing Argument" + strconv.FormatInt(int64(idx), 10))
 }
 
 func (Args *VarArgs) MustGetGamer(W *types.World, idx int) (*types.Gamer, error) {
@@ -181,7 +181,7 @@ func (Args *VarArgs) MustGetUint64(idx int) (uint64, error) {
 	if len(*Args) > idx {
 		return strconv.ParseUint((*Args)[idx], 10, 64)
 	}
-	return 0, errors.New("Variable out of bounds")
+	return 0, errors.New("Missing Argument" + strconv.FormatInt(int64(idx), 10))
 }
 
 func (Args *VarArgs) MustGetInt64(idx int) (int64, error) {

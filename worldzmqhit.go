@@ -288,14 +288,6 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 	if Z.checkError(args, err) {
 		return
 	}
-	town_name, err := args.MustGet(2)
-	if Z.checkError(args, err) {
-		return
-	}
-	town, err := Z.W.GetTown(town_name)
-	if Z.checkError(args, err) {
-		return
-	}
 	switch field {
 	case "invite":
 		Z.hit_world_town_user_action(args)
@@ -307,6 +299,16 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 		Z.hit_world_town_user_action(args)
 	case "delete":
 		Z.hit_world_town_user_action(args)
+	}
+	town_name, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch field {
 	case "owner_uuid":
 		Z.sendResponse(args, town.Owner().String())
 	default:
@@ -360,7 +362,7 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),
 		)
 	case "delete":
-		verify, err := args.MustGet(5)
+		verify, err := args.MustGet(6)
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
