@@ -206,8 +206,8 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 		team_name, _ := args.MustGet(5)
 		flag_str, _ := args.MustGet(6)
 		value_str, _ := args.MustGet(7)
-		_, ok := proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)]
-		_, ok2 := proto.EnumValuesFlagValue[strings.ToTitle(value_str)]
+		_, ok := proto.EnumValuesAccessFlag[strings.Title(flag_str)]
+		_, ok2 := proto.EnumValuesFlagValue[strings.Title(value_str)]
 		if (!ok) || (!ok2) {
 			Z.checkGamerError(
 				gamer,
@@ -221,8 +221,8 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 			gamer,
 			team_name,
 			district_id,
-			proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)],
-			proto.EnumValuesFlagValue[strings.ToTitle(value_str)],
+			proto.EnumValuesAccessFlag[strings.Title(flag_str)],
+			proto.EnumValuesFlagValue[strings.Title(value_str)],
 		)
 		if Z.checkGamerError(gamer, err) {
 			return
