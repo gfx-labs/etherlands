@@ -226,8 +226,9 @@ func buildTeamVector(
 	builder *flatbuffers.Builder,
 	target map[string]*Team,
 ) flatbuffers.UOffsetT {
-	go_a := make([]flatbuffers.UOffsetT, 0)
+	go_a := []flatbuffers.UOffsetT{}
 	for k, v := range target {
+		name := builder.CreateString(k)
 		memes := v.Members()
 		proto.TeamStartMembersVector(builder, len(memes))
 		for k := range memes {
@@ -237,7 +238,6 @@ func buildTeamVector(
 		proto.TeamStart(builder)
 		proto.TeamAddMembers(builder, members_vector)
 		proto.TeamAddPriority(builder, v.Priority())
-		name := builder.CreateString(k)
 		proto.TeamAddName(builder, name)
 		go_a = append(go_a, proto.TeamEnd(builder))
 	}
