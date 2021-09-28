@@ -208,7 +208,7 @@ func FlattenStringSet(set map[string]struct{}) string {
 			out = out + k
 			first = false
 		} else {
-			out = out + "_" + k
+			out = out + ";" + k
 		}
 	}
 	return out
@@ -224,7 +224,7 @@ func FlattenStringAny(set map[string]interface{}) string {
 			out = out + k
 			first = false
 		} else {
-			out = out + "_" + k
+			out = out + ";" + k
 		}
 	}
 	return out
@@ -241,7 +241,7 @@ func FlattenUintSet(set map[uint64]struct{}) string {
 			out = out + strconv.FormatUint(k, 10)
 			first = false
 		} else {
-			out = out + "_" + strconv.FormatUint(k, 10)
+			out = out + ";" + strconv.FormatUint(k, 10)
 		}
 	}
 	return out
@@ -258,7 +258,7 @@ func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
 			out = out + k.String()
 			first = false
 		} else {
-			out = out + "_" + k.String()
+			out = out + ";" + k.String()
 		}
 	}
 	return out

@@ -66,7 +66,7 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 		if Z.checkError(args, err) {
 			return
 		}
-		split := strings.Split(coord_str, "_")
+		split := strings.Split(coord_str, ";")
 		if len(split) != 2 {
 			Z.genericError(args, "invalid coordinate input")
 			return
@@ -99,13 +99,13 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 		for _, v := range Z.W.Districts() {
 			out = append(out, v.StringName())
 		}
-		Z.sendResponse(args, strings.Join(out, "_"))
+		Z.sendResponse(args, strings.Join(out, ";"))
 	case "district_ids":
 		out := []string{}
 		for _, v := range Z.W.Districts() {
 			out = append(out, strconv.FormatUint(v.DistrictId(), 10))
 		}
-		Z.sendResponse(args, strings.Join(out, "_"))
+		Z.sendResponse(args, strings.Join(out, ";"))
 	default:
 		Z.genericError(args, field)
 	}
@@ -270,7 +270,7 @@ func (Z *WorldZmq) ask_world_district_field(args VarArgs) {
 		for i := 0; i < len(plots); i++ {
 			temp[i] = strconv.FormatUint(plots[i], 10)
 		}
-		Z.sendResponse(args, strings.Join(temp, "_"))
+		Z.sendResponse(args, strings.Join(temp, ";"))
 	case "clusters":
 		clusters := Z.W.Cache().GetClusters(district.DistrictId())
 		value := ""
