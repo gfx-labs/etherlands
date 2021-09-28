@@ -81,6 +81,7 @@ func (T *Town) CheckInvite(gamer *Gamer, timeout time.Duration) bool {
 			delete(T.invites, gamer.MinecraftId())
 			return false
 		} else {
+			delete(T.invites, gamer.MinecraftId())
 			return true
 		}
 	}
