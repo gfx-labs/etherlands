@@ -39,6 +39,7 @@ func (W *World) NewWorldCache() (*WorldCache, error) {
 		plot_district:  zset.CreateZSet(),
 		name_district:  make(map[string]uint64),
 		district_owner: zset.CreateZSetStr(),
+		district_town:  zset.CreateZSetStr(),
 		clusters:       make(map[uint64][]ClusterMetadata),
 		cluster_limit:  utils.NewRateLimiter(1 * time.Minute),
 		uuid_town:      zset.CreateZSetUUIDStr(),
@@ -69,6 +70,7 @@ func (M *WorldCache) CacheDistrict(district *District) {
 	defer M.district_lock.Unlock()
 	M.name_district[district.StringName()] = district.DistrictId()
 	M.district_owner.AddOrUpdate(district.DistrictId(), district.OwnerAddress(), district)
+	M.district_town.AddOrUpdate(district.DistrictId(), district.Town(), district)
 }
 
 func (M *WorldCache) CacheGamer(gamer *Gamer) {

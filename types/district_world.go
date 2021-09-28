@@ -28,8 +28,8 @@ func (D *District) Plots() map[uint64]*Plot {
 	D.mutex.RLock()
 	defer D.mutex.RUnlock()
 	output := make(map[uint64]*Plot)
-	for _, v := range D.world.PlotsOfDistrict(D.DistrictId()) {
-		plot, err := D.world.GetPlot(v)
+	for _, v := range D.W.PlotsOfDistrict(D.DistrictId()) {
+		plot, err := D.W.GetPlot(v)
 		if err == nil {
 			output[v] = plot
 		}
@@ -48,7 +48,7 @@ func (W *World) GetDistrict(district_id uint64) (*District, error) {
 
 func (W *World) NewDistrict(id uint64, ownerAddress string, nickname [24]byte) *District {
 	output := &District{
-		world:         W,
+		W:             W,
 		district_id:   id,
 		owner_address: ownerAddress,
 		nickname:      &nickname,

@@ -166,6 +166,9 @@ func (W *World) DeleteTown(town *Town) {
 	delete(W.towns, town.GetKey())
 }
 
+func (D *District) Update() {
+	D.W.UpdateDistrict(D)
+}
 func (W *World) UpdateDistrict(district *District) {
 	if district == nil {
 		return

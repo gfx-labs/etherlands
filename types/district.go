@@ -19,8 +19,8 @@ type District struct {
 
 	mutex sync.RWMutex
 
-	key   FamilyKey
-	world *World
+	key FamilyKey
+	W   *World
 
 	town      string
 	town_lock sync.RWMutex
@@ -32,11 +32,23 @@ func (D *District) DelegateTown(gamer *Gamer) error {
 			D.town_lock.Lock()
 			D.town = gamer.Town()
 			D.town_lock.Unlock()
+			D.Update()
 			return nil
 		}
 		return errors.New(fmt.Sprintf("You must own district %s to delegate it", D.StringName()))
 	}
 	return errors.New("You must be in a town to delegate")
+}
+
+func (D *District) Reclaim(gamer *Gamer) error {
+	if gamer.Address() == D.OwnerAddress() {
+		D.town_lock.Lock()
+		D.town = ""
+		D.town_lock.Unlock()
+		D.Update()
+		return nil
+	}
+	return errors.New(fmt.Sprintf("You must own district %s to reclaim it", D.StringName()))
 }
 
 func (D *District) HasTown() bool {
