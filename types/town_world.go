@@ -104,8 +104,8 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		team_members := make(map[uuid.UUID]struct{})
 		for j := 0; j < team.MembersLength(); j++ {
 			puuid := proto.UUID{}
+			log.Println(pending_town.name, string(team.Name()))
 			if team.Members(&puuid, j) {
-				log.Println(puuid)
 				team_members[ProtoResolveUUID(&puuid)] = struct{}{}
 			}
 		}
