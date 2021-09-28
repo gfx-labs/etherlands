@@ -274,6 +274,7 @@ func (T *Town) WriteTeamPermission(
 	if T.IsManager(manager) {
 		if team_name != "manager" {
 			T.DistrictTeamPermissions().Insert(district_id, team_name, flag, value)
+			return nil
 		}
 		return errors.New("cannot modify the manager team permissions")
 	}
