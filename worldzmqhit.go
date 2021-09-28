@@ -359,7 +359,7 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 		)
 	case "delete":
 		verify, err := args.MustGet(5)
-		if Z.checkError(args, err) {
+		if Z.checkGamerError(gamer, err) {
 			return
 		}
 		err = gamer.DeleteTown(town, verify)
