@@ -117,17 +117,18 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	district_team_maps := read_town.DistrictTeamPermissions(nil)
 	if district_team_maps != nil {
 		for h := 0; h < district_team_maps.DistrictsLength(); h++ {
-			district_team_map := proto.TeamPermissionMap{}
-			district_team_maps.Permissions(&district_team_map, h)
-			for i := 0; i < district_team_map.PermissionsLength(); i++ {
-				var perm proto.TeamPermission
-				district_team_map.Permissions(&perm, i)
-				pending_town.DistrictTeamPermissions().Insert(
-					district_team_maps.Districts(h),
-					string(perm.Team()),
-					perm.Flag(),
-					perm.Value(),
-				)
+			district_team_map := new(proto.TeamPermissionMap)
+			if district_team_maps.Permissions(district_team_map, h) {
+				for i := 0; i < district_team_map.PermissionsLength(); i++ {
+					var perm proto.TeamPermission
+					district_team_map.Permissions(&perm, i)
+					pending_town.DistrictTeamPermissions().Insert(
+						district_team_maps.Districts(h),
+						string(perm.Team()),
+						perm.Flag(),
+						perm.Value(),
+					)
+				}
 			}
 		}
 	}
