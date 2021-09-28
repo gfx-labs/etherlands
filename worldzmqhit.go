@@ -208,16 +208,16 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 		value_str, _ := args.MustGet(8)
 		_, ok := proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)]
 		_, ok2 := proto.EnumValuesFlagValue[strings.ToTitle(value_str)]
-		if !ok || !ok2 {
-			Z.checkGamerError(gamer, errors.New("malformed flag enums"))
+		if (!ok) || (!ok2) {
+			Z.checkGamerError(gamer, errors.New(fmt.Sprintf("malformed flag enums %d %d" ,ok, ok2))
 			return
 		}
 		err = town.WriteTeamPermission(
 			gamer,
 			team_name,
 			district_id,
-			proto.EnumValuesAccessFlag[flag_str],
-			proto.EnumValuesFlagValue[value_str],
+			proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)],
+			proto.EnumValuesFlagValue[strings.ToTitle(value_str)],
 		)
 		if Z.checkGamerError(gamer, err) {
 			return
