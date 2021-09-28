@@ -37,7 +37,7 @@ func (W *World) GetTown(name string) (*Town, error) {
 	if res, err := W.LoadTown(name); err == nil {
 		return res, nil
 	}
-	return nil, errors.New(fmt.Sprintf("town %s could not be found", name))
+	return nil, errors.New(fmt.Sprintf("town [town.%s] could not be found", name))
 }
 
 type town_create_input struct {
@@ -56,7 +56,7 @@ func (W *World) CreateTown(name string, owner *Gamer) error {
 		W.UpdateTown(newTown)
 		return nil
 	}
-	return errors.New(fmt.Sprintf("Town with name %s already exists", name))
+	return errors.New(fmt.Sprintf("Town [town.%s] already exists", name))
 }
 
 func (W *World) initTown(name string) *Town {

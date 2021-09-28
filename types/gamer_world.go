@@ -57,7 +57,7 @@ func (W *World) GetGamer(gamer_id uuid.UUID) *Gamer {
 
 func (W *World) newGamer(gamer_id uuid.UUID) *Gamer {
 	return &Gamer{
-		world:       W,
+		W:           W,
 		key:         NewGamerKey(gamer_id),
 		minecraftId: gamer_id,
 	}
@@ -75,14 +75,11 @@ func (W *World) LoadGamer(gamer_id uuid.UUID) (*Gamer, error) {
 
 	read_gam := read_gamer.MinecraftId(nil)
 	read_uuid := ProtoResolveUUID(read_gam)
-	return &Gamer{
-		world:       W,
-		minecraftId: read_uuid,
-		key:         NewGamerKey(read_uuid),
-		town:        string(read_gamer.Town()),
-		address:     string(read_gamer.Address()),
-		nickname:    string(read_gamer.Nickname()),
-	}, nil
+	pending_gamer := W.newGamer(read_uuid)
+	pending_gamer.town = string(read_gamer.Town())
+	pending_gamer.address = string(read_gamer.Address())
+	pending_gamer.nickname = string(read_gamer.Nickname())
+	return pending_gamer, nil
 }
 
 func ProtoResolveUUID(puuid *proto.UUID) uuid.UUID {

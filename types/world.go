@@ -28,6 +28,8 @@ type World struct {
 	DistrictIn chan DistrictChainInfo
 	PlotIn     chan PlotChainInfo
 
+	sendChan chan [2]string
+
 	linkermap *LinkerMap
 
 	cache *WorldCache
@@ -88,24 +90,30 @@ func (W *World) HonorLinkRequest(gamer_id uuid.UUID, address string, message str
 }
 
 func (W *World) UpdateGamer(gamer *Gamer) {
-	if gamer.GetKey().datatype == GAMER_FAMILY {
-		W.gamers_lock.Lock()
-		defer W.gamers_lock.Unlock()
-		if _, ok := W.gamers[gamer.GetKey()]; !ok {
-			W.gamers[gamer.GetKey()] = gamer
+	gamer.Update()
+}
+func (G *Gamer) Update() {
+	if G.GetKey().datatype == GAMER_FAMILY {
+		G.W.gamers_lock.Lock()
+		defer G.W.gamers_lock.Unlock()
+		if _, ok := G.W.gamers[G.GetKey()]; !ok {
+			G.W.gamers[G.GetKey()] = G
 		}
-		go W.cache.CacheGamer(W.gamers[gamer.GetKey()])
-		go W.gamers[gamer.GetKey()].Save()
+		go G.W.cache.CacheGamer(G.W.gamers[G.GetKey()])
+		go G.W.gamers[G.GetKey()].Save()
 	}
 }
 
 func (W *World) UpdatePlot(plot *Plot) {
-	W.plots_lock.Lock()
-	defer W.plots_lock.Unlock()
-	if _, ok := W.plots[plot.GetKey()]; !ok {
-		W.plots[plot.GetKey()] = plot
+	plot.Update()
+}
+func (plot *Plot) Update() {
+	plot.W.plots_lock.Lock()
+	defer plot.W.plots_lock.Unlock()
+	if _, ok := plot.W.plots[plot.GetKey()]; !ok {
+		plot.W.plots[plot.GetKey()] = plot
 	}
-	go W.cache.CachePlot(W.plots[plot.GetKey()])
+	go plot.W.cache.CachePlot(plot.W.plots[plot.GetKey()])
 }
 
 func (W *World) UpdateTown(town *Town) {
@@ -116,6 +124,17 @@ func (W *World) UpdateTown(town *Town) {
 	}
 	go W.cache.CacheTown(W.towns[town.GetKey()])
 	go W.towns[town.GetKey()].Save()
+}
+
+func (W *World) DeleteTown(town *Town) {
+	W.towns_lock.Lock()
+	defer W.towns_lock.Unlock()
+	if _, ok := W.towns[town.GetKey()]; !ok {
+		return
+	}
+	delete(W.towns, town.GetKey())
+	W.cache.DeleteTown(W.towns[town.GetKey()])
+	DeleteStruct("towns", town.Name())
 }
 
 func (W *World) UpdateDistrict(district *District) {

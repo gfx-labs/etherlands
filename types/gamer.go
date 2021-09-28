@@ -1,8 +1,11 @@
 package types
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -15,8 +18,8 @@ type Gamer struct {
 	minecraftId uuid.UUID
 	mutex       sync.RWMutex
 
-	key   FamilyKey
-	world *World
+	key FamilyKey
+	W   *World
 
 	pos_x     int64
 	pos_y     int64
@@ -31,10 +34,59 @@ func NewGamerKey(gamer_id uuid.UUID) FamilyKey {
 	}
 }
 
+func (G *Gamer) JoinTown(town *Town) error {
+	if town.CheckInvite(G, time.Minute*15) {
+		G.SetTown(town.Name())
+		return nil
+	}
+	return errors.New(fmt.Sprintf("You must be invited to join [town.%s]", town.Name()))
+}
+
+func (G *Gamer) DeleteTown(town *Town) error {
+	if town.Owner() == G.MinecraftId() {
+		if len(G.W.GamersOfTown(town.Name())) == 1 {
+			G.SetTown("")
+			G.Update()
+			G.W.DeleteTown(town)
+		}
+		return errors.New(fmt.Sprintf("kick everyone else from your town first"))
+	}
+	return errors.New(fmt.Sprintf("only owner may delete team"))
+}
+
+func (G *Gamer) LeaveTown(town *Town) error {
+	if town.CheckInvite(G, time.Minute*15) {
+		if town.Owner() != G.minecraftId {
+			return nil
+		}
+		return errors.New(fmt.Sprintf("You may not leave the team you own"))
+	}
+	return errors.New(fmt.Sprintf("You already are in no town"))
+}
+
+func (G *Gamer) KickTown(kicked *Gamer, town *Town) error {
+	if kicked.Town() == G.Town() {
+		if town.CanAction(G, kicked) {
+			kicked.SetTown("")
+			kicked.Update()
+			return nil
+		}
+		return errors.New(
+			fmt.Sprintf(
+				"You do not have permission to kick [uuid.%s]",
+				kicked.MinecraftId().String(),
+			),
+		)
+	}
+	return errors.New(
+		fmt.Sprintf("[uuid.%s] is not a member of your town", kicked.MinecraftId().String()),
+	)
+}
+
 func (G *Gamer) Nickname() string {
 	G.mutex.RLock()
 	defer G.mutex.RUnlock()
-	return G.nickname
+	return G.minecraftId.String()
 }
 
 func (G *Gamer) Address() string {

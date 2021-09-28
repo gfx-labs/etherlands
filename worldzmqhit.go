@@ -173,11 +173,7 @@ func (Z *WorldZmq) hit_world_plot_field(args VarArgs) {
 	if Z.checkError(args, err) {
 		return
 	}
-	uuid_str, err := args.MustGet(2)
-	if Z.checkError(args, err) {
-		return
-	}
-	plot_id, err := strconv.ParseUint(uuid_str, 10, 64)
+	plot_id, err := args.MustGetUint64(2)
 	if Z.checkError(args, err) {
 		return
 	}
@@ -195,15 +191,10 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 	if Z.checkError(args, err) {
 		return
 	}
-	uuid_str, err := args.MustGet(2)
+	gamer, err := args.MustGetGamer(Z.W, 2)
 	if Z.checkError(args, err) {
 		return
 	}
-	gamer_id, err := uuid.Parse(uuid_str)
-	if Z.checkError(args, err) {
-		return
-	}
-	gamer := Z.W.GetGamer(gamer_id)
 	switch field {
 	case "pos":
 		x, err := args.MustGetInt64(4)
@@ -225,13 +216,11 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		if Z.checkError(args, err) {
 			return
 		}
-		go func() {
-			err = Z.W.CreateTown(name, gamer)
-			if Z.checkGamerError(gamer, err) {
-				return
-			}
-			Z.sendGamerResult(gamer, "successfully created town "+name)
-		}()
+		err = Z.W.CreateTown(name, gamer)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(gamer, "successfully created town "+name)
 	default:
 		Z.genericError(args, field)
 	}
@@ -263,15 +252,10 @@ func (Z *WorldZmq) hit_world_district_field(args VarArgs) {
 }
 
 func (Z *WorldZmq) hit_world_district_field_action(args VarArgs) {
-	uuid_str, err := args.MustGet(4)
+	gamer, err := args.MustGetGamer(Z.W, 4)
 	if Z.checkError(args, err) {
 		return
 	}
-	gamer_id, err := uuid.Parse(uuid_str)
-	if Z.checkError(args, err) {
-		return
-	}
-	gamer := Z.W.GetGamer(gamer_id)
 	action, err := args.MustGet(3)
 	if Z.checkError(args, err) {
 		return
@@ -317,6 +301,10 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 		Z.hit_world_town_user_action(args)
 	case "join":
 		Z.hit_world_town_user_action(args)
+	case "leave":
+		Z.hit_world_town_user_action(args)
+	case "kick":
+		Z.hit_world_town_user_action(args)
 	case "owner_uuid":
 		Z.sendResponse(args, town.Owner().String())
 	default:
@@ -325,15 +313,10 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 }
 
 func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
-	uuid_str, err := args.MustGet(4)
+	gamer, err := args.MustGetGamer(Z.W, 4)
 	if Z.checkError(args, err) {
 		return
 	}
-	gamer_id, err := uuid.Parse(uuid_str)
-	if Z.checkError(args, err) {
-		return
-	}
-	gamer := Z.W.GetGamer(gamer_id)
 	action, err := args.MustGet(3)
 	if Z.checkError(args, err) {
 		return
@@ -349,33 +332,64 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 	// new args start at 5
 	switch action {
 	case "invite":
-		target_str, err := args.MustGet(5)
-		if Z.checkGamerError(gamer, err) {
-			return
-		}
-		target_id, err := uuid.Parse(target_str)
-		if Z.checkGamerError(gamer, err) {
-			return
-		}
-		target := Z.W.GetGamer(target_id)
-		if Z.checkGamerError(gamer, err) {
+		target, err := args.MustGetGamer(Z.W, 5)
+		if Z.checkError(args, err) {
 			return
 		}
 		err = town.InviteGamer(gamer, target)
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
-		Z.sendGamerResult(gamer, fmt.Sprintf("invited %s to your town", target.MinecraftId()))
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("Invited [uuid.%s] to your town", target.MinecraftId().String()),
+		)
+		Z.sendGamerResult(
+			target,
+			fmt.Sprintf("You have been invited to [invite.%s]", town.Name()),
+		)
 	case "join":
-		err = town.AddGamer(gamer)
+		err = gamer.JoinTown(town)
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
+		Z.sendTownResult(
+			town.Name(),
+			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),
+		)
+	case "delete":
+		err = gamer.DeleteTown(town)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendTownResult(
+			town.Name(),
+			fmt.Sprintf("ay you deleted ur town gj"),
+		)
 	case "leave":
-		err = town.AddGamer(gamer)
+		err = gamer.LeaveTown(town)
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
+		Z.sendGamerResult(gamer, fmt.Sprintf("You have left [town.%s]", town.Name()))
+	case "kick":
+		target, err := args.MustGetGamer(Z.W, 5)
+		if Z.checkError(args, err) {
+			return
+		}
+		err = gamer.KickTown(target, town)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf(
+				"You kicked [uuid.%s] from [town.%s]",
+				target.MinecraftId().String(),
+				town.Name(),
+			),
+		)
+		Z.sendGamerResult(target, fmt.Sprintf("You have been kicked from [town.%s]", town.Name()))
 	default:
 		Z.genericError(args, action)
 	}

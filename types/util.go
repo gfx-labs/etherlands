@@ -24,6 +24,20 @@ func WriteStruct(root, file string, data []byte) error {
 	return nil
 }
 
+func DeleteStruct(root, file string) error {
+	path := filepath.Join(".", "db", root)
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	filepath := path + "/" + file
+	err = os.Remove(filepath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func ReadStruct(root, file string) ([]byte, error) {
 	path := filepath.Join(".", "db", root)
 	filepath := path + "/" + file

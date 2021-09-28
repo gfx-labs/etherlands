@@ -48,7 +48,7 @@ func (W *World) NewWorldCache() (*WorldCache, error) {
 func (M *WorldCache) CachePlot(plot *Plot) {
 	M.plot_lock.Lock()
 	defer M.plot_lock.Unlock()
-	M.plot_district.AddOrUpdate(plot.PlotId(), plot.DistrictId(), plot)
+	M.plot_district.AddOrUpdate(plot.PlotId(), plot.DistrictId(), struct{}{})
 	M.plot_location[[2]int64{plot.X(), plot.Z()}] = plot.PlotId()
 }
 
@@ -56,6 +56,12 @@ func (M *WorldCache) CacheTown(town *Town) {
 	M.uuid_town_lock.Lock()
 	defer M.uuid_town_lock.Unlock()
 	M.uuid_town.AddOrUpdate(town.Owner(), town.Name(), town)
+}
+
+func (M *WorldCache) DeleteTown(town *Town) {
+	M.uuid_town_lock.Lock()
+	defer M.uuid_town_lock.Unlock()
+	M.uuid_town.Remove(town.Owner())
 }
 
 func (M *WorldCache) CacheDistrict(district *District) {
@@ -70,6 +76,9 @@ func (M *WorldCache) CacheGamer(gamer *Gamer) {
 	defer M.links_lock.Unlock()
 	M.links[gamer.MinecraftId().String()] = gamer.Address()
 	M.links[gamer.Address()] = gamer.MinecraftId().String()
+	M.uuid_town_lock.Lock()
+	M.uuid_town.AddOrUpdate(gamer.MinecraftId(), gamer.Town(), struct{}{})
+	M.uuid_town_lock.Unlock()
 }
 
 func (M *WorldCache) GetDistrictByName(input string) (uint64, error) {

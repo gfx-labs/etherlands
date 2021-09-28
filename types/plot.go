@@ -11,7 +11,7 @@ import (
 )
 
 type Plot struct {
-	world       *World
+	W           *World
 	x           int64
 	z           int64
 	plot_id     uint64
@@ -55,7 +55,7 @@ func (P *Plot) GetKey() FamilyKey {
 
 func (W *World) newPlot(x, z int64, plotId, districtId uint64) *Plot {
 	output := &Plot{
-		world:       W,
+		W:           W,
 		plot_id:     plotId,
 		district_id: districtId,
 		key:         NewPlotKey(plotId),

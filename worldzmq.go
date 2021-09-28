@@ -127,6 +127,13 @@ func (Z *WorldZmq) sendUUIDResult(target uuid.UUID, result string) {
 	}
 	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), result)
 }
+func (Z *WorldZmq) sendTownResult(target string, result string) {
+	Z.sendChan <- [2]string{
+		"CHAT",
+		fmt.Sprintf("team:%s:%s", target, result),
+	}
+	logger.Log.Printf("[CHAT] [%s] %s\n", target, result)
+}
 
 func (Z *WorldZmq) checkError(args VarArgs, err error) bool {
 	if err != nil {
@@ -152,6 +159,22 @@ func (Args *VarArgs) MustGet(idx int) (string, error) {
 		return (*Args)[idx], nil
 	}
 	return "", errors.New("Variable out of bounds")
+}
+
+func (Args *VarArgs) MustGetGamer(W *types.World, idx int) (*types.Gamer, error) {
+	uuid_str, err := Args.MustGet(idx)
+	if err != nil {
+		return nil, err
+	}
+	gamer_id, err := uuid.Parse(uuid_str)
+	if err != nil {
+		return nil, err
+	}
+	gamer := W.GetGamer(gamer_id)
+	if err != nil {
+		return nil, err
+	}
+	return gamer, nil
 }
 
 func (Args *VarArgs) MustGetUint64(idx int) (uint64, error) {

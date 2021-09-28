@@ -2,7 +2,6 @@ package types
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -74,13 +73,6 @@ type Town struct {
 	invite_lock sync.Mutex
 }
 
-func (T *Town) AddGamer(gamer *Gamer) error {
-	if T.CheckInvite(gamer, time.Minute*15) {
-		T.Lock()
-		defer T.Unlock()
-	}
-	return errors.New(fmt.Sprintf("You must be invited to join %s", T.Name()))
-}
 func (T *Town) CheckInvite(gamer *Gamer, timeout time.Duration) bool {
 	T.invite_lock.Lock()
 	defer T.invite_lock.Unlock()
@@ -120,9 +112,23 @@ func (T *Town) InviteGamer(sender, receiver *Gamer) error {
 
 func (T *Town) IsManager(gamer *Gamer) bool {
 	if team := T.Team("manager"); team != nil {
-		return team.Has(gamer)
+		if team.Has(gamer) {
+			return true
+		}
 	}
 	return T.Owner() == gamer.MinecraftId()
+}
+
+func (T *Town) CanAction(actor *Gamer, target *Gamer) bool {
+	if actor.MinecraftId() == T.Owner() {
+		return true
+	}
+	if team := T.Team("manager"); team != nil {
+		if team.Has(actor) && !team.Has(target) {
+			return true
+		}
+	}
+	return false
 }
 
 func (T *Town) GetKey() FamilyKey {
@@ -200,6 +206,11 @@ func (T *Town) Name() string {
 	return T.name
 }
 
+func (T *Town) RemoveName() {
+	T.Lock()
+	defer T.Unlock()
+	T.name = ""
+}
 func (T *Town) Members() map[uuid.UUID]struct{} {
 	return T.W.GamersOfTown(T.Name())
 }
