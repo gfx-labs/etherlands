@@ -199,15 +199,11 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 		payload := FlattenFlagMap(info)
 		Z.sendResponse(args, payload)
 	case "team":
-		gamer, err := args.MustGetGamer(Z.W, 9)
+		gamer, err := args.MustGetGamer(Z.W, 8)
 		if Z.checkError(args, err) {
 			return
 		}
 		team_name, _ := args.MustGet(5)
-		district_id, err := args.MustGetUint64(6)
-		if Z.checkError(args, err) {
-			return
-		}
 		flag_str, _ := args.MustGet(7)
 		value_str, _ := args.MustGet(8)
 		_, ok := proto.EnumValuesAccessFlag[flag_str]
