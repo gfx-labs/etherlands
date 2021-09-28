@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -74,7 +73,11 @@ func (W *World) initTown(name string) *Town {
 		district_player_lock:      NewMapLock(),
 		district_team_lock:        NewMapLock(),
 	}
-	town.teams["manager"] = &Team{name: "manager", priority: 100}
+	town.teams["manager"] = &Team{
+		name:     "manager",
+		priority: 100,
+		members:  make(map[uuid.UUID]struct{}),
+	}
 	town.teams["member"] = &Team{name: "member", priority: -100}
 	town.teams["outsider"] = &Team{name: "outsider", priority: -1}
 	go town.ProcessInvites(15 * time.Minute)
@@ -104,10 +107,7 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		team_members := make(map[uuid.UUID]struct{})
 		for j := 0; j < team.MembersLength(); j++ {
 			puuid := proto.UUID{}
-			log.Println(pending_town.name, string(team.Name()))
-			if team.Members(&puuid, j) {
-				team_members[ProtoResolveUUID(&puuid)] = struct{}{}
-			}
+			team_members[ProtoResolveUUID(&puuid)] = struct{}{}
 		}
 
 		pending_town.teams[string(team.Name())] =
