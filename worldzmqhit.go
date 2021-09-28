@@ -204,8 +204,8 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 			return
 		}
 		team_name, _ := args.MustGet(5)
-		flag_str, _ := args.MustGet(7)
-		value_str, _ := args.MustGet(8)
+		flag_str, _ := args.MustGet(6)
+		value_str, _ := args.MustGet(7)
 		_, ok := proto.EnumValuesAccessFlag[strings.ToTitle(flag_str)]
 		_, ok2 := proto.EnumValuesFlagValue[strings.ToTitle(value_str)]
 		if (!ok) || (!ok2) {
