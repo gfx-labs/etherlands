@@ -357,6 +357,10 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),
+		)
 		Z.sendTownResult(
 			town.Name(),
 			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),

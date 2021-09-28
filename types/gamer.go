@@ -37,6 +37,7 @@ func NewGamerKey(gamer_id uuid.UUID) FamilyKey {
 func (G *Gamer) JoinTown(town *Town) error {
 	if town.CheckInvite(G, time.Minute*15) {
 		G.SetTown(town.Name())
+		G.Update()
 		return nil
 	}
 	return errors.New(fmt.Sprintf("You must be invited to join [town.%s]", town.Name()))
