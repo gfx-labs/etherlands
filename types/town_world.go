@@ -101,9 +101,9 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		read_town.Teams(&team, i)
 		team_members := make(map[uuid.UUID]struct{})
 		for j := 0; j < team.MembersLength(); j++ {
-			var puuid proto.UUID
-			team.Members(&puuid, j)
-			new_uuid := ProtoResolveUUID(&puuid)
+			puuid := new(proto.UUID)
+			team.Members(puuid, j)
+			new_uuid := ProtoResolveUUID(puuid)
 			team_members[new_uuid] = struct{}{}
 		}
 
