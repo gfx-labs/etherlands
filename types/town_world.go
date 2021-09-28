@@ -65,7 +65,6 @@ func (W *World) initTown(name string) *Town {
 	town := &Town{
 		W:                         W,
 		name:                      name,
-		districts:                 make([]uint64, 0),
 		teams:                     make(map[string]*Team),
 		invites:                   make(map[uuid.UUID]time.Time),
 		districtPlayerPermissions: NewDistrictPlayerPermissionMap(),
@@ -95,12 +94,8 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	read_town := proto.GetRootAsTown(bytes, 0)
 	pending_town := W.initTown(name)
 
-	pending_town.districts = make([]uint64, read_town.DistrictsLength())
 	pending_town.name = string(read_town.Name())
 	pending_town.owner = ProtoResolveUUID(read_town.Owner(nil))
-	for i := 0; i < read_town.DistrictsLength(); i++ {
-		pending_town.districts[i] = read_town.Districts(i)
-	}
 	for i := 0; i < read_town.TeamsLength(); i++ {
 		var team proto.Team
 		read_town.Teams(&team, i)
