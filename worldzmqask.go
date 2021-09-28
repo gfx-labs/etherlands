@@ -84,6 +84,29 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 			return
 		}
 		Z.sendResponse(args, strconv.FormatUint(plot.PlotId(), 10))
+	case "district_coord":
+		coord_str, err := args.MustGet(3)
+		if Z.checkError(args, err) {
+			return
+		}
+		split := strings.Split(coord_str, ";")
+		if len(split) != 2 {
+			Z.genericError(args, "invalid coordinate input")
+			return
+		}
+		x, err := strconv.ParseInt(split[0], 10, 64)
+		if Z.checkError(args, err) {
+			return
+		}
+		z, err := strconv.ParseInt(split[1], 10, 64)
+		if Z.checkError(args, err) {
+			return
+		}
+		plot, err := Z.W.SearchPlot(x, z)
+		if Z.checkError(args, err) {
+			return
+		}
+		Z.sendResponse(args, strconv.FormatUint(plot.DistrictId(), 10))
 	case "district_by_name":
 		district_name, err := args.MustGet(3)
 		if Z.checkError(args, err) {
