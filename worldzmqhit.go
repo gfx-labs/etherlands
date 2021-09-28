@@ -305,6 +305,8 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 		Z.hit_world_town_user_action(args)
 	case "kick":
 		Z.hit_world_town_user_action(args)
+	case "delete":
+		Z.hit_world_town_user_action(args)
 	case "owner_uuid":
 		Z.sendResponse(args, town.Owner().String())
 	default:
