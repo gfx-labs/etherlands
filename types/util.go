@@ -50,22 +50,22 @@ func ListStruct(root string) ([]os.FileInfo, error) {
 }
 
 func BuildUUID(builder *flatbuffers.Builder, gamerId uuid.UUID) flatbuffers.UOffsetT {
-	return proto.CreateUUID(builder, int8(gamerId[0]),
-		int8(gamerId[1]),
-		int8(gamerId[2]),
-		int8(gamerId[3]),
-		int8(gamerId[4]),
-		int8(gamerId[5]),
-		int8(gamerId[6]),
-		int8(gamerId[7]),
-		int8(gamerId[8]),
-		int8(gamerId[9]),
-		int8(gamerId[10]),
-		int8(gamerId[11]),
-		int8(gamerId[12]),
-		int8(gamerId[13]),
-		int8(gamerId[14]),
-		int8(gamerId[15]),
+	return proto.CreateUUID(builder, byte(gamerId[0]),
+		byte(gamerId[1]),
+		byte(gamerId[2]),
+		byte(gamerId[3]),
+		byte(gamerId[4]),
+		byte(gamerId[5]),
+		byte(gamerId[6]),
+		byte(gamerId[7]),
+		byte(gamerId[8]),
+		byte(gamerId[9]),
+		byte(gamerId[10]),
+		byte(gamerId[11]),
+		byte(gamerId[12]),
+		byte(gamerId[13]),
+		byte(gamerId[14]),
+		byte(gamerId[15]),
 	)
 }
 
