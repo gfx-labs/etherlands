@@ -16,21 +16,6 @@ type TeamPermissionMap struct {
 	mutexes sync.Map
 }
 
-type DistrictLock struct {
-	sync.Map
-}
-
-func (D *DistrictLock) lock(district_id uint64) func() {
-	value, _ := D.LoadOrStore(district_id, &sync.Mutex{})
-	mtx := value.(*sync.Mutex)
-	mtx.Lock()
-	return func() { mtx.Unlock() }
-}
-
-func NewDistrictLock() *DistrictLock {
-	return &DistrictLock{}
-}
-
 func NewTeamPermissionMap() *TeamPermissionMap {
 	return &TeamPermissionMap{
 		i: make(map[string]map[proto.AccessFlag]proto.FlagValue),
@@ -41,6 +26,21 @@ func NewPlayerPermissionMap() *PlayerPermissionMap {
 	return &PlayerPermissionMap{
 		i: make(map[uuid.UUID]map[proto.AccessFlag]proto.FlagValue),
 	}
+}
+
+type MapLock struct {
+	sync.Map
+}
+
+func (D *MapLock) lock(district_id uint64) func() {
+	value, _ := D.LoadOrStore(district_id, &sync.Mutex{})
+	mtx := value.(*sync.Mutex)
+	mtx.Lock()
+	return func() { mtx.Unlock() }
+}
+
+func NewMapLock() *MapLock {
+	return &MapLock{}
 }
 
 func (P *TeamPermissionMap) lock(name string) func() {

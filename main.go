@@ -44,4 +44,5 @@ func main() {
 	if err == nil {
 		StartPrompt(world, wz)
 	}
+	world.SaveChan <- struct{}{}
 }

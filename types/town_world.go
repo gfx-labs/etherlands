@@ -63,15 +63,15 @@ func (W *World) CreateTown(name string, owner *Gamer) error {
 
 func (W *World) initTown(name string) *Town {
 	town := &Town{
-		W:                        W,
-		name:                     name,
-		districts:                make([]uint64, 0),
-		teams:                    make(map[string]*Team),
-		invites:                  make(map[uuid.UUID]time.Time),
-		defaultPlayerPermissions: NewPlayerPermissionMap(),
-		defaultTeamPermissions:   NewTeamPermissionMap(),
-		district_player_lock:     NewDistrictLock(),
-		district_team_lock:       NewDistrictLock(),
+		W:                         W,
+		name:                      name,
+		districts:                 make([]uint64, 0),
+		teams:                     make(map[string]*Team),
+		invites:                   make(map[uuid.UUID]time.Time),
+		districtPlayerPermissions: NewDistrictPlayerPermissionMap(),
+		districtTeamPermissions:   NewDistrictTeamPermissionMap(),
+		district_player_lock:      NewMapLock(),
+		district_team_lock:        NewMapLock(),
 	}
 	go town.ProcessInvites(15 * time.Minute)
 	return town
@@ -110,26 +110,6 @@ func (W *World) LoadTown(name string) (*Town, error) {
 				members: team_members,
 			}
 	}
-	default_team_map := read_town.DefaultTeamPermissions(nil)
-	for i := 0; i < default_team_map.PermissionsLength(); i++ {
-		var perm proto.TeamPermission
-		default_team_map.Permissions(&perm, i)
-		pending_town.DefaultTeamPermissions().insert(
-			string(perm.Team()),
-			perm.Flag(),
-			perm.Value(),
-		)
-	}
-	default_player_map := read_town.DefaultPlayerPermissions(nil)
-	for i := 0; i < default_player_map.PermissionsLength(); i++ {
-		var perm proto.PlayerPermission
-		default_player_map.Permissions(&perm, i)
-		pending_town.DefaultPlayerPermissions().insert(
-			ProtoResolveUUID(perm.MinecraftId(nil)),
-			perm.Flag(),
-			perm.Value(),
-		)
-	}
 	district_team_maps := read_town.DistrictTeamPermissions(nil)
 	for h := 0; h < district_team_maps.DistrictsLength(); h++ {
 		district_team_map := proto.TeamPermissionMap{}
@@ -137,7 +117,8 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		for i := 0; i < district_team_map.PermissionsLength(); i++ {
 			var perm proto.TeamPermission
 			district_team_map.Permissions(&perm, i)
-			pending_town.DistrictTeamPermission(district_team_maps.Districts(h)).insert(
+			pending_town.DistrictTeamPermissions().Insert(
+				district_team_maps.Districts(h),
 				string(perm.Team()),
 				perm.Flag(),
 				perm.Value(),
@@ -152,7 +133,8 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		for i := 0; i < district_player_map.PermissionsLength(); i++ {
 			var perm proto.PlayerPermission
 			district_player_map.Permissions(&perm, i)
-			pending_town.DistrictPlayerPermission(district_player_maps.Districts(h)).insert(
+			pending_town.DistrictPlayerPermissions().Insert(
+				district_player_maps.Districts(h),
 				ProtoResolveUUID(perm.MinecraftId(nil)),
 				perm.Flag(),
 				perm.Value(),
@@ -166,22 +148,19 @@ func (W *World) LoadTown(name string) (*Town, error) {
 
 func (T *Town) Save() error {
 	builder := flatbuffers.NewBuilder(1024)
-	// create default player permission map
-	player_permission_offset := BuildPlayerPermissionMap(builder, T.DefaultPlayerPermissions())
-	// create default team permission map
-	team_permission_offset := BuildTeamPermissionMap(builder, T.DefaultTeamPermissions())
-
 	team_vector := BuildTeamVector(builder, T.Teams())
-	// create district player permission map
-	district_player_permission_offset := BuildDistrictPlayerPermissionMap(
+	T.districtPlayerPermissions.global.Lock()
+	district_player_permission_offset := buildDistrictPlayerPermissionMap(
 		builder,
 		T.districtPlayerPermissions,
 	)
-	// create district team permission map
-	district_team_permission_offset := BuildDistrictTeamPermissionMap(
+	T.districtPlayerPermissions.global.Unlock()
+	T.districtTeamPermissions.global.Lock()
+	district_team_permission_offset := buildDistrictTeamPermissionMap(
 		builder,
 		T.districtTeamPermissions,
 	)
+	T.districtTeamPermissions.global.Unlock()
 
 	// create districts vector
 	proto.TownStartDistrictsVector(builder, len(T.Districts()))
@@ -217,8 +196,6 @@ func (T *Town) Save() error {
 	proto.TownAddDistricts(builder, districts_offset)
 
 	//perms
-	proto.TownAddDefaultTeamPermissions(builder, team_permission_offset)
-	proto.TownAddDefaultPlayerPermissions(builder, player_permission_offset)
 	proto.TownAddDistrictPlayerPermissions(builder, district_player_permission_offset)
 	proto.TownAddDistrictTeamPermissions(builder, district_team_permission_offset)
 
@@ -259,15 +236,15 @@ func BuildTeamVector(
 
 }
 
-func BuildDistrictTeamPermissionMap(
+func buildDistrictTeamPermissionMap(
 	builder *flatbuffers.Builder,
-	target map[uint64]*TeamPermissionMap,
+	target *DistrictTeamPermissionMap,
 ) flatbuffers.UOffsetT {
 
 	district_ids := []uint64{}
 	team_perms := []flatbuffers.UOffsetT{}
 	map_count := 0
-	for k, v := range target {
+	for k, v := range target.i {
 		map_count = map_count + 1
 		district_ids = append(district_ids, k)
 		team_perms = append(team_perms, BuildTeamPermissionMap(builder, v))
@@ -288,14 +265,14 @@ func BuildDistrictTeamPermissionMap(
 	return proto.DistrictTeamPermissionMapEnd(builder)
 }
 
-func BuildDistrictPlayerPermissionMap(
+func buildDistrictPlayerPermissionMap(
 	builder *flatbuffers.Builder,
-	target map[uint64]*PlayerPermissionMap,
+	target *DistrictPlayerPermissionMap,
 ) flatbuffers.UOffsetT {
 	district_ids := []uint64{}
 	gamer_perms := []flatbuffers.UOffsetT{}
 	map_count := 0
-	for k, v := range target {
+	for k, v := range target.i {
 		map_count = map_count + 1
 		district_ids = append(district_ids, k)
 		gamer_perms = append(gamer_perms, BuildPlayerPermissionMap(builder, v))

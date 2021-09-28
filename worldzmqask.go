@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	proto "github.com/gfx-labs/etherlands/proto"
 	"github.com/google/uuid"
 )
 
@@ -125,26 +126,70 @@ func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
 		Z.sendResponse(args, town.Owner().String())
 	case "members":
 		Z.sendResponse(args, FlattenUUIDSet(town.Members()))
+	case "managers":
+		managers := town.Team("managers")
+		if managers == nil {
+			Z.sendResponse(args, "")
+		} else {
+			Z.sendResponse(args, FlattenUUIDSet(managers.Members()))
+		}
 	case "teams":
 		string_set := make(map[string]struct{})
+		string_set["members"] = struct{}{}
+		string_set["outsiders"] = struct{}{}
 		for _, v := range town.Teams() {
 			string_set[v.Name()] = struct{}{}
 		}
 		Z.sendResponse(args, FlattenStringSet(string_set))
 	case "team":
-		team_id, err := args.MustGet(4)
-		if Z.checkError(args, err) {
-			return
-		}
-		team := town.Team(team_id)
-		if team != nil {
-			Z.sendResponse(args, FlattenUUIDSet(team.Members()))
-		} else {
-			Z.genericError(args, team_id)
-		}
+		Z.ask_world_town_team_field(args)
+
 	default:
 		Z.genericError(args, field)
 	}
+}
+
+func (Z *WorldZmq) ask_world_town_team_field(args VarArgs) {
+	field, err := args.MustGet(5)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_id, err := args.MustGet(2)
+	town, err := Z.W.GetTown(town_id)
+	if Z.checkError(args, err) {
+		return
+	}
+	team_id, err := args.MustGet(4)
+	if Z.checkError(args, err) {
+		return
+	}
+	team := town.Team(team_id)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch field {
+	case "members":
+		Z.sendResponse(args, FlattenUUIDSet(team.Members()))
+	case "district":
+		district_id, err := args.MustGetUint64(6)
+		if Z.checkError(args, err) {
+			return
+		}
+		flag_str, err := args.MustGet(7)
+		if Z.checkError(args, err) {
+			return
+		}
+		if flag, ok := proto.EnumValuesAccessFlag[flag_str]; !ok {
+			Z.checkError(args, errors.New("Invalid flag "+flag_str))
+			return
+		} else {
+			result_str := town.DistrictTeamPermissions().Read(district_id, team_id, flag)
+			Z.sendResponse(args, strings.ToLower(result_str.String()))
+		}
+	default:
+		Z.genericError(args, team_id)
+	}
+
 }
 
 func (Z *WorldZmq) ask_world_plot_field(args VarArgs) {

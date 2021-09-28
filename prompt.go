@@ -24,6 +24,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 		{Text: "hit", Description: "ask world with request"},
 		{Text: "ask", Description: "hit world with request"},
 
+		{Text: "save", Description: "saves to disk"},
 		{Text: "stop", Description: "stops the server"},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
@@ -88,6 +89,8 @@ func StartPrompt(W *types.World, pipe *WorldZmq) {
 			}
 		case "plots":
 			log.Printf("plots: %d", W.PlotCount())
+		case "save":
+			W.SaveChan <- struct{}{}
 		case "plot":
 			if len(blocks) > 1 {
 				num, err := strconv.ParseUint(blocks[1], 10, 64)

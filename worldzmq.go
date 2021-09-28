@@ -213,6 +213,22 @@ func FlattenStringSet(set map[string]struct{}) string {
 	}
 	return out
 }
+func FlattenStringAny(set map[string]interface{}) string {
+	if len(set) == 0 {
+		return ""
+	}
+	out := ""
+	first := true
+	for k := range set {
+		if first {
+			out = out + k
+			first = false
+		} else {
+			out = out + "_" + k
+		}
+	}
+	return out
+}
 
 func FlattenUintSet(set map[uint64]struct{}) string {
 	if len(set) == 0 {

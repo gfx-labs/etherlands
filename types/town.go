@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -35,6 +36,18 @@ func (G *Team) Has(gamer *Gamer) bool {
 	return ok
 }
 
+func (G *Team) add(gamer *Gamer) {
+	G.RLock()
+	defer G.RUnlock()
+	G.members[gamer.MinecraftId()] = struct{}{}
+}
+
+func (G *Team) remove(gamer *Gamer) {
+	G.RLock()
+	defer G.RUnlock()
+	delete(G.members, gamer.MinecraftId())
+}
+
 func (G *Team) Members() map[uuid.UUID]struct{} {
 	G.RLock()
 	defer G.RUnlock()
@@ -49,6 +62,71 @@ func (T *Town) Team(name string) *Team {
 	return nil
 }
 
+func (T *Town) TeamAddMember(manager *Gamer, team_name string, gamer *Gamer) error {
+	if team_name == "member" || team_name == "outsider" {
+		return errors.New("Cannot add player to default group")
+	}
+	if team_name == "manager" && manager.MinecraftId() != T.Owner() {
+		return errors.New("Only the owner may add to the manager group")
+	}
+	if !T.CanAction(manager, gamer) {
+		return errors.New("You may not adjust another managers groups")
+	}
+	team := T.Team(team_name)
+	if team == nil {
+		return errors.New("That team does not exist")
+	}
+	team.add(gamer)
+	return nil
+}
+
+func (T *Town) TeamRemoveMember(manager *Gamer, team_name string, gamer *Gamer) error {
+	if team_name == "member" || team_name == "outsider" {
+		return errors.New("Cannot add player to default group")
+	}
+	if team_name == "manager" && manager.MinecraftId() != T.Owner() {
+		return errors.New("only the owner may remove from the manager group")
+	}
+	if !T.CanAction(manager, gamer) {
+		return errors.New("You may not adjust another managers groups")
+	}
+	team := T.Team(team_name)
+	if team == nil {
+		return errors.New("That team does not exist")
+	}
+	team.remove(gamer)
+	return nil
+}
+
+func (T *Town) addTeam(name string) error {
+	if name == "member" || name == "outsider" || name == "manager" {
+		return errors.New("Cannot create a team using a default name")
+	}
+	T.Lock()
+	defer T.Unlock()
+	if _, ok := T.teams[name]; !ok {
+		T.teams[name] = &Team{
+			name: name,
+			town: T.name,
+		}
+		return nil
+	}
+	return errors.New(fmt.Sprintf("Team with name %s already exists", name))
+}
+
+func (T *Town) removeTeam(name string) error {
+	if name == "member" || name == "outsider" || name == "manager" {
+		return errors.New("Cannot remove a team with default name")
+	}
+	T.Lock()
+	defer T.Unlock()
+	if _, ok := T.teams[name]; ok {
+		delete(T.teams, name)
+		return nil
+	}
+	return errors.New(fmt.Sprintf("Team with name %s doesn't exist", name))
+}
+
 type Town struct {
 	name string
 
@@ -57,13 +135,12 @@ type Town struct {
 	teams     map[string]*Team
 	districts []uint64
 
-	defaultPlayerPermissions *PlayerPermissionMap
-	defaultTeamPermissions   *TeamPermissionMap
+	defaultPermissions *TeamPermissionMap
 
-	districtPlayerPermissions map[uint64]*PlayerPermissionMap
-	districtTeamPermissions   map[uint64]*TeamPermissionMap
-	district_player_lock      *DistrictLock
-	district_team_lock        *DistrictLock
+	districtPlayerPermissions *DistrictPlayerPermissionMap
+	districtTeamPermissions   *DistrictTeamPermissionMap
+	district_player_lock      *MapLock
+	district_team_lock        *MapLock
 
 	sync.RWMutex
 
@@ -71,6 +148,20 @@ type Town struct {
 
 	invites     map[uuid.UUID]time.Time
 	invite_lock sync.Mutex
+}
+
+func (T *Town) CreateTeam(manager *Gamer, name string) error {
+	if T.IsManager(manager) {
+		return T.addTeam(name)
+	}
+	return errors.New("You must be a manager to create a team")
+}
+
+func (T *Town) RemoveTeam(manager *Gamer, name string) error {
+	if T.IsManager(manager) {
+		return T.removeTeam(name)
+	}
+	return errors.New("You must be a manager to create a team")
 }
 
 func (T *Town) CheckInvite(gamer *Gamer, timeout time.Duration) bool {
@@ -145,48 +236,22 @@ func NewTownKey(town_name string) FamilyKey {
 	}
 }
 
-func (T *Town) DefaultPlayerPermissions() *PlayerPermissionMap {
+func (T *Town) DefaultPermissions() *TeamPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
-	return T.defaultPlayerPermissions
+	return T.defaultPermissions
 }
 
-func (T *Town) DefaultTeamPermissions() *TeamPermissionMap {
-	T.RLock()
-	defer T.RUnlock()
-	return T.defaultTeamPermissions
-}
-
-func (T *Town) DistrictPlayerPermissions() map[uint64]*PlayerPermissionMap {
+func (T *Town) DistrictPlayerPermissions() *DistrictPlayerPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
 	return T.districtPlayerPermissions
 }
 
-func (T *Town) DistrictTeamPermissions() map[uint64]*TeamPermissionMap {
+func (T *Town) DistrictTeamPermissions() *DistrictTeamPermissionMap {
 	T.RLock()
 	defer T.RUnlock()
 	return T.districtTeamPermissions
-}
-
-func (T *Town) DistrictPlayerPermission(district_id uint64) *PlayerPermissionMap {
-	T.RLock()
-	defer T.RUnlock()
-	if v, ok := T.districtPlayerPermissions[district_id]; ok {
-		return v
-	}
-	T.districtPlayerPermissions[district_id] = NewPlayerPermissionMap()
-	return T.districtPlayerPermissions[district_id]
-}
-
-func (T *Town) DistrictTeamPermission(district_id uint64) *TeamPermissionMap {
-	T.RLock()
-	defer T.RUnlock()
-	if v, ok := T.districtTeamPermissions[district_id]; ok {
-		return v
-	}
-	T.districtTeamPermissions[district_id] = NewTeamPermissionMap()
-	return T.districtTeamPermissions[district_id]
 }
 
 func (T *Town) Owner() uuid.UUID {

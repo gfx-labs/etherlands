@@ -300,19 +300,82 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 	case "delete":
 		Z.hit_world_town_user_action(args)
 	}
-	town_name, err := args.MustGet(2)
-	if Z.checkError(args, err) {
-		return
-	}
-	town, err := Z.W.GetTown(town_name)
+	_, err = args.MustGet(2)
 	if Z.checkError(args, err) {
 		return
 	}
 	switch field {
-	case "owner_uuid":
-		Z.sendResponse(args, town.Owner().String())
+	case "team":
+		Z.hit_world_town_team_action(args)
 	default:
 		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) hit_world_town_team_action(args VarArgs) {
+	gamer, err := args.MustGetGamer(Z.W, 6)
+	if Z.checkGamerError(gamer, err) {
+		return
+	}
+	action, err := args.MustGet(5)
+	if Z.checkGamerError(gamer, err) {
+		return
+	}
+	team_name, err := args.MustGet(4)
+	if Z.checkGamerError(gamer, err) {
+		return
+	}
+	town_name, err := args.MustGet(2)
+	if Z.checkGamerError(gamer, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkGamerError(gamer, err) {
+		return
+	}
+	switch action {
+	case "create":
+		err = town.CreateTeam(gamer, team_name)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(gamer, fmt.Sprintf("You have created team %s", team_name))
+	case "delete":
+		err = town.RemoveTeam(gamer, team_name)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(gamer, fmt.Sprintf("You have removed team %s", team_name))
+	case "addmember":
+		target, err := args.MustGetGamer(Z.W, 7)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		err = town.TeamAddMember(gamer, team_name, target)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("[uuid.%s] has been added to team %s", target.MinecraftId(), team_name),
+		)
+		Z.sendGamerResult(target, fmt.Sprintf("You have been added to team %s", team_name))
+	case "removemember":
+		target, err := args.MustGetGamer(Z.W, 7)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		err = town.TeamRemoveMember(gamer, team_name, target)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("[uuid.%s] has been removed from team %s", target.MinecraftId(), team_name),
+		)
+		Z.sendGamerResult(target, fmt.Sprintf("You have been removed from team %s", team_name))
+	default:
+		Z.genericError(args, action)
 	}
 }
 
