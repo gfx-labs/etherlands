@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	proto "github.com/gfx-labs/etherlands/proto"
+
 	"github.com/google/uuid"
 )
 
@@ -197,13 +199,35 @@ func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
 		payload := FlattenFlagMap(info)
 		Z.sendResponse(args, payload)
 	case "team":
-		team_name, err := args.MustGet(5)
+		gamer, err := args.MustGetGamer(Z.W, 9)
 		if Z.checkError(args, err) {
 			return
 		}
-		info := town.DistrictTeamPermissions().ReadAll(district_id, team_name)
-		payload := FlattenFlagMap(info)
-		Z.sendResponse(args, payload)
+		team_name, _ := args.MustGet(5)
+		district_id, err := args.MustGetUint64(6)
+		if Z.checkError(args, err) {
+			return
+		}
+		flag_str, _ := args.MustGet(7)
+		value_str, _ := args.MustGet(8)
+		_, ok := proto.EnumValuesAccessFlag[flag_str]
+		_, ok2 := proto.EnumValuesAccessFlag[value_str]
+		if !ok || !ok2 {
+			Z.checkGamerError(gamer, errors.New("malformed flag enums"))
+			return
+		}
+		err = town.WriteTeamPermission(
+			gamer,
+			team_name,
+			district_id,
+			proto.EnumValuesAccessFlag[flag_str],
+			proto.EnumValuesFlagValue[value_str],
+		)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerModal(gamer, fmt.Sprintf("district:%d", district_id))
+
 	default:
 		Z.checkError(args, errors.New("Unspecified Type: "+key_type))
 	}
