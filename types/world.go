@@ -190,15 +190,13 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		}
 	}
 	town_files, err := ListStruct("towns")
-	if err == nil && len(town_files) > 0 {
-		for i := 0; i < len(files); i++ {
-			town_id := town_files[i].Name()
-			town, err := W.LoadTown(town_id)
-			if err != nil {
-				log.Println("failed to read town", err)
-			} else {
-				W.UpdateTown(town)
-			}
+	for i := 0; i < len(town_files); i++ {
+		town_id := town_files[i].Name()
+		town, err := W.LoadTown(town_id)
+		if err != nil {
+			log.Println("failed to read town", err)
+		} else {
+			W.UpdateTown(town)
 		}
 	}
 	// don't start listening for requests until after we load in from memory
