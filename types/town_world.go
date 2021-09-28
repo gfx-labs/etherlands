@@ -35,6 +35,7 @@ func (W *World) GetTown(name string) (*Town, error) {
 	W.towns_lock.RUnlock()
 	// if not in live cache, see if town file exists
 	if res, err := W.LoadTown(name); err == nil {
+		W.UpdateTown(res)
 		return res, nil
 	}
 	return nil, errors.New(fmt.Sprintf("town [town.%s] could not be found", name))
