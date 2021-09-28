@@ -17,13 +17,14 @@ type WorldCache struct {
 	plot_location map[[2]int64]uint64
 	plot_lock     sync.RWMutex
 
-	name_district map[string]uint64
-	district_lock sync.RWMutex
-
-	clusters       map[uint64][]ClusterMetadata
-	cluster_lock   sync.RWMutex
+	name_district  map[string]uint64
 	district_owner *zset.ZSetStr
-	cluster_limit  *utils.RateLimit
+	district_town  *zset.ZSetStr
+	district_lock  sync.RWMutex
+
+	clusters      map[uint64][]ClusterMetadata
+	cluster_lock  sync.RWMutex
+	cluster_limit *utils.RateLimit
 
 	uuid_town      *zset.ZSetUUIDStr
 	uuid_town_lock sync.RWMutex
