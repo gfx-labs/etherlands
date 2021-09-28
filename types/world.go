@@ -99,7 +99,7 @@ func (G *Gamer) Update() {
 		if _, ok := G.W.gamers[G.GetKey()]; !ok {
 			G.W.gamers[G.GetKey()] = G
 		}
-		go G.W.cache.CacheGamer(G.W.gamers[G.GetKey()])
+		G.W.cache.CacheGamer(G.W.gamers[G.GetKey()])
 		go G.W.gamers[G.GetKey()].Save()
 	}
 }
@@ -113,7 +113,7 @@ func (plot *Plot) Update() {
 	if _, ok := plot.W.plots[plot.GetKey()]; !ok {
 		plot.W.plots[plot.GetKey()] = plot
 	}
-	go plot.W.cache.CachePlot(plot.W.plots[plot.GetKey()])
+	plot.W.cache.CachePlot(plot.W.plots[plot.GetKey()])
 }
 
 func (W *World) UpdateTown(town *Town) {
@@ -122,7 +122,7 @@ func (W *World) UpdateTown(town *Town) {
 	if _, ok := W.towns[town.GetKey()]; !ok {
 		W.towns[town.GetKey()] = town
 	}
-	go W.cache.CacheTown(W.towns[town.GetKey()])
+	W.cache.CacheTown(W.towns[town.GetKey()])
 	go W.towns[town.GetKey()].Save()
 }
 

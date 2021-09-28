@@ -35,7 +35,6 @@ func (W *World) GetTown(name string) (*Town, error) {
 	W.towns_lock.RUnlock()
 	// if not in live cache, see if town file exists
 	if res, err := W.LoadTown(name); err == nil {
-		W.UpdateTown(res)
 		return res, nil
 	}
 	return nil, errors.New(fmt.Sprintf("town [town.%s] could not be found", name))
@@ -54,6 +53,8 @@ func (W *World) CreateTown(name string, owner *Gamer) error {
 	if err != nil && town == nil {
 		newTown := W.initTown(name)
 		newTown.owner = owner.MinecraftId()
+		owner.SetTown(name)
+		owner.Update()
 		W.UpdateTown(newTown)
 		return nil
 	}
@@ -159,7 +160,7 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		}
 	}
 
-	W.UpdateTown(pending_town)
+	go W.UpdateTown(pending_town)
 	return pending_town, nil
 }
 
