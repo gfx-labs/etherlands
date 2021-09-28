@@ -113,22 +113,22 @@ func (G *Gamer) Save() error {
 	proto.GamerAddAddress(builder, addr)
 	proto.GamerAddNickname(builder, nick)
 
-	uuid := proto.CreateUUID(builder, int8(G.minecraftId[0]),
-		int8(G.minecraftId[1]),
-		int8(G.minecraftId[2]),
-		int8(G.minecraftId[3]),
-		int8(G.minecraftId[4]),
-		int8(G.minecraftId[5]),
-		int8(G.minecraftId[6]),
-		int8(G.minecraftId[7]),
-		int8(G.minecraftId[8]),
-		int8(G.minecraftId[9]),
-		int8(G.minecraftId[10]),
-		int8(G.minecraftId[11]),
-		int8(G.minecraftId[12]),
-		int8(G.minecraftId[13]),
-		int8(G.minecraftId[14]),
-		int8(G.minecraftId[15]),
+	uuid := proto.CreateUUID(builder, G.minecraftId[0],
+		G.minecraftId[1],
+		G.minecraftId[2],
+		G.minecraftId[3],
+		G.minecraftId[4],
+		G.minecraftId[5],
+		G.minecraftId[6],
+		G.minecraftId[7],
+		G.minecraftId[8],
+		G.minecraftId[9],
+		G.minecraftId[10],
+		G.minecraftId[11],
+		G.minecraftId[12],
+		G.minecraftId[13],
+		G.minecraftId[14],
+		G.minecraftId[15],
 	)
 	proto.GamerAddMinecraftId(builder, uuid)
 	proto.GamerAddTown(builder, town)
