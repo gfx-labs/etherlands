@@ -289,6 +289,8 @@ func (Z *WorldZmq) ask_world_district_field(args VarArgs) {
 	switch field {
 	case "name":
 		Z.sendResponse(args, district.StringName())
+	case "town":
+		Z.sendResponse(args, district.Town())
 	case "plots":
 		plots := Z.W.PlotsOfDistrict(district.DistrictId())
 		temp := make([]string, len(plots))
