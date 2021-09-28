@@ -6,25 +6,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gfx-labs/etherlands/zset"
 	"github.com/google/uuid"
 )
 
 type World struct {
-	plots         map[FamilyKey]*Plot
-	plot_district *zset.ZSet
-	plot_location map[[2]int64]uint64
-	plots_lock    sync.RWMutex
+	plots      map[FamilyKey]*Plot
+	plots_lock sync.RWMutex
 
 	districts      map[FamilyKey]*District
-	district_owner *zset.ZSetStr
 	districts_lock sync.RWMutex
 
 	gamers      map[FamilyKey]*Gamer
 	gamers_lock sync.RWMutex
 
 	towns      map[FamilyKey]*Town
-	uuid_town  *zset.ZSetUUIDStr
 	towns_lock sync.RWMutex
 
 	DistrictRequests chan uint64
@@ -53,14 +48,10 @@ type PlotChainInfo struct {
 
 func NewWorld() *World {
 	output := &World{
-		plots:          make(map[FamilyKey]*Plot),
-		districts:      make(map[FamilyKey]*District),
-		gamers:         make(map[FamilyKey]*Gamer),
-		towns:          make(map[FamilyKey]*Town),
-		plot_location:  make(map[[2]int64]uint64),
-		plot_district:  zset.CreateZSet(),
-		district_owner: zset.CreateZSetStr(),
-		uuid_town:      zset.CreateZSetUUIDStr(),
+		plots:     make(map[FamilyKey]*Plot),
+		districts: make(map[FamilyKey]*District),
+		gamers:    make(map[FamilyKey]*Gamer),
+		towns:     make(map[FamilyKey]*Town),
 
 		DistrictRequests: make(chan uint64, 100),
 		PlotRequests:     make(chan uint64, 100),
@@ -103,7 +94,7 @@ func (W *World) UpdateGamer(gamer *Gamer) {
 		if _, ok := W.gamers[gamer.GetKey()]; !ok {
 			W.gamers[gamer.GetKey()] = gamer
 		}
-		W.cache.CacheGamer(W.gamers[gamer.GetKey()])
+		go W.cache.CacheGamer(W.gamers[gamer.GetKey()])
 		go W.gamers[gamer.GetKey()].Save()
 	}
 }
@@ -111,12 +102,10 @@ func (W *World) UpdateGamer(gamer *Gamer) {
 func (W *World) UpdatePlot(plot *Plot) {
 	W.plots_lock.Lock()
 	defer W.plots_lock.Unlock()
-	W.plot_district.AddOrUpdate(plot.PlotId(), plot.DistrictId(), plot)
-	W.plot_location[[2]int64{plot.X(), plot.Z()}] = plot.PlotId()
 	if _, ok := W.plots[plot.GetKey()]; !ok {
 		W.plots[plot.GetKey()] = plot
 	}
-	W.cache.CachePlot(W.plots[plot.GetKey()])
+	go W.cache.CachePlot(W.plots[plot.GetKey()])
 }
 
 func (W *World) UpdateTown(town *Town) {
@@ -125,11 +114,7 @@ func (W *World) UpdateTown(town *Town) {
 	if _, ok := W.towns[town.GetKey()]; !ok {
 		W.towns[town.GetKey()] = town
 	}
-	W.uuid_town.AddOrUpdate(town.Owner(), town.Name(), town)
-	for k := range town.Members() {
-		W.uuid_town.AddOrUpdate(k, town.Name(), town)
-	}
-	W.cache.CacheTown(W.towns[town.GetKey()])
+	go W.cache.CacheTown(W.towns[town.GetKey()])
 	go W.towns[town.GetKey()].Save()
 }
 
@@ -139,11 +124,10 @@ func (W *World) UpdateDistrict(district *District) {
 	}
 	W.districts_lock.Lock()
 	defer W.districts_lock.Unlock()
-	W.district_owner.AddOrUpdate(district.DistrictId(), district.OwnerAddress(), district)
 	if _, ok := W.districts[district.GetKey()]; !ok {
 		W.districts[district.GetKey()] = district
 	}
-	W.cache.CacheDistrict(W.districts[district.GetKey()])
+	go W.cache.CacheDistrict(W.districts[district.GetKey()])
 	go W.districts[district.GetKey()].Save()
 }
 

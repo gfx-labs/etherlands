@@ -33,6 +33,8 @@ func (Z *WorldZmq) ask_world_type(args VarArgs) {
 		Z.ask_world_gamer_field(args)
 	case "plot":
 		Z.ask_world_plot_field(args)
+	case "town":
+		Z.ask_world_town_field(args)
 	case "district":
 		Z.ask_world_district_field(args)
 	case "links":
@@ -103,6 +105,43 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 			out = append(out, strconv.FormatUint(v.DistrictId(), 10))
 		}
 		Z.sendResponse(args, strings.Join(out, "_"))
+	default:
+		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
+	field, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_id, err := args.MustGet(2)
+	town, err := Z.W.GetTown(town_id)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch field {
+	case "owner":
+		Z.sendResponse(args, town.Owner().String())
+	case "members":
+		Z.sendResponse(args, FlattenUUIDSet(town.Members()))
+	case "teams":
+		string_set := make(map[string]struct{})
+		for _, v := range town.Teams() {
+			string_set[v.Name()] = struct{}{}
+		}
+		Z.sendResponse(args, FlattenStringSet(string_set))
+	case "team":
+		team_id, err := args.MustGet(4)
+		if Z.checkError(args, err) {
+			return
+		}
+		team := town.Team(team_id)
+		if team != nil {
+			Z.sendResponse(args, FlattenUUIDSet(team.Members()))
+		} else {
+			Z.genericError(args, team_id)
+		}
 	default:
 		Z.genericError(args, field)
 	}

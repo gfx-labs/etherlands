@@ -46,27 +46,26 @@ type town_create_input struct {
 }
 
 func (W *World) CreateTown(name string, owner *Gamer) error {
+	if owner.HasTown() {
+		return errors.New("You must leave your town before creating one")
+	}
 	town, err := W.GetTown(name)
 	if err != nil && town == nil {
 		newTown := W.initTown(name)
-		newTown.SetOwner(owner.MinecraftId())
-		newTown.Members()
+		newTown.owner = owner.MinecraftId()
 		W.UpdateTown(newTown)
 		return nil
 	}
-	return errors.New(fmt.Sprintf("town with name %s already exists", name))
+	return errors.New(fmt.Sprintf("Town with name %s already exists", name))
 }
 
 func (W *World) initTown(name string) *Town {
 	town := &Town{
 		W:                        W,
 		name:                     name,
-		members:                  make(map[uuid.UUID]struct{}),
 		districts:                make([]uint64, 0),
 		teams:                    make(map[string]*Team),
-		invites:                  make(map[uuid.UUID]struct{}),
-		inviteAddChan:            make(chan uuid.UUID, 1),
-		inviteDelChan:            make(chan uuid.UUID, 1),
+		invites:                  make(map[uuid.UUID]time.Time),
 		defaultPlayerPermissions: NewPlayerPermissionMap(),
 		defaultTeamPermissions:   NewTeamPermissionMap(),
 		district_player_lock:     NewDistrictLock(),
@@ -90,11 +89,6 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	pending_town.districts = make([]uint64, read_town.DistrictsLength())
 	pending_town.name = string(read_town.Name())
 	pending_town.owner = ProtoResolveUUID(read_town.Owner(nil))
-	for i := 0; i < read_town.MembersLength(); i++ {
-		var puuid proto.UUID
-		read_town.Members(&puuid, i)
-		pending_town.AddMember(ProtoResolveUUID(&puuid))
-	}
 	for i := 0; i < read_town.DistrictsLength(); i++ {
 		pending_town.districts[i] = read_town.Districts(i)
 	}
@@ -203,13 +197,6 @@ func (T *Town) Save() error {
 		idx = idx + 1
 	}
 
-	// create town member vector
-	proto.TownStartMembersVector(builder, len(town_members))
-	for _, v := range me_o {
-		builder.PrependUOffsetT(v)
-	}
-	member_vector := builder.EndVector(len(town_members))
-
 	town_name := builder.CreateString(T.Name())
 
 	owner_id := BuildUUID(builder, T.Owner())
@@ -220,8 +207,6 @@ func (T *Town) Save() error {
 	proto.TownAddOwner(builder, owner_id)
 	//town name
 	proto.TownAddName(builder, town_name)
-	//members
-	proto.TownAddMembers(builder, member_vector)
 
 	//teams
 	proto.TownAddTeams(builder, team_vector)

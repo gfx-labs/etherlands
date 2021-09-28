@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"sync"
@@ -20,6 +21,34 @@ type District struct {
 
 	key   FamilyKey
 	world *World
+
+	town      string
+	town_lock sync.RWMutex
+}
+
+func (D *District) DelegateTown(gamer *Gamer) error {
+	if gamer.HasTown() {
+		if gamer.Address() == D.OwnerAddress() {
+			D.town_lock.Lock()
+			D.town = gamer.Town()
+			D.town_lock.Unlock()
+			return nil
+		}
+		return errors.New(fmt.Sprintf("You must own district %s to delegate it", D.StringName()))
+	}
+	return errors.New("You must be in a town to delegate")
+}
+
+func (D *District) HasTown() bool {
+	D.town_lock.RLock()
+	defer D.town_lock.RUnlock()
+	return D.town != ""
+}
+
+func (D *District) Town() string {
+	D.town_lock.RLock()
+	defer D.town_lock.RUnlock()
+	return D.town
 }
 
 func (D *District) DistrictId() uint64 {

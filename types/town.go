@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -52,8 +53,7 @@ func (T *Town) Team(name string) *Team {
 type Town struct {
 	name string
 
-	owner   uuid.UUID
-	members map[uuid.UUID]struct{}
+	owner uuid.UUID
 
 	teams     map[string]*Team
 	districts []uint64
@@ -70,30 +70,49 @@ type Town struct {
 
 	W *World
 
-	invites       map[uuid.UUID]struct{}
-	inviteAddChan chan uuid.UUID
-	inviteDelChan chan uuid.UUID
+	invites     map[uuid.UUID]time.Time
+	invite_lock sync.Mutex
 }
 
-func (T *Town) ProcessInvites(timeout time.Duration) {
-	for {
-		var target uuid.UUID
-		select {
-		case target = <-T.inviteAddChan:
-			T.invites[target] = struct{}{}
-			go func() {
-				time.Sleep(timeout)
-				T.inviteDelChan <- target
-			}()
-		case target = <-T.inviteDelChan:
-			delete(T.invites, target)
+func (T *Town) AddGamer(gamer *Gamer) error {
+	if T.CheckInvite(gamer, time.Minute*15) {
+		T.Lock()
+		defer T.Unlock()
+	}
+	return errors.New(fmt.Sprintf("You must be invited to join %s", T.Name()))
+}
+func (T *Town) CheckInvite(gamer *Gamer, timeout time.Duration) bool {
+	T.invite_lock.Lock()
+	defer T.invite_lock.Unlock()
+	if v, ok := T.invites[gamer.MinecraftId()]; ok {
+		if (time.Now().Sub(v)) > timeout {
+			delete(T.invites, gamer.MinecraftId())
+			return false
+		} else {
+			return true
 		}
+	}
+	return false
+}
+
+func (T *Town) ProcessInvites(interval time.Duration) {
+	for {
+		time.Sleep(interval)
+		T.invite_lock.Lock()
+		for k, v := range T.invites {
+			if (time.Now().Sub(v)) > interval {
+				delete(T.invites, k)
+			}
+		}
+		T.invite_lock.Unlock()
 	}
 }
 
 func (T *Town) InviteGamer(sender, receiver *Gamer) error {
 	if T.IsManager(sender) {
-		T.inviteAddChan <- receiver.MinecraftId()
+		T.invite_lock.Lock()
+		T.invites[receiver.MinecraftId()] = time.Now()
+		T.invite_lock.Unlock()
 		return nil
 	}
 	return errors.New("you must be a manager to invite")
@@ -182,15 +201,7 @@ func (T *Town) Name() string {
 }
 
 func (T *Town) Members() map[uuid.UUID]struct{} {
-	T.RLock()
-	defer T.RUnlock()
-	return T.members
-}
-
-func (T *Town) AddMember(id uuid.UUID) {
-	T.Lock()
-	defer T.Unlock()
-	T.members[id] = struct{}{}
+	return T.W.GamersOfTown(T.Name())
 }
 
 func (T *Town) Teams() map[string]*Team {

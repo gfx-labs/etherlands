@@ -27,6 +27,7 @@ table Gamer{
   minecraft_id:UUID;
   nickname:string;
   address:string;
+  town:string;
 }
 
 table Plot{
@@ -84,8 +85,6 @@ table Town {
   name:string;
   owner:UUID;
 
-  members:[UUID];
-  managers:[UUID];
   teams:[Team];
 
   districts:[uint64];

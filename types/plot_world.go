@@ -22,21 +22,10 @@ func (W *World) SearchPlot(x, z int64) (*Plot, error) {
 	if (x <= 2 && x >= -2) || (z <= 2 && z >= -2) {
 		return nil, errors.New(fmt.Sprintf("plot at %d %d disabled", x, z))
 	}
-	W.plots_lock.RLock()
-	defer W.plots_lock.RUnlock()
-	if val, ok := W.plot_location[[2]int64{x, z}]; ok {
+	if val, ok := W.cache.CheckPlot(x, z); ok {
+		W.plots_lock.RLock()
+		defer W.plots_lock.RUnlock()
 		return W.GetPlot(val)
 	}
 	return nil, errors.New(fmt.Sprintf("plot at %d %d not found", x, z))
-}
-func (W *World) CheckPlot(x, z int64) (uint64, bool) {
-	if (x <= 2 && x >= -2) || (z <= 2 && z >= -2) {
-		return 0, false
-	}
-	W.plots_lock.RLock()
-	defer W.plots_lock.RUnlock()
-	if val, ok := W.plot_location[[2]int64{x, z}]; ok {
-		return val, true
-	}
-	return 0, false
 }

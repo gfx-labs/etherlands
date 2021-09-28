@@ -4,16 +4,14 @@ import (
 	"strings"
 	"sync"
 
-	proto "github.com/gfx-labs/etherlands/proto"
-	flatbuffers "github.com/google/flatbuffers/go"
-
 	"github.com/google/uuid"
 )
 
 type Gamer struct {
-	nickname    string
-	address     string
-	town        string
+	nickname string
+	address  string
+	town     string
+
 	minecraftId uuid.UUID
 	mutex       sync.RWMutex
 
@@ -45,7 +43,7 @@ func (G *Gamer) Address() string {
 	return G.address
 }
 
-func (G *Gamer) GetTown() string {
+func (G *Gamer) Town() string {
 	G.mutex.RLock()
 	defer G.mutex.RUnlock()
 	return G.town
@@ -60,7 +58,7 @@ func (G *Gamer) SetTown(name string) {
 func (G *Gamer) HasTown() bool {
 	G.mutex.RLock()
 	defer G.mutex.RUnlock()
-	return G.world.TownOfGamer(G) != ""
+	return G.town != ""
 }
 
 func (G *Gamer) MinecraftId() uuid.UUID {
@@ -90,38 +88,4 @@ func (G *Gamer) GetPosXYZ() (x, y, z int64) {
 
 func (G *Gamer) GetKey() FamilyKey {
 	return G.key
-}
-
-func (G *Gamer) Save() error {
-	builder := flatbuffers.NewBuilder(1024)
-	addr := builder.CreateString(G.Address())
-	nick := builder.CreateString(G.Nickname())
-	proto.GamerStart(builder)
-	proto.GamerAddAddress(builder, addr)
-	proto.GamerAddNickname(builder, nick)
-
-	uuid := proto.CreateUUID(builder, int8(G.minecraftId[0]),
-		int8(G.minecraftId[1]),
-		int8(G.minecraftId[2]),
-		int8(G.minecraftId[3]),
-		int8(G.minecraftId[4]),
-		int8(G.minecraftId[5]),
-		int8(G.minecraftId[6]),
-		int8(G.minecraftId[7]),
-		int8(G.minecraftId[8]),
-		int8(G.minecraftId[9]),
-		int8(G.minecraftId[10]),
-		int8(G.minecraftId[11]),
-		int8(G.minecraftId[12]),
-		int8(G.minecraftId[13]),
-		int8(G.minecraftId[14]),
-		int8(G.minecraftId[15]),
-	)
-	proto.GamerAddMinecraftId(builder, uuid)
-
-	gamer := proto.GamerEnd(builder)
-	builder.Finish(gamer)
-
-	buf := builder.FinishedBytes()
-	return WriteStruct("gamers", G.MinecraftId().String(), buf)
 }

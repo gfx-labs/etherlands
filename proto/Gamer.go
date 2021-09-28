@@ -55,8 +55,16 @@ func (rcv *Gamer) Address() []byte {
 	return nil
 }
 
+func (rcv *Gamer) Town() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
 func GamerStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func GamerAddMinecraftId(builder *flatbuffers.Builder, minecraftId flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(minecraftId), 0)
@@ -66,6 +74,9 @@ func GamerAddNickname(builder *flatbuffers.Builder, nickname flatbuffers.UOffset
 }
 func GamerAddAddress(builder *flatbuffers.Builder, address flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(address), 0)
+}
+func GamerAddTown(builder *flatbuffers.Builder, town flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(town), 0)
 }
 func GamerEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -225,12 +225,13 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		if Z.checkError(args, err) {
 			return
 		}
-		if !gamer.HasTown() {
-			go Z.W.CreateTown(name, gamer)
-			Z.sendGamerResult(gamer.MinecraftId(), "successfully created town "+name)
-		} else {
-			Z.sendGamerError(gamer.MinecraftId(), errors.New("Please leave your town before creating one"))
-		}
+		go func() {
+			err = Z.W.CreateTown(name, gamer)
+			if Z.checkGamerError(gamer, err) {
+				return
+			}
+			Z.sendGamerResult(gamer, "successfully created town "+name)
+		}()
 	default:
 		Z.genericError(args, field)
 	}
@@ -249,40 +250,52 @@ func (Z *WorldZmq) hit_world_district_field(args VarArgs) {
 	if Z.checkError(args, err) {
 		return
 	}
-	district, err := Z.W.GetDistrict(district_id)
+	_, err = Z.W.GetDistrict(district_id)
 	if Z.checkError(args, err) {
 		return
 	}
 	switch field {
-	case "name":
-		Z.sendResponse(args, district.StringName())
-	case "plots":
-		plots := Z.W.PlotsOfDistrict(district.DistrictId())
-		temp := make([]string, len(plots))
-		for i := 0; i < len(plots); i++ {
-			temp[i] = strconv.FormatUint(plots[i], 10)
-		}
-		Z.sendResponse(args, strings.Join(temp, "_"))
-	case "clusters":
-		clusters := Z.W.Cache().GetClusters(district.DistrictId())
-		value := ""
-		for _, cluster := range clusters {
-			value = value + fmt.Sprintf(
-				"%d:%d:%d",
-				cluster.OriginX,
-				cluster.OriginZ,
-				len(cluster.Offsets),
-			)
-			value = value + "@"
-		}
-		if len(value) > 1 {
-			value = value[:len(value)-1]
-		}
-		Z.sendResponse(args, value)
-	case "owner_addr":
-		Z.sendResponse(args, district.OwnerAddress())
+	case "delegate":
+		Z.hit_world_district_field_action(args)
 	default:
 		Z.genericError(args, field)
+	}
+}
+
+func (Z *WorldZmq) hit_world_district_field_action(args VarArgs) {
+	uuid_str, err := args.MustGet(4)
+	if Z.checkError(args, err) {
+		return
+	}
+	gamer_id, err := uuid.Parse(uuid_str)
+	if Z.checkError(args, err) {
+		return
+	}
+	gamer := Z.W.GetGamer(gamer_id)
+	action, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	district_id, err := args.MustGetUint64(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	district, err := Z.W.GetDistrict(district_id)
+	if Z.checkError(args, err) {
+		return
+	}
+	// new args start at 5
+	switch action {
+	case "delegate":
+		err = district.DelegateTown(gamer)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(gamer,
+			fmt.Sprintf("District %s is now delegated to %s", gamer.Town(), district.Town()),
+		)
+	default:
+		Z.genericError(args, action)
 	}
 }
 
@@ -301,6 +314,8 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 	}
 	switch field {
 	case "invite":
+		Z.hit_world_town_user_action(args)
+	case "join":
 		Z.hit_world_town_user_action(args)
 	case "owner_uuid":
 		Z.sendResponse(args, town.Owner().String())
@@ -335,18 +350,32 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 	switch action {
 	case "invite":
 		target_str, err := args.MustGet(5)
-		if Z.checkError(args, err) {
+		if Z.checkGamerError(gamer, err) {
 			return
 		}
 		target_id, err := uuid.Parse(target_str)
-		if Z.checkError(args, err) {
+		if Z.checkGamerError(gamer, err) {
 			return
 		}
 		target := Z.W.GetGamer(target_id)
-		if Z.checkError(args, err) {
+		if Z.checkGamerError(gamer, err) {
 			return
 		}
-		town.InviteGamer(gamer, target)
+		err = town.InviteGamer(gamer, target)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerResult(gamer, fmt.Sprintf("invited %s to your town", target.MinecraftId()))
+	case "join":
+		err = town.AddGamer(gamer)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+	case "leave":
+		err = town.AddGamer(gamer)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
 	default:
 		Z.genericError(args, action)
 	}

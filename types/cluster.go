@@ -98,7 +98,7 @@ func find_neighbors(
 		origin_z := oplot.Z()
 		for idx := -radius; idx <= radius; idx++ {
 			for idz := -radius; idz <= radius; idz++ {
-				if id, ok := W.CheckPlot(origin_x+idx, origin_z+idz); ok {
+				if id, ok := W.cache.CheckPlot(origin_x+idx, origin_z+idz); ok {
 					if _, ok := (*clusters)[id]; !ok {
 						if id != 0 {
 							jobs = append(jobs, id)

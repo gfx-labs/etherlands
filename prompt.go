@@ -58,7 +58,7 @@ func StartPrompt(W *types.World, pipe *WorldZmq) {
 					"  %s > %s town: %s\n",
 					gamers[i].MinecraftId().String(),
 					gamers[i].Address(),
-					gamers[i].GetTown(),
+					gamers[i].Town(),
 				)
 			}
 		case "towns":

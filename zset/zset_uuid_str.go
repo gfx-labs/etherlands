@@ -186,9 +186,9 @@ func (Z *ZSetUUIDStr) Remove(key uuid.UUID) *ZSetUUIDStrNode {
 	return nil
 }
 
-func (Z *ZSetUUIDStr) GetKeysByScore(score string) []uuid.UUID {
+func (Z *ZSetUUIDStr) GetKeysByScore(score string) map[uuid.UUID]struct{} {
 	var limit int = int((^uint(0)) >> 1)
-	var keys []uuid.UUID
+	keys := make(map[uuid.UUID]struct{})
 	if Z.length == 0 {
 		return keys
 	}
@@ -209,7 +209,7 @@ func (Z *ZSetUUIDStr) GetKeysByScore(score string) []uuid.UUID {
 
 		next := x.level[0].forward
 
-		keys = append(keys, x.key)
+		keys[x.key] = struct{}{}
 		limit = limit - 1
 
 		x = next

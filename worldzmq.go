@@ -100,15 +100,27 @@ func (Z *WorldZmq) sendResponse(args VarArgs, content string) {
 	}
 	logger.Log.Printf("[OUT] %s %s\n", args.Command(), content)
 }
-func (Z *WorldZmq) sendGamerError(target uuid.UUID, err error) {
-	Z.sendChan <- [2]string{
-		"CHAT",
-		fmt.Sprintf("gamer:%s:[Error] %s", target.String(), err.Error()),
-	}
-	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), err.Error())
+
+func (Z *WorldZmq) checkGamerError(gamer *types.Gamer, err error) bool {
+	return Z.checkUUIDError(gamer.MinecraftId(), err)
 }
 
-func (Z *WorldZmq) sendGamerResult(target uuid.UUID, result string) {
+func (Z *WorldZmq) checkUUIDError(target uuid.UUID, err error) bool {
+	if err != nil {
+		Z.sendChan <- [2]string{
+			"CHAT",
+			fmt.Sprintf("gamer:%s:[Error] %s", target.String(), err.Error()),
+		}
+		logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), err.Error())
+		return true
+	}
+	return false
+}
+
+func (Z *WorldZmq) sendGamerResult(gamer *types.Gamer, result string) {
+	Z.sendUUIDResult(gamer.MinecraftId(), result)
+}
+func (Z *WorldZmq) sendUUIDResult(target uuid.UUID, result string) {
 	Z.sendChan <- [2]string{
 		"CHAT",
 		fmt.Sprintf("gamer:%s:%s", target.String(), result),
@@ -162,6 +174,39 @@ func (Args *VarArgs) MightGet(idx int) (string, bool) {
 	}
 	return "", false
 }
+func FlattenStringSet(set map[string]struct{}) string {
+	if len(set) == 0 {
+		return ""
+	}
+	out := ""
+	first := true
+	for k := range set {
+		if first {
+			out = out + k
+			first = false
+		} else {
+			out = out + "_" + k
+		}
+	}
+	return out
+}
+
+func FlattenUintSet(set map[uint64]struct{}) string {
+	if len(set) == 0 {
+		return ""
+	}
+	out := ""
+	first := true
+	for k := range set {
+		if first {
+			out = out + strconv.FormatUint(k, 10)
+			first = false
+		} else {
+			out = out + "_" + strconv.FormatUint(k, 10)
+		}
+	}
+	return out
+}
 
 func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
 	if len(set) == 0 {
@@ -177,11 +222,5 @@ func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
 			out = out + "_" + k.String()
 		}
 	}
-	return out
-}
-
-func FlattenTownTeam(team *types.Team) string {
-	out := team.Name() + "@"
-	out = out + FlattenUUIDSet(team.Members())
 	return out
 }

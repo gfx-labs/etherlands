@@ -6,55 +6,75 @@ import (
 	"time"
 
 	utils "github.com/gfx-labs/etherlands/utils"
+	"github.com/gfx-labs/etherlands/zset"
 )
 
 type WorldCache struct {
 	links      map[string]string
 	links_lock sync.RWMutex
 
-	name_district      map[string]uint64
-	name_district_lock sync.RWMutex
+	plot_district *zset.ZSet
+	plot_location map[[2]int64]uint64
+	plot_lock     sync.RWMutex
 
-	clusters      map[uint64][]ClusterMetadata
-	cluster_lock  sync.RWMutex
-	cluster_limit *utils.RateLimit
+	name_district map[string]uint64
+	district_lock sync.RWMutex
+
+	clusters       map[uint64][]ClusterMetadata
+	cluster_lock   sync.RWMutex
+	district_owner *zset.ZSetStr
+	cluster_limit  *utils.RateLimit
+
+	uuid_town      *zset.ZSetUUIDStr
+	uuid_town_lock sync.RWMutex
 
 	W *World
 }
 
 func (W *World) NewWorldCache() (*WorldCache, error) {
 	return &WorldCache{
-		W:             W,
-		links:         make(map[string]string),
-		name_district: make(map[string]uint64),
-		clusters:      make(map[uint64][]ClusterMetadata),
-		cluster_limit: utils.NewRateLimiter(1 * time.Minute),
+		W:              W,
+		links:          make(map[string]string),
+		plot_location:  make(map[[2]int64]uint64),
+		plot_district:  zset.CreateZSet(),
+		name_district:  make(map[string]uint64),
+		district_owner: zset.CreateZSetStr(),
+		clusters:       make(map[uint64][]ClusterMetadata),
+		cluster_limit:  utils.NewRateLimiter(1 * time.Minute),
+		uuid_town:      zset.CreateZSetUUIDStr(),
 	}, nil
 }
 
 func (M *WorldCache) CachePlot(plot *Plot) {
+	M.plot_lock.Lock()
+	defer M.plot_lock.Unlock()
+	M.plot_district.AddOrUpdate(plot.PlotId(), plot.DistrictId(), plot)
+	M.plot_location[[2]int64{plot.X(), plot.Z()}] = plot.PlotId()
 }
 
 func (M *WorldCache) CacheTown(town *Town) {
+	M.uuid_town_lock.Lock()
+	defer M.uuid_town_lock.Unlock()
+	M.uuid_town.AddOrUpdate(town.Owner(), town.Name(), town)
 }
 
 func (M *WorldCache) CacheDistrict(district *District) {
-	M.name_district_lock.Lock()
+	M.district_lock.Lock()
+	defer M.district_lock.Unlock()
 	M.name_district[district.StringName()] = district.DistrictId()
-	M.name_district_lock.Unlock()
-
+	M.district_owner.AddOrUpdate(district.DistrictId(), district.OwnerAddress(), district)
 }
 
 func (M *WorldCache) CacheGamer(gamer *Gamer) {
 	M.links_lock.Lock()
+	defer M.links_lock.Unlock()
 	M.links[gamer.MinecraftId().String()] = gamer.Address()
 	M.links[gamer.Address()] = gamer.MinecraftId().String()
-	M.links_lock.Unlock()
 }
 
 func (M *WorldCache) GetDistrictByName(input string) (uint64, error) {
-	M.name_district_lock.RLock()
-	defer M.name_district_lock.RUnlock()
+	M.district_lock.RLock()
+	defer M.district_lock.RUnlock()
 	if v, ok := M.name_district[input]; ok {
 		return v, nil
 	}
@@ -67,6 +87,15 @@ func (M *WorldCache) GetLink(input string) (string, error) {
 		return v, nil
 	}
 	return "", errors.New("no link found")
+}
+
+func (M *WorldCache) CheckPlot(x, z int64) (uint64, bool) {
+	M.plot_lock.RLock()
+	defer M.plot_lock.RUnlock()
+	if v, ok := M.plot_location[[2]int64{x, z}]; ok {
+		return v, true
+	}
+	return 0, false
 }
 
 func (M *WorldCache) CacheClusters(input uint64, clusters []ClusterMetadata) {
