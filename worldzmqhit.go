@@ -358,13 +358,17 @@ func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 			fmt.Sprintf("[uuid.%s] has joined your town", gamer.MinecraftId().String()),
 		)
 	case "delete":
-		err = gamer.DeleteTown(town)
+		verify, err := args.MustGet(5)
+		if Z.checkError(args, err) {
+			return
+		}
+		err = gamer.DeleteTown(town, verify)
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
 		Z.sendTownResult(
 			town.Name(),
-			fmt.Sprintf("ay you deleted ur town gj"),
+			fmt.Sprintf("ayy you deleted ur town gj"),
 		)
 	case "leave":
 		err = gamer.LeaveTown(town)

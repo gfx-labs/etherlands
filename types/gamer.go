@@ -42,7 +42,16 @@ func (G *Gamer) JoinTown(town *Town) error {
 	return errors.New(fmt.Sprintf("You must be invited to join [town.%s]", town.Name()))
 }
 
-func (G *Gamer) DeleteTown(town *Town) error {
+func (G *Gamer) DeleteTown(town *Town, validate string) error {
+	if town.Name() != validate {
+		return errors.New(
+			fmt.Sprintf(
+				"Run command with argument %s (e.g. /town delete %s)",
+				town.Name(),
+				town.Name(),
+			),
+		)
+	}
 	if town.Owner() == G.MinecraftId() {
 		if len(G.W.GamersOfTown(town.Name())) == 1 {
 			G.SetTown("")
