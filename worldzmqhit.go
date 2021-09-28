@@ -316,26 +316,26 @@ func (Z *WorldZmq) hit_world_town_field(args VarArgs) {
 
 func (Z *WorldZmq) hit_world_town_user_action(args VarArgs) {
 	gamer, err := args.MustGetGamer(Z.W, 4)
-	if Z.checkError(args, err) {
+	if Z.checkGamerError(gamer, err) {
 		return
 	}
 	action, err := args.MustGet(3)
-	if Z.checkError(args, err) {
+	if Z.checkGamerError(gamer, err) {
 		return
 	}
 	town_name, err := args.MustGet(2)
-	if Z.checkError(args, err) {
+	if Z.checkGamerError(gamer, err) {
 		return
 	}
 	town, err := Z.W.GetTown(town_name)
-	if Z.checkError(args, err) {
+	if Z.checkGamerError(gamer, err) {
 		return
 	}
 	// new args start at 5
 	switch action {
 	case "invite":
 		target, err := args.MustGetGamer(Z.W, 5)
-		if Z.checkError(args, err) {
+		if Z.checkGamerError(gamer, err) {
 			return
 		}
 		err = town.InviteGamer(gamer, target)
