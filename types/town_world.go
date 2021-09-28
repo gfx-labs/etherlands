@@ -33,6 +33,10 @@ func (W *World) GetTown(name string) (*Town, error) {
 		return val, nil
 	}
 	W.towns_lock.RUnlock()
+	// if not in live cache, see if town file exists
+	if res, err := W.LoadTown(name); err == nil {
+		return res, nil
+	}
 	return nil, errors.New(fmt.Sprintf("town [town.%s] could not be found", name))
 }
 
@@ -93,22 +97,23 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	pending_town.name = string(read_town.Name())
 	pending_town.owner = ProtoResolveUUID(read_town.Owner(nil))
 	for i := 0; i < read_town.TeamsLength(); i++ {
-		var team proto.Team
-		read_town.Teams(&team, i)
-		team_members := make(map[uuid.UUID]struct{})
-		for j := 0; j < team.MembersLength(); j++ {
-			puuid := new(proto.UUID)
-			team.Members(puuid, j)
-			new_uuid := ProtoResolveUUID(puuid)
-			team_members[new_uuid] = struct{}{}
-		}
-
-		pending_town.teams[string(team.Name())] =
-			&Team{
-				name:     string(team.Name()),
-				priority: team.Priority(),
-				members:  team_members,
+		team := new(proto.Team)
+		if read_town.Teams(team, i) {
+			team_members := make(map[uuid.UUID]struct{})
+			for j := 0; j < team.MembersLength(); j++ {
+				puuid := new(proto.UUID)
+				if team.Members(puuid, j) {
+					new_uuid := ProtoResolveUUID(puuid)
+					team_members[new_uuid] = struct{}{}
+				}
 			}
+			pending_town.teams[string(team.Name())] =
+				&Team{
+					name:     string(team.Name()),
+					priority: team.Priority(),
+					members:  team_members,
+				}
+		}
 	}
 	district_team_maps := read_town.DistrictTeamPermissions(nil)
 	if district_team_maps != nil {
