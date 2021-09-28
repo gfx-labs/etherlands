@@ -13,7 +13,6 @@ import (
 
 type District struct {
 	district_id   uint64
-	owner         *Gamer
 	owner_address string
 
 	nickname *[24]byte
@@ -100,12 +99,6 @@ func (D *District) SetOwnerAddress(addr string) {
 	D.owner_address = strings.ToLower(addr)
 }
 
-func (D *District) Owner() *Gamer {
-	D.mutex.RLock()
-	defer D.mutex.RUnlock()
-	return D.owner
-}
-
 //func (D *District) PlayerPermissions() PlayerPermissionMap {
 //	D.mutex.RLock()
 //	defer D.mutex.RUnlock()
@@ -124,6 +117,7 @@ func (D *District) GetKey() FamilyKey {
 
 func (D *District) Save() error {
 	builder := flatbuffers.NewBuilder(1024)
+	town_offset := builder.CreateString(D.Town())
 
 	nickname_offset := builder.CreateByteVector((D.Nickname())[:])
 	proto.DistrictStartPlotsVector(builder, len(D.Plots()))
@@ -133,21 +127,14 @@ func (D *District) Save() error {
 	plots_offset := builder.EndVector(len(D.Plots()))
 	owner_address_offset := builder.CreateString(D.OwnerAddress())
 
-	var owner_uuid_offset flatbuffers.UOffsetT
-	if D.Owner() != nil {
-		owner_uuid_offset = BuildUUID(builder, D.Owner().MinecraftId())
-	}
-
 	proto.DistrictStart(builder)
 
 	proto.DistrictAddChainId(builder, D.DistrictId())
 
 	proto.DistrictAddNickname(builder, nickname_offset)
-	if D.Owner() != nil {
-		proto.DistrictAddOwnerUuid(builder, owner_uuid_offset)
-	}
 	proto.DistrictAddOwnerAddress(builder, owner_address_offset)
 	proto.DistrictAddPlots(builder, plots_offset)
+	proto.DistrictAddTown(builder, town_offset)
 
 	//finish
 	district_offset := proto.DistrictEnd(builder)

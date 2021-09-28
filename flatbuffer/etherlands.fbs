@@ -54,8 +54,8 @@ table District {
   chain_id:uint64;
   nickname:[byte];
   plots:[uint64];
-  owner_uuid:UUID;
   owner_address:string;
+  town:string;
 }
 
 table Team {

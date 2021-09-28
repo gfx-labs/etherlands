@@ -90,20 +90,15 @@ func (rcv *District) MutatePlots(j int, n uint64) bool {
 	return false
 }
 
-func (rcv *District) OwnerUuid(obj *UUID) *UUID {
+func (rcv *District) OwnerAddress() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
-		x := o + rcv._tab.Pos
-		if obj == nil {
-			obj = new(UUID)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
 }
 
-func (rcv *District) OwnerAddress() []byte {
+func (rcv *District) Town() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -129,11 +124,11 @@ func DistrictAddPlots(builder *flatbuffers.Builder, plots flatbuffers.UOffsetT) 
 func DistrictStartPlotsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(8, numElems, 8)
 }
-func DistrictAddOwnerUuid(builder *flatbuffers.Builder, ownerUuid flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(3, flatbuffers.UOffsetT(ownerUuid), 0)
-}
 func DistrictAddOwnerAddress(builder *flatbuffers.Builder, ownerAddress flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(ownerAddress), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(ownerAddress), 0)
+}
+func DistrictAddTown(builder *flatbuffers.Builder, town flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(town), 0)
 }
 func DistrictEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
