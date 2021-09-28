@@ -132,9 +132,9 @@ func (W *World) DeleteTown(town *Town) {
 	if _, ok := W.towns[town.GetKey()]; !ok {
 		return
 	}
-	delete(W.towns, town.GetKey())
-	W.cache.DeleteTown(W.towns[town.GetKey()])
 	DeleteStruct("towns", town.Name())
+	W.cache.DeleteTown(W.towns[town.GetKey()])
+	delete(W.towns, town.GetKey())
 }
 
 func (W *World) UpdateDistrict(district *District) {
