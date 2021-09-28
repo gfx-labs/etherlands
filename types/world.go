@@ -237,7 +237,7 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 			log.Println("district info:", district_info)
 			district, err := W.GetDistrict(district_info.DistrictId)
 			if err != nil {
-				W.NewDistrict(
+				W.newDistrict(
 					district_info.DistrictId,
 					district_info.Owner,
 					district_info.Nickname,

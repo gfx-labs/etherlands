@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -96,7 +97,7 @@ func (D *District) OwnerAddress() string {
 func (D *District) SetOwnerAddress(addr string) {
 	D.mutex.Lock()
 	defer D.mutex.Unlock()
-	D.owner_address = addr
+	D.owner_address = strings.ToLower(addr)
 }
 
 func (D *District) Owner() *Gamer {

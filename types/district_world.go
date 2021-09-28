@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	proto "github.com/gfx-labs/etherlands/proto"
 )
@@ -46,11 +47,11 @@ func (W *World) GetDistrict(district_id uint64) (*District, error) {
 	return nil, errors.New(fmt.Sprintf("district %d could not be found", district_id))
 }
 
-func (W *World) NewDistrict(id uint64, ownerAddress string, nickname [24]byte) *District {
+func (W *World) newDistrict(id uint64, ownerAddress string, nickname [24]byte) *District {
 	output := &District{
 		W:             W,
 		district_id:   id,
-		owner_address: ownerAddress,
+		owner_address: strings.ToLower(ownerAddress),
 		nickname:      &nickname,
 		key:           NewDistrictKey(id),
 	}
@@ -76,7 +77,7 @@ func (W *World) LoadDistrict(chain_id uint64) (*District, error) {
 		}
 	}
 
-	return W.NewDistrict(
+	return W.newDistrict(
 		read_district.ChainId(),
 		string(read_district.OwnerAddress()),
 		fixed_name,

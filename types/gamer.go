@@ -135,7 +135,7 @@ func (G *Gamer) MinecraftId() uuid.UUID {
 func (G *Gamer) SetAddress(address string) {
 	G.mutex.Lock()
 	defer G.mutex.Unlock()
-	G.address = address
+	G.address = strings.ToLower(address)
 }
 
 func (G *Gamer) SetPosXYZ(x, y, z int64) {
