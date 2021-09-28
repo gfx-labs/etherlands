@@ -100,3 +100,44 @@ func (P *DistrictTeamPermissionMap) Read(
 	}
 	return proto.FlagValueNone
 }
+
+type FlagMap map[proto.AccessFlag]proto.FlagValue
+
+func (P *DistrictPlayerPermissionMap) ReadAll(
+	district_id uint64,
+	gamer_id uuid.UUID,
+) FlagMap {
+	unlock := P.lock(district_id)
+	defer unlock()
+	out := NewEmptyFlagMap()
+	if v, ok := P.i[district_id]; ok {
+		for flag := range out {
+			out[flag] = v.read(gamer_id, flag)
+		}
+	}
+	return out
+}
+
+func (P *DistrictTeamPermissionMap) ReadAll(
+	district_id uint64,
+	team_id string,
+) FlagMap {
+	unlock := P.lock(district_id)
+	defer unlock()
+	out := NewEmptyFlagMap()
+	if v, ok := P.i[district_id]; ok {
+		for flag := range out {
+			out[flag] = v.read(team_id, flag)
+		}
+	}
+	return out
+}
+
+func NewEmptyFlagMap() FlagMap {
+	out := make(map[proto.AccessFlag]proto.FlagValue)
+	out[proto.AccessFlagDestroy] = proto.FlagValueNone
+	out[proto.AccessFlagBuild] = proto.FlagValueNone
+	out[proto.AccessFlagInteract] = proto.FlagValueNone
+	out[proto.AccessFlagSwitch] = proto.FlagValueNone
+	return out
+}

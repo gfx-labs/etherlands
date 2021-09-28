@@ -145,6 +145,8 @@ func (Z *WorldZmq) hit_world_type(args VarArgs) {
 		Z.hit_world_district_field(args)
 	case "town":
 		Z.hit_world_town_field(args)
+	case "flags":
+		Z.hit_world_flags_action(args)
 	case "link_request":
 		err = Z.world_link_request(args)
 		if Z.checkError(args, err) {
@@ -168,6 +170,45 @@ func (Z *WorldZmq) hit_world_type(args VarArgs) {
 	}
 }
 
+func (Z *WorldZmq) hit_world_flags_action(args VarArgs) {
+	key_type, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_name, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkError(args, err) {
+		return
+	}
+	district_id, err := args.MustGetUint64(4)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch key_type {
+	case "gamer":
+		gamer, err := args.MustGetGamer(Z.W, 5)
+		if Z.checkError(args, err) {
+			return
+		}
+		info := town.DistrictPlayerPermissions().ReadAll(district_id, gamer.MinecraftId())
+		payload := FlattenFlagMap(info)
+		Z.sendResponse(args, payload)
+	case "team":
+		team_name, err := args.MustGet(5)
+		if Z.checkError(args, err) {
+			return
+		}
+		info := town.DistrictTeamPermissions().ReadAll(district_id, team_name)
+		payload := FlattenFlagMap(info)
+		Z.sendResponse(args, payload)
+	default:
+		Z.checkError(args, errors.New("Unspecified Type: "+key_type))
+	}
+
+}
 func (Z *WorldZmq) hit_world_plot_field(args VarArgs) {
 	field, err := args.MustGet(3)
 	if Z.checkError(args, err) {

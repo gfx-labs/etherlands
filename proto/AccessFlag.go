@@ -11,7 +11,7 @@ const (
 	AccessFlagBuild    AccessFlag = 1
 	AccessFlagDestroy  AccessFlag = 2
 	AccessFlagInteract AccessFlag = 3
-	AccessFlagAccess   AccessFlag = 4
+	AccessFlagSwitch   AccessFlag = 4
 )
 
 var EnumNamesAccessFlag = map[AccessFlag]string{
@@ -19,7 +19,7 @@ var EnumNamesAccessFlag = map[AccessFlag]string{
 	AccessFlagBuild:    "Build",
 	AccessFlagDestroy:  "Destroy",
 	AccessFlagInteract: "Interact",
-	AccessFlagAccess:   "Access",
+	AccessFlagSwitch:   "Switch",
 }
 
 var EnumValuesAccessFlag = map[string]AccessFlag{
@@ -27,7 +27,7 @@ var EnumValuesAccessFlag = map[string]AccessFlag{
 	"Build":    AccessFlagBuild,
 	"Destroy":  AccessFlagDestroy,
 	"Interact": AccessFlagInteract,
-	"Access":   AccessFlagAccess,
+	"Switch":   AccessFlagSwitch,
 }
 
 func (v AccessFlag) String() string {

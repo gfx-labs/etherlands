@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	proto "github.com/gfx-labs/etherlands/proto"
 	"github.com/google/uuid"
 )
 
@@ -263,10 +264,20 @@ func NewTownKey(town_name string) FamilyKey {
 	}
 }
 
-func (T *Town) DefaultPermissions() *TeamPermissionMap {
-	T.RLock()
-	defer T.RUnlock()
-	return T.defaultPermissions
+func (T *Town) WriteTeamPermission(
+	manager *Gamer,
+	team_name string,
+	district_id uint64,
+	flag proto.AccessFlag,
+	value proto.FlagValue,
+) error {
+	if T.IsManager(manager) {
+		if team_name != "manager" {
+			T.DistrictTeamPermissions().Insert(district_id, team_name, flag, value)
+		}
+		return errors.New("cannot modify the manager team permissions")
+	}
+	return errors.New("You must be a town manager to modify permissions")
 }
 
 func (T *Town) DistrictPlayerPermissions() *DistrictPlayerPermissionMap {

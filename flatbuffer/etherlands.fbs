@@ -1,6 +1,6 @@
 namespace Etherlands;
 
-enum AccessFlag:uint8 { None, Build, Destroy, Interact, Access}
+enum AccessFlag:uint8 { None, Build, Destroy, Interact, Switch}
 enum FlagValue:uint8 {None, Allow, Deny}
 
 

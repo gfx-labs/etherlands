@@ -117,6 +117,17 @@ func (Z *WorldZmq) checkUUIDError(target uuid.UUID, err error) bool {
 	return false
 }
 
+func (Z *WorldZmq) sendGamerModal(gamer *types.Gamer, result string) {
+	Z.sendUUIDModal(gamer.MinecraftId(), result)
+}
+func (Z *WorldZmq) sendUUIDModal(target uuid.UUID, result string) {
+	Z.sendChan <- [2]string{
+		"CHAT",
+		fmt.Sprintf("gamer:%s:%s", target.String(), result),
+	}
+	logger.Log.Printf("[CHAT] [%s] %s\n", target.String(), result)
+}
+
 func (Z *WorldZmq) sendGamerResult(gamer *types.Gamer, result string) {
 	Z.sendUUIDResult(gamer.MinecraftId(), result)
 }
@@ -130,7 +141,7 @@ func (Z *WorldZmq) sendUUIDResult(target uuid.UUID, result string) {
 func (Z *WorldZmq) sendTownResult(target string, result string) {
 	Z.sendChan <- [2]string{
 		"CHAT",
-		fmt.Sprintf("team:%s:%s", target, result),
+		fmt.Sprintf("town:%s:%s", target, result),
 	}
 	logger.Log.Printf("[CHAT] [%s] %s\n", target, result)
 }
@@ -276,6 +287,20 @@ func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
 		} else {
 			out = out + ";" + k.String()
 		}
+	}
+	return out
+}
+
+func FlattenFlagMap(flag_map types.FlagMap) string {
+	out := ""
+	first := true
+	for k, v := range flag_map {
+		if !first {
+			out = out + ";"
+		} else {
+			first = false
+		}
+		out = out + fmt.Sprintf("%s@%s", k.String(), v.String())
 	}
 	return out
 }

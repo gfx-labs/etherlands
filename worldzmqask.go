@@ -38,6 +38,8 @@ func (Z *WorldZmq) ask_world_type(args VarArgs) {
 		Z.ask_world_town_field(args)
 	case "district":
 		Z.ask_world_district_field(args)
+	case "flags":
+		Z.ask_world_flags(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args, err) {
@@ -55,6 +57,67 @@ func (Z *WorldZmq) ask_world_type(args VarArgs) {
 	}
 }
 
+func (Z *WorldZmq) ask_world_flags(args VarArgs) {
+	key_type, err := args.MustGet(2)
+	if Z.checkError(args, err) {
+		return
+	}
+	town_name, err := args.MustGet(3)
+	if Z.checkError(args, err) {
+		return
+	}
+	town, err := Z.W.GetTown(town_name)
+	if Z.checkError(args, err) {
+		return
+	}
+	district_id, err := args.MustGetUint64(4)
+	if Z.checkError(args, err) {
+		return
+	}
+	switch key_type {
+	case "gamer":
+		gamer, err := args.MustGetGamer(Z.W, 5)
+		if Z.checkError(args, err) {
+			return
+		}
+		info := town.DistrictPlayerPermissions().ReadAll(district_id, gamer.MinecraftId())
+		payload := FlattenFlagMap(info)
+		Z.sendResponse(args, payload)
+	case "team":
+		gamer, err := args.MustGetGamer(Z.W, 9)
+		if Z.checkError(args, err) {
+			return
+		}
+		team_name, _ := args.MustGet(5)
+		district_id, err := args.MustGetUint64(6)
+		if Z.checkError(args, err) {
+			return
+		}
+		flag_str, _ := args.MustGet(7)
+		value_str, _ := args.MustGet(8)
+		_, ok := proto.EnumValuesAccessFlag[flag_str]
+		_, ok2 := proto.EnumValuesAccessFlag[value_str]
+		if !ok || !ok2 {
+			Z.checkGamerError(gamer, errors.New("malformed flag enums"))
+			return
+		}
+		err = town.WriteTeamPermission(
+			gamer,
+			team_name,
+			district_id,
+			proto.EnumValuesAccessFlag[flag_str],
+			proto.EnumValuesFlagValue[value_str],
+		)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		Z.sendGamerModal(gamer, fmt.Sprintf("district:%d", district_id))
+
+	default:
+		Z.checkError(args, errors.New("Unspecified Type: "+key_type))
+	}
+
+}
 func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 	field, err := args.MustGet(2)
 	if Z.checkError(args, err) {
@@ -162,7 +225,6 @@ func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
 		Z.sendResponse(args, FlattenStringSet(string_set))
 	case "team":
 		Z.ask_world_town_team_field(args)
-
 	default:
 		Z.genericError(args, field)
 	}
