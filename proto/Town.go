@@ -93,34 +93,8 @@ func (rcv *Town) MutateDistricts(j int, n uint64) bool {
 	return false
 }
 
-func (rcv *Town) DefaultPlayerPermissions(obj *PlayerPermissionMap) *PlayerPermissionMap {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		x := rcv._tab.Indirect(o + rcv._tab.Pos)
-		if obj == nil {
-			obj = new(PlayerPermissionMap)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
-	}
-	return nil
-}
-
-func (rcv *Town) DefaultTeamPermissions(obj *TeamPermissionMap) *TeamPermissionMap {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		x := rcv._tab.Indirect(o + rcv._tab.Pos)
-		if obj == nil {
-			obj = new(TeamPermissionMap)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
-	}
-	return nil
-}
-
 func (rcv *Town) DistrictPlayerPermissions(obj *DistrictPlayerPermissionMap) *DistrictPlayerPermissionMap {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -133,7 +107,7 @@ func (rcv *Town) DistrictPlayerPermissions(obj *DistrictPlayerPermissionMap) *Di
 }
 
 func (rcv *Town) DistrictTeamPermissions(obj *DistrictTeamPermissionMap) *DistrictTeamPermissionMap {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -146,7 +120,7 @@ func (rcv *Town) DistrictTeamPermissions(obj *DistrictTeamPermissionMap) *Distri
 }
 
 func TownStart(builder *flatbuffers.Builder) {
-	builder.StartObject(8)
+	builder.StartObject(6)
 }
 func TownAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
@@ -166,17 +140,11 @@ func TownAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffse
 func TownStartDistrictsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(8, numElems, 8)
 }
-func TownAddDefaultPlayerPermissions(builder *flatbuffers.Builder, defaultPlayerPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(defaultPlayerPermissions), 0)
-}
-func TownAddDefaultTeamPermissions(builder *flatbuffers.Builder, defaultTeamPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(defaultTeamPermissions), 0)
-}
 func TownAddDistrictPlayerPermissions(builder *flatbuffers.Builder, districtPlayerPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(districtPlayerPermissions), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(districtPlayerPermissions), 0)
 }
 func TownAddDistrictTeamPermissions(builder *flatbuffers.Builder, districtTeamPermissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(districtTeamPermissions), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(districtTeamPermissions), 0)
 }
 func TownEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

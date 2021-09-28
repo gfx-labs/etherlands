@@ -10,23 +10,50 @@ import (
 )
 
 type Team struct {
-	name    string
-	town    string
-	members map[uuid.UUID]struct{}
+	name     string
+	town     string
+	priority int64
+	members  map[uuid.UUID]struct{}
 
 	sync.RWMutex
 }
 
 func (G *Team) Name() string {
-	G.RLock()
-	defer G.RUnlock()
 	return G.name
 }
 
 func (G *Team) Town() string {
+	return G.town
+}
+
+func (G *Team) SetPriority(newPriority int64) {
+	if G.name == "manager" || G.name == "outsider" || G.name == "member" {
+		return
+	}
+	G.Lock()
+	if newPriority < 0 {
+		G.priority = 0
+	} else if newPriority > 100 {
+		G.priority = 100
+	} else {
+		G.priority = newPriority
+	}
+	G.Unlock()
+}
+
+func (G *Team) Priority() int64 {
+	if G.name == "manager" {
+		return 100
+	}
+	if G.name == "outsider" {
+		return -100
+	}
+	if G.name == "member" {
+		return -1
+	}
 	G.RLock()
 	defer G.RUnlock()
-	return G.town
+	return G.priority
 }
 
 func (G *Team) Has(gamer *Gamer) bool {

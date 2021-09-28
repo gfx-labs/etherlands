@@ -60,6 +60,7 @@ table District {
 
 table Team {
   name:string;
+  priority:int64;
   members:[UUID];
 }
 

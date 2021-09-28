@@ -170,6 +170,8 @@ func (Z *WorldZmq) ask_world_town_team_field(args VarArgs) {
 	switch field {
 	case "members":
 		Z.sendResponse(args, FlattenUUIDSet(team.Members()))
+	case "priority":
+		Z.sendResponse(args, strconv.FormatInt(team.Priority(), 10))
 	case "district":
 		district_id, err := args.MustGetUint64(6)
 		if Z.checkError(args, err) {

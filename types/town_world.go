@@ -106,8 +106,9 @@ func (W *World) LoadTown(name string) (*Town, error) {
 
 		pending_town.teams[string(team.Name())] =
 			&Team{
-				name:    string(team.Name()),
-				members: team_members,
+				name:     string(team.Name()),
+				priority: team.Priority(),
+				members:  team_members,
 			}
 	}
 	district_team_maps := read_town.DistrictTeamPermissions(nil)
@@ -148,7 +149,9 @@ func (W *World) LoadTown(name string) (*Town, error) {
 
 func (T *Town) Save() error {
 	builder := flatbuffers.NewBuilder(1024)
-	team_vector := BuildTeamVector(builder, T.Teams())
+	// team vector
+	team_vector := buildTeamVector(builder, T.Teams())
+	// permission vectors
 	T.districtPlayerPermissions.global.Lock()
 	district_player_permission_offset := buildDistrictPlayerPermissionMap(
 		builder,
@@ -207,7 +210,7 @@ func (T *Town) Save() error {
 	return WriteStruct("towns", T.Name(), buf)
 }
 
-func BuildTeamVector(
+func buildTeamVector(
 	builder *flatbuffers.Builder,
 	target map[string]*Team,
 ) flatbuffers.UOffsetT {
@@ -225,6 +228,7 @@ func BuildTeamVector(
 		for j := 0; j < len(gmo); j++ {
 			proto.TeamAddMembers(builder, gmo[j])
 		}
+		proto.TeamAddPriority(builder, v.Priority())
 		proto.TeamAddName(builder, name)
 		go_a = append(go_a, proto.TeamEnd(builder))
 	}
