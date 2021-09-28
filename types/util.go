@@ -21,6 +21,7 @@ func WriteStruct(root, file string, data []byte) error {
 	filepath := path + "/" + file
 	unlock := filelock.lock_str(filepath)
 	defer unlock()
+	os.Remove(filepath)
 	err = ioutil.WriteFile(filepath, data, 0666)
 	if err != nil {
 		return err
