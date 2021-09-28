@@ -275,6 +275,9 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		}
 	}()
 
+	time.Sleep(2 * time.Second)
+	W.SaveChan <- struct{}{}
+
 	go func() {
 		for {
 			time.Sleep(1 * time.Minute)

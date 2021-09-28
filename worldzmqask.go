@@ -151,7 +151,7 @@ func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
 		Z.sendResponse(args, FlattenUUIDSet(town.Members()))
 	case "districts":
 		Z.sendResponse(args, FlattenUintSlice(Z.W.DistrictsOfTown(town_id)))
-	case "teams":
+	ase "teams":
 		string_set := make(map[string]struct{})
 		string_set["member"] = struct{}{}
 		string_set["outsider"] = struct{}{}
@@ -183,7 +183,8 @@ func (Z *WorldZmq) ask_world_town_team_field(args VarArgs) {
 		return
 	}
 	team := town.Team(team_id)
-	if Z.checkError(args, err) {
+	if team == nil{
+		Z.checkError(args,"team does not exist")
 		return
 	}
 	switch field {
