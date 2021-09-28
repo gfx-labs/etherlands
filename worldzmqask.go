@@ -149,6 +149,8 @@ func (Z *WorldZmq) ask_world_town_field(args VarArgs) {
 		Z.sendResponse(args, town.Owner().String())
 	case "members":
 		Z.sendResponse(args, FlattenUUIDSet(town.Members()))
+	case "districts":
+		Z.sendResponse(args, FlattenUintSlice(Z.W.DistrictsOfTown(town_id)))
 	case "teams":
 		string_set := make(map[string]struct{})
 		string_set["member"] = struct{}{}

@@ -246,6 +246,22 @@ func FlattenUintSet(set map[uint64]struct{}) string {
 	}
 	return out
 }
+func FlattenUintSlice(slice []uint64) string {
+	if len(slice) == 0 {
+		return ""
+	}
+	out := ""
+	first := true
+	for _, k := range slice {
+		if first {
+			out = out + strconv.FormatUint(k, 10)
+			first = false
+		} else {
+			out = out + ";" + strconv.FormatUint(k, 10)
+		}
+	}
+	return out
+}
 
 func FlattenUUIDSet(set map[uuid.UUID]struct{}) string {
 	if len(set) == 0 {

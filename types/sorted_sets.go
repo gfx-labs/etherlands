@@ -29,3 +29,9 @@ func (W *World) GamersOfTown(name string) map[uuid.UUID]struct{} {
 	defer W.cache.uuid_town_lock.Unlock()
 	return W.cache.uuid_town.GetKeysByScore(name)
 }
+
+func (W *World) DistrictsOfTown(name string) []uint64 {
+	W.cache.district_lock.Lock()
+	defer W.cache.district_lock.Unlock()
+	return W.cache.district_town.GetKeysByScore(name)
+}
