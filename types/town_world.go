@@ -115,21 +115,22 @@ func (W *World) LoadTown(name string) (*Town, error) {
 				}
 		}
 	}
-	district_team_maps := new(proto.DistrictTeamPermissionMap)
-	read_town.DistrictTeamPermissions(district_team_maps)
+	district_team_maps := read_town.DistrictTeamPermissions(nil)
 	if district_team_maps != nil {
-		perm := new(proto.TeamPermission)
-		district_team_map := new(proto.TeamPermissionMap)
 		for h := 0; h < district_team_maps.DistrictsLength(); h++ {
+			district_team_map := new(proto.TeamPermissionMap)
 			if district_team_maps.Permissions(district_team_map, h) {
-				log.Println(district_team_map.PermissionsLength())
-				if district_team_map.Permissions(perm, h) {
-					pending_town.DistrictTeamPermissions().Insert(
-						district_team_maps.Districts(h),
-						string(perm.Team()),
-						perm.Flag(),
-						perm.Value(),
-					)
+				log.Println(district_team_maps.Districts(h), district_team_map.PermissionsLength())
+				for i := 0; i < district_team_map.PermissionsLength(); i++ {
+					perm := new(proto.TeamPermission)
+					if district_team_map.Permissions(perm, i) {
+						pending_town.DistrictTeamPermissions().Insert(
+							district_team_maps.Districts(h),
+							string(perm.Team()),
+							perm.Flag(),
+							perm.Value(),
+						)
+					}
 				}
 			}
 		}
@@ -140,14 +141,16 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		for h := 0; h < district_player_maps.DistrictsLength(); h++ {
 			district_player_map := proto.PlayerPermissionMap{}
 			district_player_maps.Permissions(&district_player_map, h)
-			var perm proto.PlayerPermission
-			district_player_map.Permissions(&perm, h)
-			pending_town.DistrictPlayerPermissions().Insert(
-				district_player_maps.Districts(h),
-				ProtoResolveUUID(perm.MinecraftId(nil)),
-				perm.Flag(),
-				perm.Value(),
-			)
+			for i := 0; i < district_player_map.PermissionsLength(); i++ {
+				var perm proto.PlayerPermission
+				district_player_map.Permissions(&perm, i)
+				pending_town.DistrictPlayerPermissions().Insert(
+					district_player_maps.Districts(h),
+					ProtoResolveUUID(perm.MinecraftId(nil)),
+					perm.Flag(),
+					perm.Value(),
+				)
+			}
 		}
 	}
 
