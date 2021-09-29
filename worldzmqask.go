@@ -39,7 +39,7 @@ func (Z *WorldZmq) ask_world_type(args VarArgs) {
 	case "district":
 		Z.ask_world_district_field(args)
 	case "flags":
-		Z.ask_world_flags(args)
+		go Z.ask_world_flags(args)
 	case "links":
 		addr, err := args.MustGet(2)
 		if Z.checkError(args, err) {
@@ -51,7 +51,7 @@ func (Z *WorldZmq) ask_world_type(args VarArgs) {
 		}
 		Z.sendResponse(args, gamer_str)
 	case "query":
-		Z.ask_world_query_field(args)
+		go Z.ask_world_query_field(args)
 	default:
 		Z.checkError(args, errors.New("Unspecified Type: "+dtype))
 	}
