@@ -73,13 +73,13 @@ table TeamPermissionMap {
 }
 
 table DistrictPlayerPermissionMap {
-  districts:[uint64];
   permissions:[PlayerPermissionMap];
+  districts:[uint64];
 }
 
 table DistrictTeamPermissionMap {
-  districts:[uint64];
   permissions:[TeamPermissionMap];
+  districts:[uint64];
 }
 
 table Town {

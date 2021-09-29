@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -252,6 +251,7 @@ func buildDistrictTeamPermissionMap(
 		builder.PrependUint64(v)
 	}
 	districts := builder.EndVector(map_count)
+
 	proto.DistrictTeamPermissionMapStartPermissionsVector(builder, map_count)
 	for _, v := range team_perms {
 		builder.PrependUOffsetT(v)
@@ -299,9 +299,11 @@ func BuildTeamPermissionMap(
 	proto.TeamPermissionMapStartPermissionsVector(builder, len(gp_o))
 	for _, v := range gp_o {
 		builder.PrependUOffsetT(v)
-		log.Println(v)
 	}
-	return builder.EndVector(len(gp_o))
+	vect := builder.EndVector(len(gp_o))
+	proto.TeamPermissionMapStart(builder)
+	proto.TeamPermissionMapAddPermissions(builder, vect)
+	return proto.TeamPermissionMapEnd(builder)
 }
 
 func BuildPlayerPermissionMap(
@@ -313,5 +315,8 @@ func BuildPlayerPermissionMap(
 	for _, v := range pp_o {
 		builder.PrependUOffsetT(v)
 	}
-	return builder.EndVector(len(pp_o))
+	vect := builder.EndVector(len(pp_o))
+	proto.PlayerPermissionMapStart(builder)
+	proto.PlayerPermissionMapAddPermissions(builder, vect)
+	return proto.PlayerPermissionMapEnd(builder)
 }
