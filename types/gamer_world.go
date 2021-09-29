@@ -39,14 +39,13 @@ func (G *Gamer) CanActIn(district *District, flag proto.AccessFlag) error {
 			return nil
 		}
 		// now we need to check if our member here is in any teams... this could be faster...
-
 		// everyone starts as an outsider
 		team := town.Team("outsider")
 		// if the gamer is a member of our town, then we promote them to member
 		if G.Town() == district.Town() {
 			team = town.Team("member")
 		}
-		// now check if the player is in any groups
+		// now check if the player is in any other groups
 		priority := team.Priority()
 		for _, v := range town.Teams() {
 			if v.Has(G) {

@@ -439,10 +439,10 @@ func (Z *WorldZmq) ask_world_district_field(args VarArgs) {
 			)
 			return
 		}
-		if gamer.CanActIn(district, flag) == nil {
-			Z.sendResponse(args, "yes")
-		} else {
+		if Z.checkGamerError(gamer, gamer.CanActIn(district, flag)) {
 			Z.sendResponse(args, "no")
+		} else {
+			Z.sendResponse(args, "yes")
 		}
 	default:
 		Z.genericError(args, field)
