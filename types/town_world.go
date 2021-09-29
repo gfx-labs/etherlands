@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	proto "github.com/gfx-labs/etherlands/proto"
@@ -117,10 +118,11 @@ func (W *World) LoadTown(name string) (*Town, error) {
 	district_team_maps := new(proto.DistrictTeamPermissionMap)
 	read_town.DistrictTeamPermissions(district_team_maps)
 	if district_team_maps != nil {
+		perm := new(proto.TeamPermission)
+		district_team_map := new(proto.TeamPermissionMap)
+		log.Println(district_team_maps.DistrictsLength())
 		for h := 0; h < district_team_maps.DistrictsLength(); h++ {
-			district_team_map := new(proto.TeamPermissionMap)
 			if district_team_maps.Permissions(district_team_map, h) {
-				perm := new(proto.TeamPermission)
 				if district_team_map.Permissions(perm, h) {
 					pending_town.DistrictTeamPermissions().Insert(
 						district_team_maps.Districts(h),
