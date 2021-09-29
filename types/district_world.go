@@ -77,9 +77,13 @@ func (W *World) LoadDistrict(chain_id uint64) (*District, error) {
 		}
 	}
 
-	return W.newDistrict(
+	town_name := string(read_district.Town())
+
+	out := W.newDistrict(
 		read_district.ChainId(),
 		string(read_district.OwnerAddress()),
 		fixed_name,
-	), nil
+	)
+	out.setTown(town_name)
+	return out
 }
