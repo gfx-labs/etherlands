@@ -122,9 +122,8 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		district_team_map := new(proto.TeamPermissionMap)
 		for h := 0; h < district_team_maps.DistrictsLength(); h++ {
 			if district_team_maps.Permissions(district_team_map, h) {
-				log.Println(district_team_map)
+				log.Println(district_team_map.PermissionsLength())
 				if district_team_map.Permissions(perm, h) {
-					log.Println(perm)
 					pending_town.DistrictTeamPermissions().Insert(
 						district_team_maps.Districts(h),
 						string(perm.Team()),
