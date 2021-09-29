@@ -10,6 +10,12 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	CHANNEL_GLOBAL = 0
+	CHANNEL_LOCAL  = 1
+	CHANNEL_TOWN   = 2
+)
+
 type Gamer struct {
 	nickname string
 	address  string
@@ -27,6 +33,8 @@ type Gamer struct {
 	pos_y     int64
 	pos_z     int64
 	pos_mutex sync.RWMutex
+
+	/// everything below does not persist on relaunch
 }
 
 func NewGamerKey(gamer_id uuid.UUID) FamilyKey {

@@ -100,6 +100,9 @@ func (T *Town) TeamAddMember(manager *Gamer, team_name string, gamer *Gamer) err
 	if !T.CanAction(manager, gamer) {
 		return errors.New("You may not adjust another managers groups")
 	}
+	if (team_name == "manager") && (gamer.Town() != manager.Town()) {
+		return errors.New("Managers must be members of the town")
+	}
 	team := T.Team(team_name)
 	if team == nil {
 		return errors.New("That team does not exist")
