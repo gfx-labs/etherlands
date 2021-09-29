@@ -214,10 +214,9 @@ func buildTeamVector(
 	for k, v := range target {
 		name := builder.CreateString(k)
 		memes := v.Members()
-		offsets = append(offsets, BuildUUID(builder, k))
 		proto.TeamStartMembersVector(builder, len(memes))
 		for k := range memes {
-			membersvector_offsett[i] = offesets[i]
+			BuildUUID(builder, k)
 		}
 		members_vector := builder.EndVector(len(memes))
 		proto.TeamStart(builder)
