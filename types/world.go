@@ -289,7 +289,7 @@ func (W *World) LoadWorld(district_count uint64, plot_count uint64) error {
 		for {
 			select {
 			case _ = <-W.SaveChan:
-				W.SaveWorld()
+				go W.SaveWorld()
 			default:
 				time.Sleep(1 * time.Second)
 			}
