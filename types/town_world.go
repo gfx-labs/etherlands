@@ -120,7 +120,6 @@ func (W *World) LoadTown(name string) (*Town, error) {
 		for h := 0; h < district_team_maps.DistrictsLength(); h++ {
 			district_team_map := new(proto.TeamPermissionMap)
 			if district_team_maps.Permissions(district_team_map, h) {
-				log.Println(district_team_maps.Districts(h), district_team_map.PermissionsLength())
 				for i := 0; i < district_team_map.PermissionsLength(); i++ {
 					perm := new(proto.TeamPermission)
 					if district_team_map.Permissions(perm, i) {
@@ -300,6 +299,7 @@ func BuildTeamPermissionMap(
 	proto.TeamPermissionMapStartPermissionsVector(builder, len(gp_o))
 	for _, v := range gp_o {
 		builder.PrependUOffsetT(v)
+		log.Println(v)
 	}
 	return builder.EndVector(len(gp_o))
 }
