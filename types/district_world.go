@@ -85,5 +85,5 @@ func (W *World) LoadDistrict(chain_id uint64) (*District, error) {
 		fixed_name,
 	)
 	out.setTown(town_name)
-	return out
+	return out, nil
 }
