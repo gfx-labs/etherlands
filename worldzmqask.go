@@ -105,6 +105,56 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 		return
 	}
 	switch field {
+	case "can_gamer":
+		gamer, err := args.MustGetGamer(Z.W, 4)
+		if Z.checkError(args, err) {
+			return
+		}
+		flag_str, _ := args.MustGet(5)
+		flag, ok := proto.EnumValuesAccessFlag[strings.Title(flag_str)]
+		if !ok {
+			Z.checkGamerError(
+				gamer,
+				errors.New(
+					fmt.Sprintf("malformed flag enums %v %s ", ok, flag_str),
+				),
+			)
+			Z.sendResponse(args, "no")
+			return
+		}
+		coord_str, err := args.MustGet(6)
+		if Z.checkError(args, err) {
+			return
+		}
+		split := strings.Split(coord_str, ";")
+		if len(split) != 2 {
+			Z.genericError(args, "invalid coordinate input")
+			return
+		}
+		x, err := strconv.ParseInt(split[0], 10, 64)
+		if Z.checkError(args, err) {
+			return
+		}
+		z, err := strconv.ParseInt(split[1], 10, 64)
+		if Z.checkError(args, err) {
+			return
+		}
+		plot, err := Z.W.SearchPlot(x, z)
+		if Z.checkGamerError(gamer, err) {
+			Z.sendResponse(args, "no")
+			return
+		}
+		district, err := Z.W.GetDistrict(plot.DistrictId())
+		if Z.checkGamerError(gamer, err) {
+			Z.sendResponse(args, "no")
+			return
+		}
+		err = gamer.CanActIn(district, flag)
+		if Z.checkGamerError(gamer, err) {
+			Z.sendResponse(args, "no")
+			return
+		}
+		Z.sendResponse(args, "yes")
 	case "plot_coord":
 		coord_str, err := args.MustGet(3)
 		if Z.checkError(args, err) {
@@ -309,6 +359,12 @@ func (Z *WorldZmq) ask_world_gamer_field(args VarArgs) {
 		Z.sendResponse(args, fmt.Sprintf("%d_%d_%d", x, y, z))
 	case "town":
 		Z.sendResponse(args, Z.W.TownOfGamer(gamer))
+	case "friends":
+		out := []string{}
+		for v := range gamer.Friends() {
+			out = append(out, v.String())
+		}
+		Z.sendResponse(args, strings.Join(out, ";"))
 	default:
 		Z.genericError(args, field)
 	}
@@ -360,6 +416,27 @@ func (Z *WorldZmq) ask_world_district_field(args VarArgs) {
 		Z.sendResponse(args, value)
 	case "owner_addr":
 		Z.sendResponse(args, district.OwnerAddress())
+	case "can_gamer":
+		gamer, err := args.MustGetGamer(Z.W, 4)
+		if Z.checkError(args, err) {
+			return
+		}
+		flag_str, _ := args.MustGet(5)
+		flag, ok := proto.EnumValuesAccessFlag[strings.Title(flag_str)]
+		if !ok {
+			Z.checkGamerError(
+				gamer,
+				errors.New(
+					fmt.Sprintf("malformed flag enums %v %s ", ok, flag_str),
+				),
+			)
+			return
+		}
+		if gamer.CanActIn(district, flag) == nil {
+			Z.sendResponse(args, "yes")
+		} else {
+			Z.sendResponse(args, "no")
+		}
 	default:
 		Z.genericError(args, field)
 	}

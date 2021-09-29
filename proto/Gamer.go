@@ -63,8 +63,27 @@ func (rcv *Gamer) Town() []byte {
 	return nil
 }
 
+func (rcv *Gamer) Friends(obj *UUID, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 16
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Gamer) FriendsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func GamerStart(builder *flatbuffers.Builder) {
-	builder.StartObject(4)
+	builder.StartObject(5)
 }
 func GamerAddMinecraftId(builder *flatbuffers.Builder, minecraftId flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(minecraftId), 0)
@@ -77,6 +96,12 @@ func GamerAddAddress(builder *flatbuffers.Builder, address flatbuffers.UOffsetT)
 }
 func GamerAddTown(builder *flatbuffers.Builder, town flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(town), 0)
+}
+func GamerAddFriends(builder *flatbuffers.Builder, friends flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(friends), 0)
+}
+func GamerStartFriendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(16, numElems, 1)
 }
 func GamerEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -28,6 +28,7 @@ table Gamer{
   nickname:string;
   address:string;
   town:string;
+  friends:[UUID];
 }
 
 table Plot{

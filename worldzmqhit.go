@@ -286,7 +286,28 @@ func (Z *WorldZmq) hit_world_gamer_field(args VarArgs) {
 		if Z.checkGamerError(gamer, err) {
 			return
 		}
-		Z.sendGamerResult(gamer, "successfully created town "+name)
+		Z.sendGamerResult(gamer, fmt.Sprintf("You founded the town [town.%s]", name))
+	case "add_friend":
+		target, err := args.MustGetGamer(Z.W, 4)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		gamer.AddFriend(target.MinecraftId())
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("You are now friends with [uuid.%s]", target.MinecraftId()),
+		)
+	case "remove_friend":
+		target, err := args.MustGetGamer(Z.W, 4)
+		if Z.checkGamerError(gamer, err) {
+			return
+		}
+		gamer.RemoveFriend(target.MinecraftId())
+		Z.sendGamerResult(
+			gamer,
+			fmt.Sprintf("You no longer friends with [uuid.%s]", target.MinecraftId()),
+		)
+
 	default:
 		Z.genericError(args, field)
 	}

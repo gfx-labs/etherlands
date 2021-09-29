@@ -172,14 +172,6 @@ func (T *Town) Save() error {
 	)
 
 	// prepare town member vector
-	town_members := T.Members()
-	me_o := make([]flatbuffers.UOffsetT, len(town_members))
-	idx := 0
-	for k := range town_members {
-		me_o[idx] = BuildUUID(builder, k)
-		idx = idx + 1
-	}
-
 	town_name := builder.CreateString(T.Name())
 
 	owner_id := BuildUUID(builder, T.Owner())

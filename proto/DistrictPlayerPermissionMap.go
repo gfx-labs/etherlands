@@ -26,34 +26,8 @@ func (rcv *DistrictPlayerPermissionMap) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *DistrictPlayerPermissionMap) Districts(j int) uint64 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.GetUint64(a + flatbuffers.UOffsetT(j*8))
-	}
-	return 0
-}
-
-func (rcv *DistrictPlayerPermissionMap) DistrictsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
-func (rcv *DistrictPlayerPermissionMap) MutateDistricts(j int, n uint64) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.MutateUint64(a+flatbuffers.UOffsetT(j*8), n)
-	}
-	return false
-}
-
 func (rcv *DistrictPlayerPermissionMap) Permissions(obj *PlayerPermissionMap, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -65,6 +39,23 @@ func (rcv *DistrictPlayerPermissionMap) Permissions(obj *PlayerPermissionMap, j 
 }
 
 func (rcv *DistrictPlayerPermissionMap) PermissionsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *DistrictPlayerPermissionMap) Districts(j int) uint64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetUint64(a + flatbuffers.UOffsetT(j*8))
+	}
+	return 0
+}
+
+func (rcv *DistrictPlayerPermissionMap) DistrictsLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -72,20 +63,29 @@ func (rcv *DistrictPlayerPermissionMap) PermissionsLength() int {
 	return 0
 }
 
+func (rcv *DistrictPlayerPermissionMap) MutateDistricts(j int, n uint64) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateUint64(a+flatbuffers.UOffsetT(j*8), n)
+	}
+	return false
+}
+
 func DistrictPlayerPermissionMapStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func DistrictPlayerPermissionMapAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(districts), 0)
-}
-func DistrictPlayerPermissionMapStartDistrictsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(8, numElems, 8)
-}
 func DistrictPlayerPermissionMapAddPermissions(builder *flatbuffers.Builder, permissions flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(permissions), 0)
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(permissions), 0)
 }
 func DistrictPlayerPermissionMapStartPermissionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func DistrictPlayerPermissionMapAddDistricts(builder *flatbuffers.Builder, districts flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(districts), 0)
+}
+func DistrictPlayerPermissionMapStartDistrictsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(8, numElems, 8)
 }
 func DistrictPlayerPermissionMapEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

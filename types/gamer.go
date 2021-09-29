@@ -15,6 +15,8 @@ type Gamer struct {
 	address  string
 	town     string
 
+	friends map[uuid.UUID]struct{}
+
 	minecraftId uuid.UUID
 	mutex       sync.RWMutex
 
@@ -94,6 +96,29 @@ func (G *Gamer) KickTown(kicked *Gamer, town *Town) error {
 	return errors.New(
 		fmt.Sprintf("[uuid.%s] is not a member of your town", kicked.MinecraftId().String()),
 	)
+}
+
+func (G *Gamer) Friends() map[uuid.UUID]struct{} {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	return G.friends
+}
+func (G *Gamer) AddFriend(target uuid.UUID) {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	G.friends[target] = struct{}{}
+}
+func (G *Gamer) HasFriend(target uuid.UUID) bool {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	_, ok := G.friends[target]
+	return ok
+}
+
+func (G *Gamer) RemoveFriend(target uuid.UUID) {
+	G.mutex.RLock()
+	defer G.mutex.RUnlock()
+	delete(G.friends, target)
 }
 
 func (G *Gamer) Nickname() string {
