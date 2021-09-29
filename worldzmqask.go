@@ -223,6 +223,13 @@ func (Z *WorldZmq) ask_world_query_field(args VarArgs) {
 			out = append(out, strconv.FormatUint(v.DistrictId(), 10))
 		}
 		Z.sendResponse(args, strings.Join(out, ";"))
+	case "towns":
+		out := []string{}
+		for _, v := range Z.W.Towns() {
+			out = append(out, v.Name())
+		}
+		Z.sendResponse(args, strings.Join(out, ";"))
+
 	default:
 		Z.genericError(args, field)
 	}

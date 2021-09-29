@@ -34,6 +34,10 @@ func (G *Gamer) CanActIn(district *District, flag proto.AccessFlag) error {
 		if err != nil {
 			return err
 		}
+		// if the gamer is a manager, they can do it.
+		if town.IsManager(G) {
+			return nil
+		}
 		// now we need to check if our member here is in any teams... this could be faster...
 
 		// everyone starts as an outsider
