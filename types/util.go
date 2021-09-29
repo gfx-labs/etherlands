@@ -107,10 +107,10 @@ func BuildPlayerPermissions(
 ) []flatbuffers.UOffsetT {
 	pp_o := []flatbuffers.UOffsetT{}
 	for _, v := range FlattenPlayerPermissionMap(target) {
-		player_uuid := BuildUUID(builder, v.uuid)
 		proto.PlayerPermissionStart(builder)
 		proto.PlayerPermissionAddFlag(builder, v.flag)
 		proto.PlayerPermissionAddValue(builder, v.value)
+		player_uuid := BuildUUID(builder, v.uuid)
 		proto.PlayerPermissionAddMinecraftId(builder, player_uuid)
 		entry := proto.PlayerPermissionEnd(builder)
 		pp_o = append(pp_o, entry)

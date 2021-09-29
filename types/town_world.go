@@ -121,13 +121,14 @@ func (W *World) LoadTown(name string) (*Town, error) {
 			if district_team_maps.Permissions(district_team_map, h) {
 				for i := 0; i < district_team_map.PermissionsLength(); i++ {
 					var perm proto.TeamPermission
-					district_team_map.Permissions(&perm, i)
-					pending_town.DistrictTeamPermissions().Insert(
-						district_team_maps.Districts(h),
-						string(perm.Team()),
-						perm.Flag(),
-						perm.Value(),
-					)
+					if district_team_map.Permissions(&perm, i) {
+						pending_town.DistrictTeamPermissions().Insert(
+							district_team_maps.Districts(h),
+							string(perm.Team()),
+							perm.Flag(),
+							perm.Value(),
+						)
+					}
 				}
 			}
 		}
@@ -160,18 +161,15 @@ func (T *Town) Save() error {
 	// team vector
 	team_vector := buildTeamVector(builder, T.Teams())
 	// permission vectors
-	T.districtPlayerPermissions.global.Lock()
 	district_player_permission_offset := buildDistrictPlayerPermissionMap(
 		builder,
 		T.districtPlayerPermissions,
 	)
-	T.districtPlayerPermissions.global.Unlock()
-	T.districtTeamPermissions.global.Lock()
+
 	district_team_permission_offset := buildDistrictTeamPermissionMap(
 		builder,
 		T.districtTeamPermissions,
 	)
-	T.districtTeamPermissions.global.Unlock()
 
 	// prepare town member vector
 	town_members := T.Members()
@@ -216,9 +214,10 @@ func buildTeamVector(
 	for k, v := range target {
 		name := builder.CreateString(k)
 		memes := v.Members()
+		offsets = append(offsets, BuildUUID(builder, k))
 		proto.TeamStartMembersVector(builder, len(memes))
 		for k := range memes {
-			BuildUUID(builder, k)
+			membersvector_offsett[i] = offesets[i]
 		}
 		members_vector := builder.EndVector(len(memes))
 		proto.TeamStart(builder)
