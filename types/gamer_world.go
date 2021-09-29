@@ -82,7 +82,11 @@ func (G *Gamer) CanActIn(district *District, flag proto.AccessFlag) error {
 			))
 	} else {
 		//if not in town, grab the owner and check if they have the actioner as a friend
-		// first see if the plot is linked
+		//ofc if ur the owner u can interact
+		if district.OwnerAddress() == G.Address() {
+			return nil
+		}
+		// first see if the district is linked
 		uuid_str, err := G.W.Cache().GetLink(district.OwnerAddress())
 		if err != nil {
 			return err
