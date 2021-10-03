@@ -101,8 +101,10 @@ func find_neighbors(
 				if id, ok := W.cache.CheckPlot(origin_x+idx, origin_z+idz); ok {
 					if _, ok := (*clusters)[id]; !ok {
 						if id != 0 {
-							jobs = append(jobs, id)
-							(*clusters)[id] = current_cluster
+							if _, ok := plotdb[id]; ok {
+								jobs = append(jobs, id)
+								(*clusters)[id] = current_cluster
+							}
 						}
 					}
 				}
